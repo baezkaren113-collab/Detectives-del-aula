@@ -1,0 +1,2413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DETECTIVES DEL AULA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* VARIABLES DE DISEÑO */
+        :root {
+            --color-primary: #2196F3;
+            --color-success: #4CAF50;
+            --color-warning: #FF9800;
+            --color-danger: #f44336;
+            --color-bg-light: #ffffff;
+            --color-bg-secondary: #f9f9f9;
+            --color-text-dark: #212121;
+            --color-text-light: #757575;
+            --color-border: #e0e0e0;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --radius: 12px;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            height: 100vh;
+            max-height: 100vh;
+            overflow-y: auto;
+            background-color: var(--color-bg-light);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .screen {
+            display: none;
+            padding: var(--spacing-lg);
+            flex: 1;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            overflow-y: auto;
+            min-height: 100vh;
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* PANTALLA PRINCIPAL */
+        .screen-main {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .screen-main::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(33, 150, 243, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .alert-icon {
+            font-size: 3rem;
+            margin-bottom: var(--spacing-md);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% { 
+                transform: scale(1.1);
+                opacity: 0.8;
+            }
+        }
+
+        .main-title {
+            font-size: clamp(1.8rem, 6vw, 2.8rem);
+            font-weight: bold;
+            margin-bottom: var(--spacing-sm);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            animation: slideDown 0.8s ease-out;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .main-subtitle {
+            font-size: clamp(1rem, 4vw, 1.4rem);
+            margin-bottom: var(--spacing-lg);
+            font-style: italic;
+            font-weight: 300;
+            animation: fadeIn 1s ease-out 0.3s both;
+            color: #e0e0e0;
+        }
+
+        .story-message {
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 5px solid #2196F3;
+            padding: var(--spacing-md) var(--spacing-lg);
+            margin: var(--spacing-md) 0;
+            border-radius: var(--radius);
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
+            line-height: 1.6;
+            animation: fadeIn 1.2s ease-out 0.6s both;
+            backdrop-filter: blur(10px);
+            max-width: 600px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+            width: 100%;
+            max-width: 500px;
+            margin-top: var(--spacing-lg);
+        }
+
+        .btn {
+            padding: var(--spacing-md) var(--spacing-lg);
+            font-size: clamp(0.95rem, 3.5vw, 1.25rem);
+            font-weight: bold;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-md);
+        }
+
+        .btn-primary {
+            background-color: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background-color: #1976D2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-success {
+            background-color: var(--color-success);
+            color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-warning {
+            background-color: var(--color-warning);
+            color: white;
+        }
+
+        .btn-warning:hover:not(:disabled) {
+            background-color: #e68900;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-back {
+            align-self: flex-start;
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-md) var(--spacing-lg);
+            font-size: 1rem;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-back:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* FORMULARIOS */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+            width: 100%;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .input-group label {
+            font-size: clamp(1.1rem, 4vw, 1.5rem);
+            font-weight: bold;
+            text-transform: uppercase;
+            text-align: left;
+            color: var(--color-text-dark);
+        }
+
+        .input-group input {
+            padding: var(--spacing-md) var(--spacing-lg);
+            font-size: clamp(1rem, 4vw, 1.3rem);
+            border: 3px solid var(--color-border);
+            border-radius: var(--radius);
+            font-family: 'Arial', sans-serif;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            background-color: #e3f2fd;
+        }
+
+        /* PANTALLA DE ESPERA */
+        .screen-waiting {
+            background-color: var(--color-bg-light);
+        }
+
+        .waiting-header {
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            font-weight: bold;
+            margin-bottom: var(--spacing-xl);
+            color: var(--color-text-dark);
+        }
+
+        .room-code {
+            font-size: clamp(2rem, 6vw, 3rem);
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            background-color: var(--color-primary);
+            color: white;
+            padding: var(--spacing-lg) var(--spacing-xl);
+            border-radius: var(--radius);
+            margin-bottom: var(--spacing-xl);
+            letter-spacing: 4px;
+        }
+
+        .players-list {
+            background-color: var(--color-bg-secondary);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius);
+            margin-bottom: var(--spacing-lg);
+            text-align: left;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .player-item {
+            font-size: clamp(1rem, 4vw, 1.3rem);
+            padding: var(--spacing-md);
+            margin: var(--spacing-sm) 0;
+            background-color: white;
+            border-left: 5px solid var(--color-success);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .player-number {
+            font-weight: bold;
+            color: var(--color-primary);
+            min-width: 40px;
+        }
+
+        .waiting-message {
+            font-size: clamp(1rem, 4vw, 1.3rem);
+            color: var(--color-text-light);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        /* PANTALLA DE JUEGO */
+        .screen-game {
+            background-color: var(--color-bg-light);
+            padding: 0;
+            flex-direction: column;
+        }
+
+        .game-header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 50%, #2c3e50 100%);
+            color: white;
+            padding: var(--spacing-lg);
+            border-radius: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            border-bottom: 3px solid #2196F3;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-header-item {
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
+            text-transform: uppercase;
+            font-weight: bold;
+            background-color: rgba(33, 150, 243, 0.15);
+            padding: var(--spacing-md);
+            border-radius: var(--radius);
+            border: 2px solid rgba(33, 150, 243, 0.3);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .game-content {
+            flex: 1;
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .mission-title {
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: var(--spacing-xl);
+            color: var(--color-text-dark);
+        }
+
+        .mission-instruction {
+            font-size: clamp(1.2rem, 4vw, 1.6rem);
+            margin-bottom: var(--spacing-lg);
+            font-weight: bold;
+            text-align: center;
+            color: var(--color-text-dark);
+        }
+
+        .audio-btn {
+            background-color: var(--color-warning);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 1.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            margin: var(--spacing-md) 0;
+        }
+
+        .audio-btn:hover {
+            background-color: #e68900;
+            transform: scale(1.1);
+        }
+
+        /* TIPOS DE MISIONES */
+        .mission-objects {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: var(--spacing-lg);
+            margin: var(--spacing-lg) 0;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .object-item {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(3rem, 10vw, 5rem);
+            background-color: var(--color-bg-secondary);
+            border: 3px solid var(--color-border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .object-item:hover {
+            border-color: var(--color-primary);
+            transform: scale(1.05);
+            background-color: #e3f2fd;
+        }
+
+        .object-item.selected {
+            border-color: var(--color-success);
+            background-color: #e8f5e9;
+            transform: scale(1.1);
+        }
+
+        .object-item.incorrect {
+            border-color: var(--color-danger);
+            background-color: #ffebee;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: var(--spacing-lg);
+            margin: var(--spacing-lg) 0;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .option-btn {
+            padding: var(--spacing-lg);
+            font-size: clamp(1rem, 4vw, 1.3rem);
+            font-weight: bold;
+            background-color: white;
+            border: 3px solid var(--color-border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        /* NÚMEROS GRANDES Y VISIBLES EN LAS PREGUNTAS DE MATEMÁTICA */
+        .math-number-btn {
+            color: #111111 !important;
+            background-color: #ffffff !important;
+            font-size: clamp(3.5rem, 12vw, 6rem) !important;
+            font-weight: 900 !important;
+            line-height: 1 !important;
+            min-height: 130px;
+            min-width: 130px;
+            padding: 1rem !important;
+            border: 4px solid #212121 !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .option-btn:hover {
+            border-color: var(--color-primary);
+            transform: scale(1.05);
+            background-color: #e3f2fd;
+        }
+
+        .option-btn.selected {
+            border-color: var(--color-success);
+            background-color: #e8f5e9;
+        }
+
+        .option-btn.incorrect {
+            border-color: var(--color-danger);
+            background-color: #ffebee;
+        }
+
+        /* MISIÓN DE IMAGEN Y PALABRA */
+        .image-word-container {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+            align-items: center;
+            margin: var(--spacing-lg) 0;
+            width: 100%;
+        }
+
+        .mission-image {
+            font-size: clamp(4rem, 15vw, 8rem);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .word-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--spacing-md);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .word-option {
+            padding: var(--spacing-md) var(--spacing-lg);
+            font-size: clamp(1.3rem, 5vw, 1.7rem);
+            font-weight: 800;
+            color: #212121;
+            background-color: white;
+            border: 3px solid var(--color-border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .word-option:hover {
+            border-color: var(--color-primary);
+            transform: translateX(10px);
+            background-color: #e3f2fd;
+        }
+
+        .word-option.selected {
+            border-color: var(--color-success);
+            background-color: #e8f5e9;
+        }
+
+        .word-option.incorrect {
+            border-color: var(--color-danger);
+            background-color: #ffebee;
+        }
+
+        /* FEEDBACK */
+        .feedback-message {
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            font-weight: bold;
+            text-align: center;
+            padding: var(--spacing-lg);
+            border-radius: var(--radius);
+            margin: var(--spacing-lg) 0;
+            text-transform: uppercase;
+            animation: slideIn 0.5s ease;
+        }
+
+        .feedback-success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 3px solid var(--color-success);
+        }
+
+        .feedback-incorrect {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 3px solid var(--color-danger);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* PISTAS */
+        .clues-container {
+            background-color: var(--color-bg-secondary);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius);
+            margin: var(--spacing-lg) 0;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .clue-notification {
+            font-size: clamp(1.3rem, 4vw, 1.6rem);
+            font-weight: bold;
+            color: var(--color-success);
+            text-transform: uppercase;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .clue-counter {
+            font-size: clamp(2rem, 6vw, 3rem);
+            font-weight: bold;
+            color: var(--color-primary);
+        }
+
+        .clue-item {
+            background-color: white;
+            padding: var(--spacing-md) var(--spacing-lg);
+            margin: var(--spacing-md) 0;
+            border-left: 5px solid var(--color-primary);
+            border-radius: var(--radius);
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            text-align: left;
+        }
+
+        /* MISTERIO FINAL */
+        .screen-mystery {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .mystery-title {
+            font-size: clamp(2rem, 8vw, 3rem);
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: var(--spacing-xl);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .mystery-clues {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius);
+            margin-bottom: var(--spacing-xl);
+            text-align: left;
+            max-width: 500px;
+        }
+
+        .mystery-clue {
+            font-size: clamp(1rem, 4vw, 1.3rem);
+            margin: var(--spacing-md) 0;
+            padding: var(--spacing-md);
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+        }
+
+        .mystery-question {
+            font-size: clamp(1.3rem, 5vw, 1.8rem);
+            font-weight: bold;
+            margin-bottom: var(--spacing-lg);
+            text-transform: uppercase;
+        }
+
+        .mystery-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--spacing-lg);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .mystery-option {
+            padding: var(--spacing-lg);
+            font-size: clamp(1.2rem, 4vw, 1.5rem);
+            font-weight: bold;
+            background-color: white;
+            color: var(--color-text-dark);
+            border: 3px solid white;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-md);
+        }
+
+        .mystery-option:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .mystery-option.selected {
+            border-color: var(--color-success);
+            background-color: #e8f5e9;
+        }
+
+        .mystery-option.incorrect {
+            border-color: var(--color-danger);
+            background-color: #ffebee;
+        }
+
+        /* PANTALLA DE VICTORIA */
+        .screen-victory {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            color: var(--color-text-dark);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .screen-victory::before {
+            content: '🎉 🏆 ⭐ 🎊 🎉 🏆 ⭐ 🎊';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            font-size: 3rem;
+            opacity: 0.1;
+            overflow: hidden;
+            animation: float 10s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .screen-victory > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .victory-title {
+            font-size: clamp(2rem, 8vw, 3rem);
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: var(--spacing-lg);
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.8s ease-out;
+        }
+
+        .victory-icon {
+            font-size: clamp(3rem, 15vw, 6rem);
+            margin-bottom: var(--spacing-lg);
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        .victory-message {
+            font-size: clamp(1.2rem, 4vw, 1.6rem);
+            margin-bottom: var(--spacing-xl);
+            font-weight: bold;
+            text-transform: uppercase;
+            background: rgba(255, 255, 255, 0.6);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius);
+            border: 3px solid var(--color-success);
+        }
+
+        .victory-stats {
+            background: rgba(255, 255, 255, 0.8);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius);
+            margin: var(--spacing-lg) 0;
+            border: 2px solid var(--color-primary);
+        }
+
+        .victory-stat {
+            font-size: clamp(1.1rem, 4vw, 1.4rem);
+            font-weight: bold;
+            margin: var(--spacing-md) 0;
+            color: var(--color-text-dark);
+        }
+
+        /* MODALES Y DIALÓGOS */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: var(--spacing-xl);
+            border-radius: var(--radius);
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .modal-title {
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            font-weight: bold;
+            margin-bottom: var(--spacing-lg);
+            color: var(--color-text-dark);
+        }
+
+        .modal-text {
+            font-size: clamp(1rem, 4vw, 1.3rem);
+            margin-bottom: var(--spacing-lg);
+            color: var(--color-text-light);
+            line-height: 1.6;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 600px) {
+            .container {
+                max-width: 100%;
+                border-radius: 0;
+            }
+
+            .screen {
+                padding: var(--spacing-md);
+            }
+
+            .game-header {
+                grid-template-columns: 1fr;
+            }
+
+            .mission-objects {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .options-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* HISTORIA */
+        .screen-story {
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 50%, #533483 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .screen-story::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(83, 52, 131, 0.3) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .screen-story > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .story-icon {
+            font-size: clamp(3rem, 12vw, 4rem);
+            margin-bottom: var(--spacing-lg);
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .story-title {
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: var(--spacing-lg);
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.6);
+        }
+
+        .story-text {
+            font-size: clamp(1.1rem, 4vw, 1.5rem);
+            margin-bottom: var(--spacing-xl);
+            line-height: 1.8;
+            font-weight: 500;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.2);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius);
+            border-left: 4px solid #2196F3;
+        }
+
+        /* PANTALLA DE SELECCIÓN MULTIJUGADOR */
+        .screen-mode-selection {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .mode-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--spacing-lg);
+            width: 100%;
+            margin-top: var(--spacing-xl);
+        }
+
+        .mode-card {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius);
+            border: 3px solid rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mode-card:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-5px);
+        }
+
+        .mode-icon {
+            font-size: 2.5rem;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .mode-title {
+            font-size: clamp(1.2rem, 4vw, 1.6rem);
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .mode-description {
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
+        }
+
+
+        /* SELECTOR DE NIVEL DE DIFICULTAD */
+        .difficulty-box {
+            width: 100%;
+            max-width: 760px;
+            margin: var(--spacing-lg) auto var(--spacing-xl);
+            padding: var(--spacing-lg);
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: var(--radius);
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .difficulty-title {
+            font-size: clamp(1.25rem, 4vw, 1.7rem);
+            font-weight: bold;
+            margin-bottom: var(--spacing-md);
+            color: white;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .difficulty-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-md);
+        }
+
+        .difficulty-btn {
+            min-height: 82px;
+            padding: var(--spacing-md);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: var(--radius);
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            font-size: clamp(1rem, 3.5vw, 1.25rem);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .difficulty-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .difficulty-btn.selected {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            border-color: white;
+            box-shadow: 0 0 20px rgba(33, 150, 243, 0.4);
+            transform: scale(1.05);
+        }
+
+        .difficulty-note {
+            margin-top: var(--spacing-md);
+            font-size: clamp(0.9rem, 3vw, 1.05rem);
+            font-weight: bold;
+            color: #e0e0e0;
+        }
+
+        @media (max-width: 600px) {
+            .difficulty-options {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* PANTALLA MULTIJUGADOR */
+        .screen-multiplayer {
+            background-color: var(--color-bg-light);
+        }
+
+        .room-selection {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+            width: 100%;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .room-button {
+            padding: var(--spacing-lg) var(--spacing-xl);
+            font-size: clamp(1rem, 4vw, 1.4rem);
+            font-weight: bold;
+            background-color: white;
+            border: 3px solid var(--color-border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .room-button.create {
+            background-color: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .room-button.create:hover {
+            background-color: #1976D2;
+            transform: scale(1.02);
+        }
+
+        .room-button.join {
+            background-color: var(--color-success);
+            color: white;
+            border-color: var(--color-success);
+        }
+
+        .room-button.join:hover {
+            background-color: #45a049;
+            transform: scale(1.02);
+        }
+
+        .code-input-group {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .code-input-group input {
+            flex: 1;
+            padding: var(--spacing-md) var(--spacing-lg);
+            font-size: clamp(1.1rem, 4vw, 1.4rem);
+            border: 3px solid var(--color-border);
+            border-radius: var(--radius);
+            text-transform: uppercase;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+        }
+
+        .code-input-group button {
+            padding: var(--spacing-md) var(--spacing-lg);
+            font-size: clamp(1rem, 4vw, 1.2rem);
+            font-weight: bold;
+            background-color: var(--color-success);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .code-input-group button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+
+        /* SCROLLABLE AREAS */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--color-bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--color-border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--color-text-light);
+        }
+
+        /* ===== AVENTURA / ESCAPE ROOM ===== */
+        .case-banner{width:100%;max-width:850px;margin:0 auto var(--spacing-lg);padding:16px;border:3px solid #222;border-radius:16px;background:#fff;text-align:center}
+        .case-name{font-size:clamp(1.25rem,4vw,1.8rem);font-weight:900;margin-bottom:8px}
+        .case-alert{font-size:clamp(1rem,3vw,1.2rem);font-weight:700;line-height:1.5}
+        .evidence-bar{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:14px 0}
+        .evidence-chip{min-width:92px;padding:10px 12px;border:2px solid #222;border-radius:12px;background:#fff;font-weight:900}
+        .evidence-chip.locked{opacity:.45}
+        .evidence-chip.found{background:#e8f5e9;opacity:1}
+        .location-strip{display:flex;gap:8px;overflow-x:auto;padding:8px 2px 14px;margin:0 auto 12px;max-width:850px}
+        .location-node{flex:0 0 auto;padding:10px 14px;border:2px solid #555;border-radius:999px;background:#fff;font-weight:800}
+        .location-node.active{border-width:4px}
+        .location-node.done{background:#e8f5e9}
+        .secret-card {
+            margin: 18px auto;
+            padding: 18px;
+            max-width: 720px;
+            border: 4px dashed #2196F3;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #fff8e1 0%, #e3f2fd 100%);
+            text-align: center;
+            box-shadow: 0 0 30px rgba(33, 150, 243, 0.3);
+            animation: pop 0.6s ease-out;
+        }
+
+        @keyframes pop {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .secret-card .big {
+            font-size: clamp(2.5rem, 9vw, 4.5rem);
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        .secret-card .secret-title {
+            font-size: clamp(1.25rem, 4vw, 1.7rem);
+            font-weight: 900;
+            margin: 8px 0;
+            color: #1976D2;
+            text-transform: uppercase;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .case-file{max-width:800px;margin:16px auto;padding:18px;border:3px solid #222;border-radius:16px;background:#fff;text-align:left}
+        .case-file h3{text-align:center;font-size:clamp(1.2rem,4vw,1.6rem);margin:0 0 12px}
+        .case-file p{font-size:clamp(1rem,3.3vw,1.2rem);line-height:1.55;font-weight:700}
+        .mystery-code{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:18px 0}
+        .code-piece{min-width:64px;padding:12px;border:3px solid #222;border-radius:12px;background:#fff;font-size:1.4rem;font-weight:900}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- PANTALLA PRINCIPAL -->
+        <div class="screen screen-main active">
+            <div class="main-container">
+                <div class="alert-icon">🚨</div>
+                <div class="main-title">ALERTA</div>
+                <div class="main-subtitle">CASO ABIERTO</div>
+                <div class="story-message">
+                    HA OCURRIDO ALGO EXTRAÑO EN LA ESCUELA...
+                </div>
+                <div class="story-message">
+                    ¡RESUELVE EL MISTERIO!
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="startSinglePlayer()">
+                        🔍 INVESTIGACIÓN
+                    </button>
+                    <button class="btn btn-success" onclick="showScreen('screen-multiplayer')">
+                        👥 MULTIJUGADOR
+                    </button>
+                </div>
+            </div>
+            <div class="difficulty-box">
+                <div class="difficulty-title">🎯 ELEGÍ EL NIVEL DE DIFICULTAD</div>
+                <div class="difficulty-options">
+                    <button id="difficulty-easy" class="difficulty-btn selected" onclick="selectDifficulty('easy')">
+                        🟢 FÁCIL<br><small>4 MISIONES</small>
+                    </button>
+                    <button id="difficulty-medium" class="difficulty-btn" onclick="selectDifficulty('medium')">
+                        🟡 MEDIO<br><small>6 MISIONES</small>
+                    </button>
+                    <button id="difficulty-hard" class="difficulty-btn" onclick="selectDifficulty('hard')">
+                        🔴 DIFÍCIL<br><small>8 MISIONES</small>
+                    </button>
+                </div>
+                <div id="difficulty-note" class="difficulty-note">NIVEL SELECCIONADO: FÁCIL</div>
+            </div>
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="startSinglePlayer()">
+                    ▶ MODO 1 JUGADOR
+                </button>
+                <button class="btn btn-success" onclick="showScreen('screen-multiplayer')">
+                    👥 MODO MULTIJUGADOR
+                </button>
+            </div>
+        </div>
+
+        <!-- PANTALLA MULTIJUGADOR -->
+        <div class="screen screen-multiplayer">
+            <button class="btn btn-back" onclick="showScreen('screen-main')">← VOLVER</button>
+            <div class="waiting-header">MODO MULTIJUGADOR</div>
+            <div class="room-selection">
+                <button class="btn room-button create" onclick="createRoomFirebase()">
+                    ➕ CREAR SALA
+                </button>
+                <button class="btn room-button join" onclick="toggleJoinForm()">
+                    🔐 UNIRME A UNA SALA
+                </button>
+            </div>
+            <div id="join-form" style="display:none; width: 100%;">
+                <div class="input-group">
+                    <label>CÓDIGO DE SALA:</label>
+                    <div class="code-input-group">
+                        <input type="text" id="room-code-input" placeholder="Ej: A7K4" maxlength="4">
+                        <button onclick="joinRoomFirebase()">UNIRSE</button>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: var(--spacing-xl); padding: var(--spacing-lg); background-color: #c8e6c9; border-radius: var(--radius); text-align: left;">
+                <div style="font-size: clamp(0.9rem, 3vw, 1.1rem); color: #1b5e20; font-weight: bold;">
+                    ✓ Firebase está configurado y listo. El modo multijugador es TOTALMENTE FUNCIONAL.
+                </div>
+            </div>
+        </div>
+
+        <!-- PANTALLA DE HISTORIA -->
+        <div class="screen screen-story">
+            <button class="btn btn-back" onclick="showScreen('screen-main')">← VOLVER</button>
+            <div class="story-icon">🚨</div>
+            <div class="story-title">EXPEDIENTE CONFIDENCIAL</div>
+            <div id="case-intro" class="case-file">
+                <h3>🔒 CARGANDO CASO...</h3>
+                <p>PREPAREN SUS OJOS DE DETECTIVE. CADA MISIÓN ESCONDE UNA PISTA.</p>
+            </div>
+            <div class="story-text">
+                🔎 SUPEREN LOS DESAFÍOS • 🧩 REÚNAN EVIDENCIAS • 🔐 DESCUBRAN EL CÓDIGO
+            </div>
+            <button class="btn btn-primary" style="margin-top: var(--spacing-xl);" onclick="startMission()">
+                🔦 ENTRAR A INVESTIGAR
+            </button>
+        </div>
+
+        <!-- PANTALLA DE JUEGO -->
+        <div class="screen screen-game">
+            <div class="game-header">
+                <div class="game-header-item">
+                    👤 JUGADOR<br><span id="player-name">JUGADOR 1</span>
+                </div>
+                <div class="game-header-item">
+                    🏠 SALA<br><span id="room-id">LOCAL</span>
+                </div>
+                <div class="game-header-item">
+                    🔍 PISTAS<br><span id="clues-count">0/4</span>
+                </div>
+            </div>
+            <div id="case-banner-game" class="case-banner">
+                <div id="case-name-game" class="case-name">🔎 CASO EN INVESTIGACIÓN</div>
+                <div id="location-strip" class="location-strip"></div>
+                <div id="evidence-bar" class="evidence-bar"></div>
+            </div>
+            <div class="game-content" id="game-content">
+                <!-- Las misiones se cargan aquí dinámicamente -->
+            </div>
+        </div>
+
+        <!-- PANTALLA DE MISTERIO FINAL -->
+        <div class="screen screen-mystery">
+            <div class="mystery-title">🔐 ABRÍ EL ARCHIVO SECRETO</div>
+            <div id="final-case-name" class="case-name"></div>
+            <div id="final-code" class="mystery-code"></div>
+            <div class="mystery-clues" id="mystery-clues-container">
+                <!-- Las pistas se cargan aquí -->
+            </div>
+            <div class="mystery-question">¿QUÉ OBJETO DESAPARECIÓ?</div>
+            <div class="mystery-options" id="mystery-options">
+                <!-- Las opciones se cargan aquí -->
+            </div>
+        </div>
+
+        <!-- PANTALLA DE VICTORIA -->
+        <div class="screen screen-victory">
+            <div class="victory-icon">🏆</div>
+            <div class="victory-title">¡CASO RESUELTO!</div>
+            <div class="victory-message">EL EQUIPO DE DETECTIVES LOGRÓ LA VICTORIA</div>
+            <div class="victory-stats">
+                <div class="victory-stat">🔎 PISTAS RECOLECTADAS: <span id="final-clues">0</span></div>
+                <div class="victory-stat">🎯 NIVEL COMPLETADO: <span id="final-difficulty">FÁCIL</span></div>
+                <div class="victory-stat">⏱️ MISTERIO DESVELADO</div>
+                <div class="victory-stat">⭐ EXCELENTE TRABAJO EN EQUIPO!</div>
+            </div>
+            <div style="font-size: clamp(1rem, 4vw, 1.3rem); margin-bottom: var(--spacing-xl); color: var(--color-success); font-weight: bold;">
+                ¡FELICIDADES, DETECTIVES!
+            </div>
+            <button class="btn btn-primary" onclick="restartGame()">
+                🔄 NUEVO CASO
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // CONFIGURACIÓN GLOBAL
+        // ==========================================
+        const gameConfig = {
+            totalClues: 6,
+            minPlayersForGame: 4,
+            singlePlayerName: 'JUGADOR 1'
+        };
+
+        // ==========================================
+        // ESTADO DEL JUEGO
+        // ==========================================
+        let gameState = {
+            mode: 'single', // 'single' o 'multi'
+            playerName: gameConfig.singlePlayerName,
+            roomCode: 'LOCAL',
+            cluesObtained: 0,
+            currentMissionIndex: 0,
+            completedMissions: new Set(),
+            playersMissionsCompleted: new Map(),
+            showFeedback: false,
+            currentFeedback: '',
+            difficulty: 'easy',
+            caseId: 'book',
+            evidenceFound: []
+        };
+
+        // ==========================================
+        // DEFINICIÓN DE MISIONES
+        // ==========================================
+        const missions = [
+            {
+                id: 1,
+                type: 'find-object',
+                title: 'ENCONTRÁ EL OBJETO',
+                instruction: 'TOCA EL LÁPIZ',
+                objects: ['📚', '✏️', '🍎', '📐'],
+                correctIndex: 1,
+                audio: 'TOCA EL LÁPIZ'
+            },
+            {
+                id: 2,
+                type: 'count',
+                title: 'CONTÁ LOS OBJETOS',
+                instruction: '¿CUÁNTAS MANZANAS HAY?',
+                objectEmoji: '🍎',
+                quantity: 4,
+                options: ['2', '4', '6'],
+                correctAnswer: '4',
+                audio: '¿CUÁNTAS MANZANAS HAY?'
+            },
+            {
+                id: 3,
+                type: 'missing-object',
+                title: 'DESCUBRÍ QUÉ FALTA',
+                instruction: 'OBSERVÁ Y RECORDÁ LOS OBJETOS',
+                objects: ['🐱', '🐶', '🦋', '🌻'],
+                missingIndex: 2,
+                options: ['🐱', '🦋', '🌻'],
+                correctAnswer: '🦋',
+                audio: 'OBSERVA ESTOS OBJETOS. DESPUÉS DESAPARECERÁ UNO'
+            },
+            {
+                id: 4,
+                type: 'sequence',
+                title: 'COMPLETA LA SECUENCIA',
+                instruction: '¿QUÉ VIENE DESPUÉS?',
+                sequence: ['🔴', '🔵', '🔴', '🔵'],
+                options: ['🔴', '🔵', '🟡'],
+                correctAnswer: '🔴',
+                audio: 'ROJO, AZUL, ROJO, AZUL. ¿QUÉ SIGUE?'
+            },
+            {
+                id: 5,
+                type: 'word-image',
+                title: 'PALABRA E IMAGEN',
+                instruction: 'SELECCIONA LA PALABRA CORRECTA',
+                image: '🏠',
+                options: ['GATO', 'CASA', 'ÁRBOL'],
+                correctAnswer: 'CASA',
+                audio: 'SELECCIONA LA PALABRA CORRECTA'
+            },
+            {
+                id: 6,
+                type: 'directions',
+                title: 'SECUENCIA DE DIRECCIONES',
+                instruction: 'SELECCIONA LA DIRECCIÓN CORRECTA',
+                directionSequence: ['⬆️', '➡️', '⬇️'],
+                options: ['⬅️', '⬆️', '➡️'],
+                correctAnswer: '➡️',
+                audio: 'ARRIBA, DERECHA, ABAJO. ¿QUÉ SIGUE?'
+            },
+            {
+                id: 7,
+                type: 'find-object',
+                title: 'ENCUENTRA LA DIFERENCIA',
+                instruction: 'TOCA EL OBJETO DIFERENTE',
+                objects: ['⭐', '⭐', '⭐', '🌟'],
+                correctIndex: 3,
+                audio: 'ENCUENTRA LA ESTRELLA DIFERENTE'
+            },
+            {
+                id: 8,
+                type: 'count',
+                title: 'CUENTA LOS OBJETOS',
+                instruction: '¿CUÁNTOS LÁPICES HAY?',
+                objectEmoji: '✏️',
+                quantity: 3,
+                options: ['3', '5', '7'],
+                correctAnswer: '3',
+                audio: '¿CUÁNTOS LÁPICES HAY?'
+            }
+        ];
+
+
+        // ==========================================
+        // NIVELES DE DIFICULTAD
+        // ==========================================
+        const difficultyMissionIds = {
+            easy: [1, 2, 3, 5],
+            medium: [1, 2, 3, 4, 5, 6],
+            hard: [1, 2, 3, 4, 5, 6, 7, 8]
+        };
+
+        function getActiveMissions() {
+            const ids = difficultyMissionIds[gameState.difficulty] || difficultyMissionIds.easy;
+            return ids.map(id => missions.find(m => m.id === id)).filter(Boolean);
+        }
+
+        function getDifficultyLabel() {
+            return gameState.difficulty === 'hard' ? 'DIFÍCIL' :
+                   gameState.difficulty === 'medium' ? 'MEDIO' : 'FÁCIL';
+        }
+
+        function selectDifficulty(level) {
+            gameState.difficulty = ['easy', 'medium', 'hard'].includes(level) ? level : 'easy';
+            document.querySelectorAll('.difficulty-btn').forEach(btn => btn.classList.remove('selected'));
+            const selected = document.getElementById('difficulty-' + gameState.difficulty);
+            if (selected) selected.classList.add('selected');
+            const note = document.getElementById('difficulty-note');
+            if (note) note.textContent = 'NIVEL SELECCIONADO: ' + getDifficultyLabel();
+        }
+
+
+        // ==========================================
+        // CASOS / INTRIGA
+        // ==========================================
+        const detectiveCases = {
+            book: {
+                id:'book',
+                title:'📕 EL CASO DEL LIBRO DESAPARECIDO',
+                intro:'AL LLEGAR AL AULA, UN LUGAR DE LA BIBLIOTECA ESTABA VACÍO. ALGUIEN DEJÓ PEQUEÑAS PISTAS. EL EQUIPO DEBE DESCUBRIR QUÉ OBJETO FALTA.',
+                clues:['SE UTILIZA PARA LEER.','TIENE MUCHAS PÁGINAS.','PUEDE TENER UNA TAPA.','SUELE ESTAR EN LA BIBLIOTECA.'],
+                answer:'📕',
+                options:[{emoji:'📕',label:'LIBRO'},{emoji:'✏️',label:'LÁPIZ'},{emoji:'📏',label:'REGLA'}],
+                code:['4','🔑','2']
+            },
+            backpack: {
+                id:'backpack',
+                title:'🎒 EL CASO DE LA MOCHILA PERDIDA',
+                intro:'UNA MOCHILA NO ESTÁ EN SU LUGAR. CERCA DEL BANCO APARECIÓ UNA NOTA ROTA. CADA MISIÓN PERMITIRÁ RECONSTRUIR LO QUE PASÓ.',
+                clues:['SE USA PARA GUARDAR ÚTILES.','SE PUEDE LLEVAR EN LA ESPALDA.','PUEDE TENER CIERRES.','ACOMPAÑA A LOS ESTUDIANTES A CLASE.'],
+                answer:'🎒',
+                options:[{emoji:'🎒',label:'MOCHILA'},{emoji:'📕',label:'LIBRO'},{emoji:'🧃',label:'BOTELLA'}],
+                code:['7','🧩','3']
+            },
+            key: {
+                id:'key',
+                title:'🔑 EL CASO DE LA LLAVE SECRETA',
+                intro:'UNA PUERTA QUEDÓ CERRADA Y LA LLAVE NO APARECE. HAY HUELLAS, UN SOBRE Y UN CÓDIGO INCOMPLETO. SOLO LOS DETECTIVES PODRÁN RESOLVERLO.',
+                clues:['ES PEQUEÑA.','SIRVE PARA ABRIR ALGO.','PUEDE SER DE METAL.','SE USA EN PUERTAS O CANDADOS.'],
+                answer:'🔑',
+                options:[{emoji:'🔑',label:'LLAVE'},{emoji:'✂️',label:'TIJERA'},{emoji:'📏',label:'REGLA'}],
+                code:['5','🔍','1']
+            }
+        };
+
+        const investigationLocations = ['🚪 ENTRADA','🪑 AULA','📚 BIBLIOTECA','🎨 TALLER','🌳 PATIO','🔐 ARCHIVO'];
+
+        function getCurrentCase(){
+            return detectiveCases[gameState.caseId] || detectiveCases.book;
+        }
+
+        function chooseRandomCase(){
+            const ids = Object.keys(detectiveCases);
+            gameState.caseId = ids[Math.floor(Math.random()*ids.length)];
+            gameState.evidenceFound = [];
+            updateCaseIntro();
+        }
+
+        function updateCaseIntro(){
+            const c = getCurrentCase();
+            const el = document.getElementById('case-intro');
+            if(el) el.innerHTML = `<h3>${c.title}</h3><p>${c.intro}</p><p>🎯 NIVEL: ${getDifficultyLabel()}</p>`;
+        }
+
+        function renderInvestigationHUD(){
+            const c = getCurrentCase();
+            const name = document.getElementById('case-name-game');
+            if(name) name.textContent = c.title;
+
+            const active = getActiveMissions();
+            const strip = document.getElementById('location-strip');
+            if(strip){
+                strip.innerHTML = active.map((m,i)=>{
+                    const label = investigationLocations[i % investigationLocations.length];
+                    const cls = i < gameState.currentMissionIndex ? 'done' : (i === gameState.currentMissionIndex ? 'active' : '');
+                    return `<div class="location-node ${cls}">${label}</div>`;
+                }).join('');
+            }
+
+            const bar = document.getElementById('evidence-bar');
+            if(bar){
+                bar.innerHTML = active.map((m,i)=>{
+                    const found = i < gameState.cluesObtained;
+                    return `<div class="evidence-chip ${found?'found':'locked'}">${found?'🔎 PISTA '+(i+1):'🔒 PISTA '+(i+1)}</div>`;
+                }).join('');
+            }
+        }
+
+        function clueForMission(index){
+            const c = getCurrentCase();
+            return c.clues[index % c.clues.length];
+        }
+
+        // ==========================================
+        // DATOS DEL MISTERIO FINAL
+        // ==========================================
+        const mysteryData = {
+            clues: [
+                'SE UTILIZA PARA LEER.',
+                'TIENE MUCHAS PÁGINAS.',
+                'LO PODEMOS ENCONTRAR EN LA BIBLIOTECA.'
+            ],
+            correctAnswer: '📕',
+            options: [
+                { emoji: '📕', label: 'LIBRO' },
+                { emoji: '✏️', label: 'LÁPIZ' },
+                { emoji: '📏', label: 'REGLA' }
+            ]
+        };
+
+        // ==========================================
+        // FUNCIONES DE NAVEGACIÓN
+        // ==========================================
+        function showScreen(screenId) {
+            const screens = document.querySelectorAll('.screen');
+            screens.forEach(screen => screen.classList.remove('active'));
+            document.querySelector('.' + screenId).classList.add('active');
+        }
+
+        function startSinglePlayer() {
+            gameState.mode = 'single';
+            gameState.playerName = gameConfig.singlePlayerName;
+            gameState.roomCode = 'LOCAL';
+            gameState.cluesObtained = 0;
+            gameState.currentMissionIndex = 0;
+            gameState.completedMissions.clear();
+            gameState.evidenceFound = [];
+            chooseRandomCase();
+            showScreen('screen-story');
+        }
+
+        function startMission() {
+            const activeMissions = getActiveMissions();
+            if (gameState.currentMissionIndex < activeMissions.length) {
+                loadMission(gameState.currentMissionIndex);
+                showScreen('screen-game');
+            }
+        }
+
+        // ==========================================
+        // SISTEMA DE MISIONES
+        // ==========================================
+        function loadMission(missionIndex) {
+            const activeMissions = getActiveMissions();
+            const mission = activeMissions[missionIndex];
+            if (!mission) {
+                showMysteryFinal();
+                return;
+            }
+            const gameContent = document.getElementById('game-content');
+            
+            document.getElementById('player-name').textContent = gameState.playerName;
+            document.getElementById('room-id').textContent = gameState.roomCode;
+            document.getElementById('clues-count').textContent = `${gameState.cluesObtained}/${getActiveMissions().length}`;
+            renderInvestigationHUD();
+
+            // Verificar si hay un evento sorpresa
+            const surpriseEvent = triggerSurpriseEvent();
+            if (surpriseEvent) {
+                showSurpriseEvent(surpriseEvent);
+                // Mostrar misión después de 3 segundos
+                setTimeout(() => {
+                    showMissionContent(mission, gameContent);
+                }, 3000);
+            } else {
+                showMissionContent(mission, gameContent);
+            }
+        }
+
+        function showMissionContent(mission, gameContent) {
+            gameContent.innerHTML = `
+                <div class="mission-title">${mission.title}</div>
+                <div class="mission-instruction">${mission.instruction}</div>
+                <button class="audio-btn" onclick="speakText('${mission.audio}')">🔊</button>
+                <div id="mission-container"></div>
+            `;
+
+            renderMissionContent(mission);
+        }
+
+        function renderMissionContent(mission) {
+            const container = document.getElementById('mission-container');
+
+            switch(mission.type) {
+                case 'find-object':
+                    renderFindObject(mission, container);
+                    break;
+                case 'count':
+                    renderCount(mission, container);
+                    break;
+                case 'missing-object':
+                    renderMissingObject(mission, container);
+                    break;
+                case 'sequence':
+                    renderSequence(mission, container);
+                    break;
+                case 'word-image':
+                    renderWordImage(mission, container);
+                    break;
+                case 'directions':
+                    renderDirections(mission, container);
+                    break;
+            }
+        }
+
+        function renderFindObject(mission, container) {
+            let html = '<div class="mission-objects">';
+            mission.objects.forEach((obj, index) => {
+                html += `
+                    <div class="object-item" onclick="checkFindObject(${index}, ${mission.correctIndex})">
+                        ${obj}
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function renderCount(mission, container) {
+            let html = '<div style="margin: var(--spacing-lg) 0;">';
+            for (let i = 0; i < mission.quantity; i++) {
+                html += `<span style="font-size: clamp(4rem, 12vw, 6rem); margin: var(--spacing-md); display: inline-block;">${mission.objectEmoji}</span>`;
+            }
+            html += '</div><div class="options-grid">';
+            mission.options.forEach(option => {
+                html += `
+                    <button class="option-btn math-number-btn" onclick="checkAnswer(this, '${option}', '${mission.correctAnswer}')">
+                        ${option}
+                    </button>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function renderMissingObject(mission, container) {
+            let html = `
+                <div style="margin: var(--spacing-lg) 0; width:100%; text-align:center;">
+                    <div id="observe-message" style="margin-bottom: var(--spacing-lg); font-size: 1.45rem; font-weight: bold; color: #FF9800;">
+                        OBSERVÁ Y RECORDÁ ESTOS OBJETOS DURANTE 3 SEGUNDOS...
+                    </div>
+                    <div id="objects-display" class="mission-objects" style="max-width:760px; margin-left:auto; margin-right:auto; grid-template-columns:repeat(4, minmax(120px, 1fr));">
+            `;
+            mission.objects.forEach((obj) => {
+                html += `<div class="object-item" style="font-size:clamp(5rem, 12vw, 8rem); min-height:150px;">${obj}</div>`;
+            });
+            html += `
+                    </div>
+                    <div id="missing-challenge" style="display:none; margin-top: var(--spacing-lg);">
+                        <div style="margin-bottom: var(--spacing-md); font-size: 1.45rem; font-weight: bold; color: #2196F3;">
+                            MIRÁ LOS OBJETOS QUE QUEDARON
+                        </div>
+                        <div class="mission-objects" style="max-width:620px; margin-left:auto; margin-right:auto; grid-template-columns:repeat(3, minmax(120px, 1fr));">
+            `;
+            mission.objects.forEach((obj, index) => {
+                if (index !== mission.missingIndex) {
+                    html += `<div class="object-item" style="font-size:clamp(5rem, 12vw, 8rem); min-height:150px; cursor:default;">${obj}</div>`;
+                }
+            });
+            html += `
+                        </div>
+                        <div style="margin: var(--spacing-lg) 0; font-size: 1.6rem; font-weight: bold;">
+                            ¿QUÉ OBJETO DESAPARECIÓ?
+                        </div>
+                        <div class="options-grid" style="max-width:680px; margin-left:auto; margin-right:auto; grid-template-columns:repeat(3, minmax(140px, 1fr));">
+            `;
+            mission.options.forEach(option => {
+                html += `
+                    <button class="option-btn" style="font-size:clamp(4.5rem, 11vw, 7rem); min-height:145px; padding:1rem;" onclick="checkAnswer(this, '${option}', '${mission.correctAnswer}')">
+                        ${option}
+                    </button>
+                `;
+            });
+            html += '</div></div></div>';
+            container.innerHTML = html;
+
+            // Primero se ven los 4 objetos. Luego desaparece solo uno y quedan 3 visibles.
+            setTimeout(() => {
+                const objectsDiv = document.getElementById('objects-display');
+                const observeMsg = document.getElementById('observe-message');
+                const missingChallenge = document.getElementById('missing-challenge');
+                if (objectsDiv) objectsDiv.style.display = 'none';
+                if (observeMsg) observeMsg.style.display = 'none';
+                if (missingChallenge) missingChallenge.style.display = 'block';
+            }, 3000);
+        }
+
+        function renderSequence(mission, container) {
+            let html = '<div style="margin: var(--spacing-lg) 0;">';
+            html += '<div style="font-size: 3rem; margin-bottom: var(--spacing-lg);"> ';
+            mission.sequence.forEach(item => {
+                html += `${item} `;
+            });
+            html += `<span style="color: #999; font-size: 2.5rem;">?</span></div>`;
+            html += '<div class="options-grid">';
+            mission.options.forEach(option => {
+                html += `
+                    <button class="option-btn" onclick="checkAnswer(this, '${option}', '${mission.correctAnswer}')">
+                        ${option}
+                    </button>
+                `;
+            });
+            html += '</div></div>';
+            container.innerHTML = html;
+        }
+
+        function renderWordImage(mission, container) {
+            let html = `
+                <div class="image-word-container">
+                    <div class="mission-image">${mission.image}</div>
+                    <div class="word-options">
+            `;
+            mission.options.forEach(option => {
+                html += `
+                    <button class="word-option" onclick="checkAnswer(this, '${option}', '${mission.correctAnswer}')">
+                        ${option}
+                    </button>
+                `;
+            });
+            html += '</div></div>';
+            container.innerHTML = html;
+        }
+
+        function renderDirections(mission, container) {
+            let html = '<div style="margin: var(--spacing-lg) 0;">';
+            html += '<div style="font-size: 3rem; margin-bottom: var(--spacing-lg);"> ';
+            mission.directionSequence.forEach(item => {
+                html += `${item} `;
+            });
+            html += `<span style="color: #999; font-size: 2.5rem;">?</span></div>`;
+            html += '<div class="options-grid">';
+            mission.options.forEach(option => {
+                html += `
+                    <button class="option-btn" onclick="checkAnswer(this, '${option}', '${mission.correctAnswer}')">
+                        ${option}
+                    </button>
+                `;
+            });
+            html += '</div></div>';
+            container.innerHTML = html;
+        }
+
+        // ==========================================
+        // VERIFICACIÓN DE RESPUESTAS
+        // ==========================================
+        function checkFindObject(selectedIndex, correctIndex) {
+            const container = document.getElementById('mission-container');
+            const items = container.querySelectorAll('.object-item');
+            
+            items.forEach((item, index) => {
+                if (index === selectedIndex) {
+                    if (selectedIndex === correctIndex) {
+                        item.classList.add('selected');
+                        showMissionFeedback(true);
+                    } else {
+                        item.classList.add('incorrect');
+                        showMissionFeedback(false);
+                    }
+                }
+            });
+        }
+
+        function checkAnswer(element, selectedAnswer, correctAnswer) {
+            const container = element.parentElement;
+            const buttons = container.querySelectorAll('button');
+            
+            buttons.forEach(btn => btn.disabled = true);
+
+            if (selectedAnswer === correctAnswer) {
+                element.classList.add('selected');
+                showMissionFeedback(true);
+            } else {
+                element.classList.add('incorrect');
+                showMissionFeedback(false);
+            }
+        }
+
+        function showMissionFeedback(isCorrect) {
+            const container = document.getElementById('game-content');
+            const feedbackDiv = document.createElement('div');
+            
+            if (isCorrect) {
+                const clueText = clueForMission(gameState.currentMissionIndex);
+                const surprise = ((gameState.cluesObtained + 1) % 2 === 0);
+                feedbackDiv.innerHTML = `
+                    <div class="feedback-message feedback-success">
+                        ✓ ¡DESAFÍO SUPERADO!
+                    </div>
+                    <div class="secret-card">
+                        <div class="big">${surprise ? '✉️' : '🔎'}</div>
+                        <div class="secret-title">${surprise ? '¡SOBRE SECRETO ENCONTRADO!' : '¡EVIDENCIA ENCONTRADA!'}</div>
+                        <div style="font-size:1.25rem;font-weight:900;">${clueText}</div>
+                    </div>
+                `;
+                gameState.cluesObtained++;
+                gameState.evidenceFound.push(clueText);
+                gameState.completedMissions.add(gameState.currentMissionIndex);
+                renderInvestigationHUD();
+                
+                setTimeout(() => {
+                    gameState.currentMissionIndex++;
+                    const activeMissions = getActiveMissions();
+                    if (gameState.cluesObtained >= activeMissions.length) {
+                        showMysteryFinal();
+                    } else if (gameState.currentMissionIndex < activeMissions.length) {
+                        loadMission(gameState.currentMissionIndex);
+                    } else {
+                        showMysteryFinal();
+                    }
+                }, 3300);
+            } else {
+                feedbackDiv.innerHTML = `
+                    <div class="feedback-message feedback-incorrect">
+                        INTENTÁ OTRA VEZ
+                    </div>
+                `;
+                
+                setTimeout(() => {
+                    loadMission(gameState.currentMissionIndex);
+                }, 1500);
+            }
+            
+            container.appendChild(feedbackDiv);
+        }
+
+        // ==========================================
+        // MISTERIO FINAL
+        // ==========================================
+        function showMysteryFinal() {
+            const c = getCurrentCase();
+            const cluesContainer = document.getElementById('mystery-clues-container');
+            const finalName = document.getElementById('final-case-name');
+            const finalCode = document.getElementById('final-code');
+
+            if(finalName) finalName.textContent = c.title;
+            if(finalCode) finalCode.innerHTML = c.code.map(x => `<div class="code-piece">${x}</div>`).join('');
+
+            const cluesToShow = gameState.evidenceFound.length ? gameState.evidenceFound : c.clues;
+            cluesContainer.innerHTML = cluesToShow.map((clue,index) =>
+                `<div class="mystery-clue">🔎 EVIDENCIA ${index+1}: ${clue}</div>`
+            ).join('');
+
+            const optionsContainer = document.getElementById('mystery-options');
+            optionsContainer.innerHTML = c.options.map(option => `
+                <button class="mystery-option" onclick="checkMysteryAnswer(this, '${option.emoji}', '${c.answer}')">
+                    <span style="font-size: 3rem;">${option.emoji}</span>
+                    <span>${option.label}</span>
+                </button>
+            `).join('');
+
+            showScreen('screen-mystery');
+        }
+
+        function checkMysteryAnswer(element, selectedAnswer, correctAnswer) {
+            const container = element.parentElement;
+            const buttons = container.querySelectorAll('button');
+            
+            buttons.forEach(btn => btn.disabled = true);
+
+            if (selectedAnswer === correctAnswer) {
+                element.classList.add('selected');
+                setTimeout(() => {
+                    // Actualizar datos finales
+                    document.getElementById('final-clues').textContent = gameState.cluesObtained;
+                    document.getElementById('final-difficulty').textContent = getDifficultyLabel();
+                    showScreen('screen-victory');
+                }, 1000);
+            } else {
+                element.classList.add('incorrect');
+                setTimeout(() => {
+                    buttons.forEach(btn => btn.disabled = false);
+                    element.classList.remove('incorrect');
+                }, 1500);
+            }
+        }
+
+        // ==========================================
+        // UTILIDADES
+        // ==========================================
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'es-ES';
+                utterance.rate = 0.9;
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function restartGame() {
+            gameState.cluesObtained = 0;
+            gameState.currentMissionIndex = 0;
+            gameState.completedMissions.clear();
+            showScreen('screen-main');
+        }
+
+        // ==========================================
+        // FUNCIONES MULTIJUGADOR (Preparadas para Firebase)
+        // ==========================================
+
+        // CONFIGURACIÓN DE FIREBASE - AGREGAR AQUÍ
+        // const firebaseConfig = {
+        //     apiKey: "YOUR_API_KEY",
+        //     authDomain: "YOUR_AUTH_DOMAIN",
+        //     projectId: "YOUR_PROJECT_ID",
+        //     storageBucket: "YOUR_STORAGE_BUCKET",
+        //     messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+        //     appId: "YOUR_APP_ID"
+        // };
+
+        // ==========================================
+        // CONFIGURACIÓN DE FIREBASE
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDhEXPq-IgAPHRczbbSDk5EN2E2RcEWaIM",
+            authDomain: "detectives-del-aula.firebaseapp.com",
+            databaseURL: "https://detectives-del-aula-default-rtdb.firebaseio.com",
+            projectId: "detectives-del-aula",
+            storageBucket: "detectives-del-aula.firebasestorage.app",
+            messagingSenderId: "626054145108",
+            appId: "1:626054145108:web:a21b2f18ab7729e8ddf9c1",
+            measurementId: "G-FXJ5QZSQSQ"
+        };
+
+        // Variables globales de Firebase
+        let firebase = null;
+        let firebaseDb = null;
+        let currentRoom = null;
+        let currentPlayerNumber = null;
+        let roomPlayers = {};
+        let roomListeners = [];
+
+        // Roles para multijugador
+        const roles = [
+            { emoji: '🔍', name: 'INVESTIGADOR', desc: 'Buscador de pistas' },
+            { emoji: '👁️', name: 'OBSERVADOR', desc: 'Especialista en detalles' },
+            { emoji: '🧩', name: 'DESCIFRADOR', desc: 'Solucionador de códigos' },
+            { emoji: '🗺️', name: 'RASTREADOR', desc: 'Seguidor de rastros' },
+            { emoji: '🔎', name: 'DETECTIVE', desc: 'Analista experto' },
+            { emoji: '🧠', name: 'ESTRATEGA', desc: 'Pensador crítico' },
+            { emoji: '⚡', name: 'EJECUTOR', desc: 'Completador de misiones' },
+            { emoji: '🛡️', name: 'GUARDIÁN', desc: 'Protector de evidencia' }
+        ];
+
+        function getPlayerRole(playerNumber) {
+            return roles[(playerNumber - 1) % roles.length];
+        }
+
+        // Sistema de eventos sorpresa
+        const surpriseEvents = [
+            {
+                emoji: '🚨',
+                title: '¡ALARMA!',
+                message: 'SE ACTIVÓ UNA ALARMA SILENCIOSA',
+                action: 'CONTINÚA LA INVESTIGACIÓN'
+            },
+            {
+                emoji: '💡',
+                title: '¡LAS LUCES PARPADEARON!',
+                message: 'ALGUIEN ESTÁ CERCA...',
+                action: 'APÚRATE A ENCONTRAR LA PISTA'
+            },
+            {
+                emoji: '👣',
+                title: '¡HUELLAS ENCONTRADAS!',
+                message: 'DESCUBRISTE RASTROS DE LA INTRUSIÓN',
+                action: 'SIGUE LA PISTA'
+            },
+            {
+                emoji: '✉️',
+                title: '¡MENSAJE ANÓNIMO!',
+                message: 'ALGUIEN DEJÓ UNA NOTA...',
+                action: 'LEE CUIDADOSAMENTE'
+            },
+            {
+                emoji: '🔦',
+                title: '¡DESCUBRIMIENTO!',
+                message: 'ENCONTRASTE ALGO IMPORTANTE',
+                action: 'ANALIZA LA EVIDENCIA'
+            }
+        ];
+
+        function triggerSurpriseEvent() {
+            // 30% de probabilidad de un evento sorpresa
+            if (Math.random() < 0.3) {
+                const event = surpriseEvents[Math.floor(Math.random() * surpriseEvents.length)];
+                return event;
+            }
+            return null;
+        }
+
+        function showSurpriseEvent(event) {
+            const gameContent = document.getElementById('game-content');
+            const surpriseDiv = document.createElement('div');
+            surpriseDiv.innerHTML = `
+                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.8); display: flex; align-items: center; justify-content: center; z-index: 2000;">
+                    <div style="background: white; padding: var(--spacing-xl); border-radius: var(--spacing-lg); text-align: center; max-width: 500px; animation: pop 0.6s ease-out;">
+                        <div style="font-size: 4rem; margin-bottom: var(--spacing-lg);">${event.emoji}</div>
+                        <div style="font-size: 2rem; font-weight: bold; margin-bottom: var(--spacing-md); color: var(--color-danger); text-transform: uppercase;">${event.title}</div>
+                        <div style="font-size: 1.3rem; margin-bottom: var(--spacing-lg); color: var(--color-text-dark);">${event.message}</div>
+                        <button class="btn btn-primary" onclick="this.parentElement.parentElement.remove();">
+                            ${event.action}
+                        </button>
+                    </div>
+                </div>
+            `;
+            gameContent.appendChild(surpriseDiv);
+        }
+
+        // Función para mostrar/ocultar formulario de unirse
+        function toggleJoinForm() {
+            const form = document.getElementById('join-form');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Función para inicializar Firebase
+        let firebaseInitPromise = null;
+        async function initializeFirebase() {
+            if (window.firebaseDb) return true;
+            if (firebaseInitPromise) return firebaseInitPromise;
+            firebaseInitPromise = (async () => {
+            try {
+                const firebaseScript = document.createElement('script');
+                firebaseScript.type = 'module';
+                firebaseScript.textContent = `
+                    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+                    import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
+                    
+                    const firebaseConfig = {
+                        apiKey: "AIzaSyDhEXPq-IgAPHRczbbSDk5EN2E2RcEWaIM",
+                        authDomain: "detectives-del-aula.firebaseapp.com",
+                        databaseURL: "https://detectives-del-aula-default-rtdb.firebaseio.com",
+                        projectId: "detectives-del-aula",
+                        storageBucket: "detectives-del-aula.firebasestorage.app",
+                        messagingSenderId: "626054145108",
+                        appId: "1:626054145108:web:a21b2f18ab7729e8ddf9c1",
+                        measurementId: "G-FXJ5QZSQSQ"
+                    };
+                    
+                    const app = initializeApp(firebaseConfig);
+                    window.firebaseDb = getDatabase(app);
+                    window.firebaseReady = true;
+                `;
+                document.head.appendChild(firebaseScript);
+                
+                // Esperar a que Firebase esté listo
+                await new Promise(resolve => {
+                    const checkInterval = setInterval(() => {
+                        if (window.firebaseReady) {
+                            clearInterval(checkInterval);
+                            resolve();
+                        }
+                    }, 100);
+                });
+            } catch (error) {
+                console.error('Error inicializando Firebase:', error);
+                throw error;
+            }
+            return true;
+            })();
+            try { return await firebaseInitPromise; }
+            finally { if (!window.firebaseDb) firebaseInitPromise = null; }
+        }
+
+        // Función para crear sala en Firebase
+        async function waitForFirebaseReady(timeoutMs = 15000) {
+            if (window.firebaseDb) return true;
+            try {
+                await initializeFirebase();
+            } catch (e) {}
+            const start = Date.now();
+            while (!window.firebaseDb && Date.now() - start < timeoutMs) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            return !!window.firebaseDb;
+        }
+
+        async function createRoomFirebase() {
+            chooseRandomCase();
+            if (!(await waitForFirebaseReady())) {
+                alert('No se pudo conectar con Firebase. Revisá tu conexión a Internet y volvé a intentar.');
+                return;
+            }
+
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let roomCode = '';
+            for (let i = 0; i < 4; i++) {
+                roomCode += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+
+            try {
+                const { ref, set } = await import('https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js');
+                
+                const roomRef = ref(window.firebaseDb, `rooms/${roomCode}`);
+                await set(roomRef, {
+                    created: new Date().getTime(),
+                    players: {},
+                    clues: 0,
+                    gameStarted: false,
+                    currentMission: 0,
+                    difficulty: gameState.difficulty,
+                    caseId: gameState.caseId
+                });
+
+                currentRoom = roomCode;
+                currentPlayerNumber = 1;
+                
+                // Agregar el primer jugador
+                await addPlayerToRoom(roomCode, 1, 'JUGADOR 1');
+                
+                showWaitingRoomFirebase(roomCode, 1);
+                listenToRoomChanges(roomCode);
+            } catch (error) {
+                console.error('Error creando sala:', error);
+                alert('Error al crear la sala. Intenta nuevamente.');
+            }
+        }
+
+        // Función para agregar jugador a la sala
+        async function addPlayerToRoom(roomCode, playerNumber, playerName) {
+            if (!window.firebaseDb) return;
+
+            try {
+                const { ref, set } = await import('https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js');
+                
+                const playerRef = ref(window.firebaseDb, `rooms/${roomCode}/players/${playerNumber}`);
+                await set(playerRef, {
+                    name: playerName,
+                    joined: new Date().getTime(),
+                    missionsCompleted: 0
+                });
+            } catch (error) {
+                console.error('Error agregando jugador:', error);
+            }
+        }
+
+        // Función para escuchar cambios en la sala
+        function listenToRoomChanges(roomCode) {
+            if (!window.firebaseDb) return;
+
+            import('https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js').then(module => {
+                const { ref, onValue } = module;
+                const roomRef = ref(window.firebaseDb, `rooms/${roomCode}`);
+                
+                const unsubscribe = onValue(roomRef, (snapshot) => {
+                    const roomData = snapshot.val();
+                    if (roomData) {
+                        if (roomData.difficulty) {
+                            gameState.difficulty = roomData.difficulty;
+                        }
+                        if (roomData.caseId) {
+                            gameState.caseId = roomData.caseId;
+                            updateCaseIntro();
+                        }
+                        if (roomData.players) {
+                            roomPlayers = roomData.players;
+                            updateWaitingRoomDisplay(roomCode, currentPlayerNumber, roomPlayers);
+                        }
+                        if (roomData.gameStarted === true) {
+                            gameState.mode = 'multi';
+                            gameState.roomCode = roomCode;
+                            roomListeners.forEach(fn => { try { fn(); } catch(e) {} });
+                            roomListeners = [];
+                            showScreen('screen-story');
+                        }
+                    }
+                });
+
+                roomListeners.push(unsubscribe);
+            });
+        }
+
+        // Función para actualizar la visualización de la sala
+        function updateWaitingRoomDisplay(roomCode, playerNumber, players) {
+            const gameContent = document.getElementById('game-content');
+            if (!gameContent) return;
+
+            let playersHtml = '';
+            Object.keys(players).forEach(pNum => {
+                const role = getPlayerRole(parseInt(pNum));
+                playersHtml += `
+                    <div class="player-item" style="display: flex; align-items: center; gap: var(--spacing-md); justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: var(--spacing-md); flex: 1;">
+                            <span style="font-size: 1.8rem;">${role.emoji}</span>
+                            <div style="text-align: left;">
+                                <div style="font-weight: bold; font-size: 1.1rem;">JUGADOR ${pNum} – ${players[pNum].name}</div>
+                                <div style="font-size: 0.9rem; color: var(--color-text-light);">${role.name}</div>
+                            </div>
+                        </div>
+                        <span style="color: var(--color-success); font-weight: bold;">✓</span>
+                    </div>
+                `;
+            });
+
+            const totalPlayers = Object.keys(players).length;
+            const canStart = totalPlayers >= 4;
+
+            gameContent.innerHTML = `
+                <div style="width: 100%; text-align: center;">
+                    <div class="waiting-header">SALA: ${roomCode}</div>
+                    <div style="font-size:1.15rem; font-weight:bold; margin-bottom:var(--spacing-md);">
+                        🎯 NIVEL: ${getDifficultyLabel()}<br>
+                        🕵️ CASO: ${getCurrentCase().title}
+                    </div>
+                    <div class="waiting-header" style="font-size: 1.3rem; color: var(--color-primary); margin-bottom: var(--spacing-lg);">
+                        DETECTIVES CONECTADOS:
+                    </div>
+                    <div class="players-list">
+                        ${playersHtml}
+                    </div>
+                    ${totalPlayers < 4 ? `
+                        <div class="waiting-message">
+                            ESPERANDO MÁS DETECTIVES... (${totalPlayers}/4)
+                        </div>
+                    ` : `
+                        <div class="waiting-message" style="color: var(--color-success); font-weight: bold;">
+                            ¡TODOS LOS DETECTIVES HAN LLEGADO!
+                        </div>
+                    `}
+                    ${playerNumber === 1 ? `
+                    <button class="btn btn-success" onclick="startMultiplayerGameFirebase('${roomCode}')" ${!canStart ? 'disabled' : ''} style="margin-top: var(--spacing-lg);">
+                        COMENZAR JUEGO
+                    </button>` : `
+                    <div class="waiting-message" style="margin-top: var(--spacing-lg);">ESPERANDO QUE EL JUGADOR 1 INICIE EL JUEGO...</div>`}
+                </div>
+            `;
+        }
+
+        // Función para unirse a una sala existente
+        async function joinRoomFirebase() {
+            if (!(await waitForFirebaseReady())) {
+                alert('No se pudo conectar con Firebase. Revisá tu conexión a Internet y volvé a intentar.');
+                return;
+            }
+
+            const codeInput = document.getElementById('room-code-input').value.toUpperCase();
+            if (codeInput.length !== 4) {
+                alert('Por favor ingresa un código de 4 caracteres');
+                return;
+            }
+
+            try {
+                const { ref, get, child } = await import('https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js');
+                const dbRef = ref(window.firebaseDb);
+                const snapshot = await get(child(dbRef, `rooms/${codeInput}`));
+
+                if (snapshot.exists()) {
+                    const roomData = snapshot.val();
+                    if (roomData.difficulty) {
+                        gameState.difficulty = roomData.difficulty;
+                    }
+                    if (roomData.caseId) {
+                        gameState.caseId = roomData.caseId;
+                        updateCaseIntro();
+                    }
+                    const totalPlayers = Object.keys(roomData.players || {}).length;
+                    const nextPlayerNumber = totalPlayers + 1;
+
+                    currentRoom = codeInput;
+                    currentPlayerNumber = nextPlayerNumber;
+
+                    showWaitingRoomFirebase(codeInput, nextPlayerNumber);
+                    listenToRoomChanges(codeInput);
+                } else {
+                    alert('Sala no encontrada. Verifica el código.');
+                }
+            } catch (error) {
+                console.error('Error uniéndose a la sala:', error);
+                alert('Error al conectarse a la sala. Intenta nuevamente.');
+            }
+        }
+
+        // Función para mostrar sala de espera con Firebase
+        function showWaitingRoomFirebase(roomCode, playerNumber) {
+            const gameContent = document.getElementById('game-content');
+            const role = getPlayerRole(playerNumber);
+            gameContent.innerHTML = `
+                <div style="width: 100%; padding: var(--spacing-lg); text-align: center;">
+                    <div style="font-size: 3rem; margin-bottom: var(--spacing-md);">
+                        ${role.emoji}
+                    </div>
+                    <div style="font-size: 1.8rem; font-weight: bold; margin-bottom: var(--spacing-lg); color: var(--color-primary);">
+                        JUGADOR ${playerNumber}
+                    </div>
+                    <div style="background-color: rgba(33, 150, 243, 0.15); padding: var(--spacing-lg); border-radius: var(--radius); margin-bottom: var(--spacing-lg); border: 2px solid var(--color-primary);">
+                        <div style="font-size: 1.4rem; font-weight: bold; color: var(--color-primary); text-transform: uppercase;">
+                            TU ROL: ${role.name}
+                        </div>
+                        <div style="font-size: 1.1rem; color: var(--color-text-light); margin-top: var(--spacing-md);">
+                            ${role.desc}
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>ESCRIBÍ TU NOMBRE:</label>
+                        <input type="text" id="player-name-input" placeholder="Tu nombre" autofocus>
+                    </div>
+                    <button class="btn btn-primary" onclick="submitPlayerNameFirebase(${playerNumber})">
+                        ACEPTAR Y CONTINUAR
+                    </button>
+                </div>
+            `;
+            showScreen('screen-game');
+        }
+
+        // Función para enviar nombre del jugador a Firebase
+        async function submitPlayerNameFirebase(playerNumber) {
+            const nameInput = document.getElementById('player-name-input');
+            const playerName = nameInput.value.trim().toUpperCase();
+
+            if (playerName.length === 0) {
+                alert('Por favor escribe tu nombre');
+                return;
+            }
+
+            try {
+                await addPlayerToRoom(currentRoom, playerNumber, playerName);
+                gameState.playerName = playerName;
+                // La sala se actualizará automáticamente por el listener
+            } catch (error) {
+                console.error('Error enviando nombre:', error);
+            }
+        }
+
+        // Función para iniciar el juego multijugador
+        async function startMultiplayerGameFirebase(roomCode) {
+            if (!window.firebaseDb) return;
+
+            try {
+                const { ref, update } = await import('https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js');
+                
+                const roomRef = ref(window.firebaseDb, `rooms/${roomCode}`);
+                await update(roomRef, { gameStarted: true });
+
+                // Todos los dispositivos, incluido el creador, avanzan mediante el listener
+                // cuando gameStarted cambia a true.
+            } catch (error) {
+                console.error('Error iniciando juego:', error);
+                alert('Error al iniciar el juego.');
+            }
+        }
+
+        // ==========================================
+        // INICIALIZACIÓN
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('Aplicación DETECTIVES DEL AULA cargada');
+            // Inicializar Firebase
+            try {
+                await initializeFirebase();
+                console.log('Firebase inicializado');
+            } catch (error) {
+                console.error('Firebase no pudo inicializarse al cargar. Se reintentará al crear/unirse a una sala.', error);
+            }
+        });
+
+        // Prevent accidental navigation
+        window.addEventListener('beforeunload', function(e) {
+            if (gameState.cluesObtained > 0) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+    </script>
+</body>
+</html>
