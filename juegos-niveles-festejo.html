@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Juegos con Niveles y Festejo</title>
+<style>
+:root{--bg:#f4f4f4;--card:#fff;--text:#111;--muted:#4a4a4a;--border:#111;--ok:#116b37;--bad:#a61b1b}
+*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+.wrap{width:min(920px,100%);margin:auto;padding:12px}
+h1{text-align:center;font-size:clamp(28px,6vw,42px);margin:8px 0}.intro{text-align:center;color:var(--muted);font-weight:700;margin-bottom:12px}
+.status{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin:12px 0}
+.badge{border:3px solid var(--border);border-radius:14px;background:#fff;padding:10px 14px;font-weight:900;font-size:18px}
+.progress-wrap{margin:12px auto 16px;max-width:580px}.progress-title{text-align:center;font-weight:900;margin-bottom:6px}
+.progress-bar{width:100%;height:22px;border:3px solid var(--border);border-radius:999px;background:#fff;overflow:hidden}
+.progress-fill{height:100%;width:0%;background:#56B4E9;transition:width .35s ease}
+.menu{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
+.menu button,.action{min-height:56px;border:3px solid var(--border);background:#fff;border-radius:14px;font-size:18px;font-weight:900;padding:10px;cursor:pointer;color:var(--text)}
+.menu button.active{background:#111;color:#fff}.game{display:none;background:var(--card);border:3px solid var(--border);border-radius:18px;padding:14px}.game.active{display:block}
+.game h2{text-align:center;margin:0 0 6px;font-size:clamp(24px,5vw,34px)}.note{text-align:center;color:var(--muted);font-weight:700;margin-bottom:12px}
+.order{border:3px solid var(--border);border-radius:14px;padding:12px;text-align:center;margin-bottom:12px;background:#fff}.order strong{font-size:clamp(22px,5vw,30px);letter-spacing:1px}
+.board{width:100%;aspect-ratio:4/3;border:3px solid var(--border);border-radius:16px;background:#fff}
+.feedback{min-height:36px;text-align:center;font-size:20px;font-weight:900;margin-top:12px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+.color-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:12px 0}
+.color-btn{height:84px;border:4px solid var(--border);border-radius:14px;cursor:pointer;position:relative}
+.color-btn span{position:absolute;left:5px;right:5px;bottom:5px;background:#fff;border:2px solid var(--border);border-radius:8px;padding:4px;font-weight:900;font-size:13px;color:#111}
+.sequence{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:8px 0}
+.dot{width:46px;height:46px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;border:4px solid var(--border);font-weight:900;font-size:17px}
+.memory-box{min-height:96px;border:3px solid var(--border);border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;padding:12px}
+.arrow-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;max-width:420px;margin:14px auto}
+.arrow-btn{min-height:88px;border:3px solid var(--border);border-radius:14px;font-size:52px;font-weight:900;line-height:1;cursor:pointer;text-shadow:2px 0 currentColor,-2px 0 currentColor,0 2px currentColor,0 -2px currentColor,1px 1px currentColor,-1px -1px currentColor,1px -1px currentColor,-1px 1px currentColor}
+.progress-text{text-align:center;font-weight:900;margin:8px 0 12px;font-size:20px}.numberPoint{cursor:pointer}.numberPoint.done circle{opacity:.72}.numberPoint.wrong circle{stroke:var(--bad)!important;stroke-width:10!important}
+.helper{margin-top:12px;border:2px dashed var(--border);border-radius:12px;background:#fff;padding:10px;text-align:center;font-weight:700}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:1000;padding:16px}.modal.show{display:flex}
+.modal-card{background:#fff;border:4px solid var(--border);border-radius:22px;max-width:520px;width:100%;padding:20px;text-align:center}
+.modal-card h3{margin:0 0 8px;font-size:clamp(28px,6vw,38px)}.modal-card p{font-size:20px;font-weight:800;margin:8px 0}.big-emoji{font-size:56px;line-height:1;margin-bottom:8px}.stars{font-size:28px;margin:6px 0 12px}
+.confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:999}.confetti-piece{position:absolute;width:12px;height:18px;opacity:.95;animation:fall linear forwards}
+@keyframes fall{from{transform:translateY(-10vh) rotate(0deg)}to{transform:translateY(110vh) rotate(720deg)}}
+.final-screen{display:none;text-align:center;border:4px dashed var(--border);border-radius:18px;background:#fff;padding:16px;margin-top:16px}.final-screen.show{display:block}
+.final-screen h3{font-size:clamp(30px,7vw,42px);margin:0 0 8px}
+@media (max-width:560px){.wrap{padding:8px}.menu{grid-template-columns:1fr}.game{padding:10px}.color-grid{grid-template-columns:repeat(2,1fr)}.menu button,.action{width:100%}}
+</style>
+</head>
+<body>
+<div class="confetti" id="confetti"></div>
+<div class="modal" id="levelModal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="big-emoji" id="modalEmoji">🎉</div>
+    <h3 id="modalTitle">¡SUBISTE DE NIVEL!</h3>
+    <div class="stars">⭐ ⭐ ⭐</div>
+    <p id="modalText">AHORA ESTÁS EN EL NIVEL 2.</p>
+    <button class="action" id="closeModal">SEGUIR JUGANDO</button>
+  </div>
+</div>
+<main class="wrap">
+  <h1>JUEGOS DE ATENCIÓN, MEMORIA Y SECUENCIAS</h1>
+  <div class="intro">LAS SECUENCIAS CAMBIAN EN CADA RONDA. CADA 3 ACIERTOS SUBÍS DE NIVEL.</div>
+  <div class="status">
+    <div class="badge">NIVEL: <span id="level">1</span>/5</div>
+    <div class="badge">PUNTOS: <span id="score">0</span></div>
+    <div class="badge">ACIERTOS EN ESTE NIVEL: <span id="wins">0</span>/3</div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-title">PROGRESO AL SIGUIENTE NIVEL</div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+  <div class="menu">
+    <button class="tab active" data-game="g1">1. CAMINO DE COLORES</button>
+    <button class="tab" data-game="g2">2. COPIÁ LA SECUENCIA</button>
+    <button class="tab" data-game="g3">3. MEMORIA DE COLORES</button>
+    <button class="tab" data-game="g4">4. SEGUÍ LAS FLECHAS</button>
+  </div>
+  <section id="g1" class="game active">
+    <h2>CAMINO DE COLORES</h2>
+    <div class="note">TOCÁ LOS NÚMEROS EN EL ORDEN INDICADO.</div>
+    <div class="order"><strong id="order1"></strong></div>
+    <div id="stepText1" class="progress-text"></div>
+    <svg class="board" viewBox="0 0 420 320">
+      <g id="lines1"></g>
+      <g class="numberPoint p1" data-n="1"><circle cx="90" cy="70" r="32" fill="#0072B2" stroke="#111" stroke-width="4"/><text x="90" y="79" text-anchor="middle" font-size="26" font-weight="700" fill="#fff">1</text></g>
+      <g class="numberPoint p1" data-n="2"><circle cx="210" cy="55" r="32" fill="#E69F00" stroke="#111" stroke-width="4"/><text x="210" y="64" text-anchor="middle" font-size="26" font-weight="700" fill="#111">2</text></g>
+      <g class="numberPoint p1" data-n="3"><circle cx="330" cy="85" r="32" fill="#009E73" stroke="#111" stroke-width="4"/><text x="330" y="94" text-anchor="middle" font-size="26" font-weight="700" fill="#fff">3</text></g>
+      <g class="numberPoint p1" data-n="4"><circle cx="105" cy="180" r="32" fill="#CC79A7" stroke="#111" stroke-width="4"/><text x="105" y="189" text-anchor="middle" font-size="26" font-weight="700" fill="#111">4</text></g>
+      <g class="numberPoint p1" data-n="5"><circle cx="220" cy="160" r="32" fill="#56B4E9" stroke="#111" stroke-width="4"/><text x="220" y="169" text-anchor="middle" font-size="26" font-weight="700" fill="#111">5</text></g>
+      <g class="numberPoint p1" data-n="6"><circle cx="335" cy="190" r="32" fill="#D55E00" stroke="#111" stroke-width="4"/><text x="335" y="199" text-anchor="middle" font-size="26" font-weight="700" fill="#fff">6</text></g>
+      <g class="numberPoint p1" data-n="7"><circle cx="145" cy="275" r="32" fill="#F0E442" stroke="#111" stroke-width="4"/><text x="145" y="284" text-anchor="middle" font-size="26" font-weight="700" fill="#111">7</text></g>
+      <g class="numberPoint p1" data-n="8"><circle cx="285" cy="265" r="32" fill="#555555" stroke="#111" stroke-width="4"/><text x="285" y="274" text-anchor="middle" font-size="26" font-weight="700" fill="#fff">8</text></g>
+    </svg>
+    <div class="actions"><button class="action" id="new1">NUEVA SECUENCIA</button></div>
+    <div class="feedback" id="fb1"></div>
+  </section>
+  <section id="g2" class="game">
+    <h2>COPIÁ LA SECUENCIA</h2>
+    <div class="note">MIRÁ LOS COLORES Y TOCALOS EN EL MISMO ORDEN.</div>
+    <div class="sequence" id="target2"></div>
+    <div class="color-grid" id="buttons2"></div>
+    <div class="actions"><button class="action" id="clear2">BORRAR</button><button class="action" id="check2">COMPROBAR</button><button class="action" id="new2">NUEVA SECUENCIA</button></div>
+    <div class="feedback" id="fb2"></div>
+  </section>
+  <section id="g3" class="game">
+    <h2>MEMORIA DE COLORES</h2>
+    <div class="note">MIRÁ LA SECUENCIA Y DESPUÉS REPETILA.</div>
+    <div class="memory-box" id="memory3">TOCÁ “VER SECUENCIA”</div>
+    <div class="color-grid" id="buttons3"></div>
+    <div class="actions"><button class="action" id="show3">VER SECUENCIA</button><button class="action" id="clear3">BORRAR</button><button class="action" id="check3">COMPROBAR</button><button class="action" id="new3">NUEVA SECUENCIA</button></div>
+    <div class="feedback" id="fb3"></div>
+    <div class="helper">TIP: EN LOS NIVELES MÁS ALTOS LA SECUENCIA SE MUESTRA POR MENOS TIEMPO.</div>
+  </section>
+  <section id="g4" class="game">
+    <h2>SEGUÍ LAS FLECHAS</h2>
+    <div class="note">TOCÁ LAS FLECHAS EN EL ORDEN QUE APARECEN.</div>
+    <div class="order"><div class="sequence" id="arrowSequence"></div></div>
+    <div class="progress-text" id="step4"></div>
+    <div class="arrow-grid">
+      <button class="arrow-btn" data-a="↑" style="background:#0072B2;color:#fff">↑</button>
+      <button class="arrow-btn" data-a="→" style="background:#E69F00;color:#111">→</button>
+      <button class="arrow-btn" data-a="↓" style="background:#009E73;color:#fff">↓</button>
+      <button class="arrow-btn" data-a="←" style="background:#CC79A7;color:#111">←</button>
+    </div>
+    <div class="actions"><button class="action" id="new4">NUEVA SECUENCIA</button></div>
+    <div class="feedback" id="fb4"></div>
+  </section>
+  <section class="final-screen" id="finalScreen">
+    <h3>🏆 ¡LOGRASTE EL NIVEL MÁXIMO! 🏆</h3>
+    <p style="font-size:22px;font-weight:900;margin:8px 0;">¡EXCELENTE TRABAJO!</p>
+    <p style="font-size:18px;font-weight:800;margin:8px 0;">COMPLETASTE TODOS LOS NIVELES.</p>
+    <button class="action" id="playAgain">VOLVER A JUGAR DESDE NIVEL 1</button>
+  </section>
+</main>
+<script>
+const colors=[{n:1,name:'AZUL',hex:'#0072B2'},{n:2,name:'NARANJA',hex:'#E69F00'},{n:3,name:'VERDE',hex:'#009E73'},{n:4,name:'VIOLETA',hex:'#CC79A7'},{n:5,name:'CELESTE',hex:'#56B4E9'},{n:6,name:'MARRÓN',hex:'#D55E00'},{n:7,name:'AMARILLO',hex:'#F0E442'},{n:8,name:'GRIS',hex:'#555555'}];
+const arrows=['↑','→','↓','←']; const arrowColors={'↑':['#0072B2','#fff'],'→':['#E69F00','#111'],'↓':['#009E73','#fff'],'←':['#CC79A7','#111']};
+let level=1,score=0,wins=0; const lengths={1:3,2:4,3:5,4:6,5:7}; const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b); const byN=n=>colors.find(c=>c.n===n);
+function updateStatus(){document.getElementById('level').textContent=level;document.getElementById('score').textContent=score;document.getElementById('wins').textContent=wins;document.getElementById('progressFill').style.width=(wins/3*100)+'%'}
+function randomColors(n){return Array.from({length:n},()=>1+Math.floor(Math.random()*8))}
+function randomUnique(n){const a=[1,2,3,4,5,6,7,8];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a.slice(0,n)}
+function randomArrows(n){return Array.from({length:n},()=>arrows[Math.floor(Math.random()*arrows.length)])}
+function openModal(title,text,emoji='🎉'){document.getElementById('modalTitle').textContent=title;document.getElementById('modalText').textContent=text;document.getElementById('modalEmoji').textContent=emoji;document.getElementById('levelModal').classList.add('show')}
+function closeModal(){document.getElementById('levelModal').classList.remove('show')} document.getElementById('closeModal').onclick=closeModal;
+function confettiBurst(count=90){const box=document.getElementById('confetti');const palette=['#0072B2','#E69F00','#009E73','#CC79A7','#56B4E9','#D55E00','#F0E442','#555555'];for(let i=0;i<count;i++){const piece=document.createElement('div');piece.className='confetti-piece';piece.style.left=Math.random()*100+'vw';piece.style.background=palette[Math.floor(Math.random()*palette.length)];piece.style.animationDuration=(2+Math.random()*2.2)+'s';box.appendChild(piece);setTimeout(()=>piece.remove(),4500)}}
+function reward(){score+=10;wins+=1;updateStatus();confettiBurst(30);if(level<5&&wins>=3){level+=1;wins=0;updateStatus();confettiBurst(120);openModal('🎉 ¡SUBISTE DE NIVEL!','AHORA ESTÁS EN EL NIVEL '+level+'.','🏅');newAll()}else if(level===5&&wins>=3){wins=0;updateStatus();confettiBurst(140);openModal('🏆 ¡NIVEL MÁXIMO!','¡LO HICISTE! LLEGASTE AL NIVEL 5.','🏆');document.getElementById('finalScreen').classList.add('show');newAll()}}
+document.getElementById('playAgain').onclick=()=>{level=1;score=0;wins=0;document.getElementById('finalScreen').classList.remove('show');updateStatus();confettiBurst(60);openModal('✨ ¡EMPEZAMOS DE NUEVO!','VOLVISTE AL NIVEL 1. ¡A JUGAR!','✨');newAll()};
+document.querySelectorAll('.tab').forEach(btn=>{btn.onclick=()=>{document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.game').forEach(g=>g.classList.remove('active'));btn.classList.add('active');document.getElementById(btn.dataset.game).classList.add('active')}});
+let order1=[],i1=0,chosen1=[]; function p1(n){return document.querySelector('.p1[data-n="'+n+'"]')} function center(n){const c=p1(n).querySelector('circle');return{x:c.getAttribute('cx'),y:c.getAttribute('cy')}} function draw1(a,b){const A=center(a),B=center(b),l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1',A.x);l.setAttribute('y1',A.y);l.setAttribute('x2',B.x);l.setAttribute('y2',B.y);l.setAttribute('stroke','#111');l.setAttribute('stroke-width','7');l.setAttribute('stroke-linecap','round');document.getElementById('lines1').appendChild(l)} function updateGame1Text(){document.getElementById('order1').textContent=order1.join(' → ');document.getElementById('stepText1').textContent=i1<order1.length?'TOCÁ EL NÚMERO '+order1[i1]:'¡SECUENCIA COMPLETA!'} function new1(){order1=randomUnique(lengths[level]);i1=0;chosen1=[];document.getElementById('lines1').innerHTML='';document.getElementById('fb1').textContent='';document.querySelectorAll('.p1').forEach(e=>e.classList.remove('done','wrong'));updateGame1Text()}
+document.querySelectorAll('.p1').forEach(el=>{el.onclick=()=>{const n=+el.dataset.n,fb=document.getElementById('fb1');if(n!==order1[i1]){fb.textContent='❌ ESE NO. TOCÁ EL '+order1[i1];fb.style.color='#a61b1b';el.classList.add('wrong');setTimeout(()=>el.classList.remove('wrong'),450);return}chosen1.push(n);el.classList.add('done');if(chosen1.length>1)draw1(chosen1[chosen1.length-2],chosen1[chosen1.length-1]);i1++;if(i1===order1.length){fb.textContent='🎉 ¡MUY BIEN!';fb.style.color='#116b37';reward();setTimeout(new1,900)}else{fb.textContent='✅ MUY BIEN';fb.style.color='#116b37';updateGame1Text()}}}); document.getElementById('new1').onclick=new1;
+function makeColorButtons(id,handler){const box=document.getElementById(id);colors.forEach(c=>{const b=document.createElement('button');b.className='color-btn';b.style.background=c.hex;b.setAttribute('aria-label',c.name);b.innerHTML='<span>'+c.name+'</span>';b.onclick=()=>handler(c.n);box.appendChild(b)})}
+let target2=[],picks2=[];function render2(){const box=document.getElementById('target2');box.innerHTML='';target2.forEach(n=>{const c=byN(n),s=document.createElement('span');s.className='dot';s.style.background=c.hex;s.textContent=n;s.title=c.name;box.appendChild(s)})}function new2(){target2=randomColors(lengths[level]);picks2=[];render2();document.getElementById('fb2').textContent=''} makeColorButtons('buttons2',n=>picks2.push(n)); document.getElementById('clear2').onclick=()=>{picks2=[];document.getElementById('fb2').textContent=''};document.getElementById('check2').onclick=()=>{const f=document.getElementById('fb2');if(same(picks2,target2)){f.textContent='🎉 ¡MUY BIEN!';f.style.color='#116b37';reward();setTimeout(new2,800)}else{f.textContent='❌ PROBÁ OTRA VEZ';f.style.color='#a61b1b';picks2=[]}};document.getElementById('new2').onclick=new2;
+let target3=[],picks3=[],timer3=null;function new3(){target3=randomColors(lengths[level]);picks3=[];clearTimeout(timer3);document.getElementById('memory3').textContent='TOCÁ “VER SECUENCIA”';document.getElementById('fb3').textContent=''} makeColorButtons('buttons3',n=>picks3.push(n));document.getElementById('show3').onclick=()=>{clearTimeout(timer3);const box=document.getElementById('memory3');box.innerHTML='';target3.forEach(n=>{const c=byN(n),s=document.createElement('span');s.className='dot';s.style.background=c.hex;s.textContent=n;s.title=c.name;box.appendChild(s)});const showMs=Math.max(1500,3200-(level*300));timer3=setTimeout(()=>box.textContent='AHORA REPETÍ LA SECUENCIA',showMs)};document.getElementById('clear3').onclick=()=>{picks3=[];document.getElementById('fb3').textContent=''};document.getElementById('check3').onclick=()=>{const f=document.getElementById('fb3');if(same(picks3,target3)){f.textContent='🎉 ¡EXCELENTE MEMORIA!';f.style.color='#116b37';reward();setTimeout(new3,800)}else{f.textContent='❌ MIRÁ LA SECUENCIA DE NUEVO';f.style.color='#a61b1b';picks3=[]}};document.getElementById('new3').onclick=new3;
+let order4=[],i4=0;function render4(){const box=document.getElementById('arrowSequence');box.innerHTML='';order4.forEach(a=>{const sty=arrowColors[a],s=document.createElement('span');s.textContent=a;s.style.cssText='display:inline-flex;width:56px;height:56px;align-items:center;justify-content:center;border:3px solid #111;border-radius:14px;background:'+sty[0]+';color:'+sty[1]+';font-size:44px;font-weight:900;text-shadow:2px 0 currentColor,-2px 0 currentColor,0 2px currentColor,0 -2px currentColor';box.appendChild(s)});document.getElementById('step4').textContent='TOCÁ: '+order4[0]} function new4(){order4=randomArrows(lengths[level]);i4=0;render4();document.getElementById('fb4').textContent=''} document.querySelectorAll('.arrow-btn').forEach(b=>{b.onclick=()=>{const f=document.getElementById('fb4');if(b.dataset.a!==order4[i4]){f.textContent='❌ ESA NO. TOCÁ '+order4[i4];f.style.color='#a61b1b';return}i4++;if(i4===order4.length){f.textContent='🎉 ¡FELICITACIONES!';f.style.color='#116b37';reward();setTimeout(new4,800)}else{f.textContent='✅ MUY BIEN';f.style.color='#116b37';document.getElementById('step4').textContent='TOCÁ: '+order4[i4]}}});document.getElementById('new4').onclick=new4;
+function newAll(){new1();new2();new3();new4()} updateStatus();newAll();
+</script>
+</body>
+</html>
