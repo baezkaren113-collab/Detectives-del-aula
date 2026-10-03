@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>CEREBRO EN ACCIÓN - Juego Educativo</title>
+  <style>
+    :root {
+      --bg: #f5f5f5;
+      --card: #ffffff;
+      --text: #1a1a1a;
+      --muted: #666666;
+      --border: #222222;
+      --blue: #0057B8;
+      --green: #006B3C;
+      --yellow: #FFD43B;
+      --purple: #6A1B9A;
+      --red: #B91C1C;
+      --orange: #F59E0B;
+      --ok-color: #16803a;
+      --bad-color: #b42318;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Arial', 'Helvetica', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    button {
+      font: inherit;
+      color: inherit;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 16px;
+      padding-bottom: 120px;
+    }
+
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* PANTALLA DE INICIO */
+    .home-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    h1 {
+      font-size: clamp(28px, 6vw, 48px);
+      margin: 16px 0 8px;
+      font-weight: 900;
+      letter-spacing: -1px;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      color: var(--muted);
+      margin: 0 0 16px;
+    }
+
+    .levels-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .level-card {
+      background: var(--card);
+      border: 4px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: center;
+      min-height: 160px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .level-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .level-card:focus-visible {
+      outline: 5px solid var(--border);
+      outline-offset: 3px;
+    }
+
+    .level-number {
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .level-title {
+      font-size: 24px;
+      font-weight: 900;
+      margin: 8px 0;
+    }
+
+    .level-emoji {
+      font-size: 48px;
+      margin: 8px 0;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #ddd;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--border);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    /* PANTALLA DE JUEGO */
+    .game-container {
+      background: var(--card);
+      border: 4px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+      border-bottom: 3px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    .round-info {
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .stars {
+      display: flex;
+      gap: 6px;
+      font-size: 28px;
+    }
+
+    .instruction {
+      font-size: clamp(22px, 5vw, 32px);
+      font-weight: 900;
+      line-height: 1.2;
+      margin: 16px 0 12px;
+      color: var(--text);
+    }
+
+    .hint {
+      font-size: 16px;
+      color: var(--muted);
+      margin: 0 0 16px;
+      font-style: italic;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 12px 16px;
+      border: 3px solid var(--border);
+      border-radius: 14px;
+      background: var(--card);
+      color: var(--text);
+      font-weight: 900;
+      cursor: pointer;
+      font-size: 15px;
+      transition: all 0.1s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      min-height: 44px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn:focus-visible {
+      outline: 4px solid var(--border);
+      outline-offset: 2px;
+    }
+
+    .btn-icon {
+      font-size: 20px;
+    }
+
+    .btn-primary {
+      background: var(--border);
+      color: #fff;
+      grid-column: 1 / -1;
+    }
+
+    .status {
+      min-height: 40px;
+      font-size: 24px;
+      font-weight: 900;
+      padding: 12px;
+      margin: 12px 0;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .status.ok {
+      color: var(--ok-color);
+      background: #e8f5e9;
+    }
+
+    .status.bad {
+      color: var(--bad-color);
+      background: #ffebee;
+    }
+
+    .status.info {
+      color: var(--muted);
+      background: #f5f5f5;
+    }
+
+    /* AREA DE CONTENIDO */
+    .game-area {
+      margin: 20px 0;
+    }
+
+    /* COLORES CON SÍMBOLOS */
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin: 16px 0;
+    }
+
+    .choice {
+      min-height: 110px;
+      border: 3px solid var(--border);
+      border-radius: 16px;
+      background: var(--card);
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px;
+      transition: all 0.1s ease;
+      font-size: 16px;
+    }
+
+    .choice:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .choice:focus-visible {
+      outline: 4px solid var(--border);
+      outline-offset: 2px;
+    }
+
+    .choice-color {
+      width: 70px;
+      height: 70px;
+      border-radius: 12px;
+      border: 3px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: 900;
+    }
+
+    .color-blue {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .color-green {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .color-yellow {
+      background: var(--yellow);
+      color: var(--text);
+    }
+
+    .color-purple {
+      background: var(--purple);
+      color: #fff;
+    }
+
+    .color-red {
+      background: var(--red);
+      color: #fff;
+    }
+
+    .color-orange {
+      background: var(--orange);
+      color: var(--text);
+    }
+
+    /* FLECHAS */
+    .sequence {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 20px 0;
+      align-items: center;
+    }
+
+    .arrow-box {
+      width: 80px;
+      height: 80px;
+      border: 4px solid var(--border);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 50px;
+      font-weight: 900;
+      background: var(--card);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .arrow-blue { background: var(--blue); color: #fff; }
+    .arrow-green { background: var(--green); color: #fff; }
+    .arrow-yellow { background: var(--yellow); color: var(--text); }
+    .arrow-purple { background: var(--purple); color: #fff; }
+
+    /* DADOS */
+    .dice-container {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .dice {
+      width: 100px;
+      height: 100px;
+      background: var(--card);
+      border: 4px solid var(--border);
+      border-radius: 12px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 8px;
+      padding: 10px;
+      align-content: center;
+      justify-content: center;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      background: var(--border);
+      border-radius: 50%;
+    }
+
+    .dot.empty {
+      background: transparent;
+    }
+
+    /* BILATERAL */
+    .bilateral {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    @media (max-width: 700px) {
+      .bilateral {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .side {
+      border: 4px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      background: var(--card);
+    }
+
+    .side-title {
+      text-align: center;
+      font-size: 20px;
+      font-weight: 900;
+      margin: 0 0 12px;
+    }
+
+    .targets {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .target {
+      min-height: 100px;
+      border: 3px solid var(--border);
+      border-radius: 14px;
+      background: var(--card);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px;
+      font-weight: 900;
+      transition: all 0.1s ease;
+    }
+
+    .target:hover {
+      transform: translateY(-2px);
+    }
+
+    .target.selected {
+      outline: 5px solid var(--border);
+      box-shadow: inset 0 0 0 3px var(--card);
+    }
+
+    .target-symbol {
+      width: 50px;
+      height: 50px;
+      border-radius: 10px;
+      border: 3px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 900;
+    }
+
+    .hand {
+      font-size: 56px;
+      line-height: 1;
+    }
+
+    /* MEMORY */
+    .memory-board {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(140px, 1fr));
+      gap: 16px;
+      max-width: 400px;
+      margin: 20px auto;
+    }
+
+    .memory-pad {
+      min-height: 140px;
+      border: 5px solid var(--border);
+      border-radius: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 32px;
+      transition: all 0.1s ease;
+      position: relative;
+    }
+
+    .memory-pad.active {
+      transform: scale(1.08);
+      box-shadow: 0 0 0 6px var(--border) inset;
+    }
+
+    /* TRAZOS */
+    .trace-container {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    canvas {
+      width: 100%;
+      max-width: 700px;
+      height: auto;
+      aspect-ratio: 2 / 1;
+      border: 4px solid var(--border);
+      border-radius: 16px;
+      background: var(--card);
+      cursor: crosshair;
+      display: block;
+      touch-action: none;
+    }
+
+    /* CELEBRACIÓN */
+    .celebrate {
+      position: fixed;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+
+    .celebrate.show {
+      display: flex;
+    }
+
+    .celebrate-box {
+      background: var(--card);
+      border: 5px solid var(--border);
+      border-radius: 24px;
+      padding: 32px;
+      text-align: center;
+      max-width: 500px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    }
+
+    .celebrate-emoji {
+      font-size: 80px;
+      margin-bottom: 16px;
+    }
+
+    .celebrate-text {
+      font-size: 32px;
+      font-weight: 900;
+      margin: 16px 0;
+    }
+
+    .star-count {
+      font-size: 48px;
+      margin: 16px 0;
+    }
+
+    /* PIE DE PÁGINA */
+    .footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--card);
+      border-top: 4px solid var(--border);
+      padding: 12px;
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      z-index: 50;
+    }
+
+    .footer button {
+      padding: 10px 12px;
+      border: 3px solid var(--border);
+      border-radius: 12px;
+      background: var(--card);
+      cursor: pointer;
+      font-weight: 900;
+      font-size: 14px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.1s ease;
+    }
+
+    .footer button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .footer button:focus-visible {
+      outline: 3px solid var(--border);
+      outline-offset: 2px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 600px) {
+      .app {
+        padding: 12px;
+        padding-bottom: 120px;
+      }
+
+      .game-container {
+        padding: 16px;
+      }
+
+      .instruction {
+        font-size: 20px;
+      }
+
+      h1 {
+        font-size: 32px;
+      }
+
+      .choices {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .level-card {
+        min-height: 140px;
+      }
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- PANTALLA DE INICIO -->
+    <div id="homeScreen" class="screen active">
+      <div class="home-header">
+        <h1>🧠 CEREBRO EN ACCIÓN</h1>
+        <p class="subtitle">Juego interactivo para entrenar memoria, atención y coordinación</p>
+      </div>
+      <div class="levels-grid" id="levelsList"></div>
+    </div>
+
+    <!-- PANTALLA DE JUEGO -->
+    <div id="gameScreen" class="screen">
+      <div class="game-container">
+        <div class="game-header">
+          <div class="round-info" id="roundInfo"></div>
+          <div class="stars" id="starsDisplay"></div>
+        </div>
+
+        <div class="toolbar">
+          <button class="btn" id="listenBtn" onclick="speakInstruction()">
+            <span class="btn-icon">🔊</span>
+            <span>ESCUCHAR CONSIGNA</span>
+          </button>
+          <button class="btn" id="repeatBtn" onclick="repeatRound()" style="display:none;">
+            <span class="btn-icon">🔁</span>
+            <span>REPETIR</span>
+          </button>
+        </div>
+
+        <div class="instruction" id="instruction"></div>
+        <div class="hint" id="hint"></div>
+        <div class="status" id="status"></div>
+
+        <div class="game-area" id="gameArea"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CELEBRACIÓN -->
+  <div id="celebrate" class="celebrate">
+    <div class="celebrate-box">
+      <div class="celebrate-emoji" id="celebrateEmoji">🎉</div>
+      <div class="celebrate-text" id="celebrateText"></div>
+      <div class="star-count" id="starCount"></div>
+      <button class="btn btn-primary" id="nextBtn" style="margin-top: 20px; width: 100%;">
+        <span class="btn-icon">➡</span>
+        <span>SIGUIENTE</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- PIE DE PÁGINA -->
+  <div class="footer">
+    <button id="soundToggle" onclick="toggleSound()">
+      <span class="btn-icon">🔔</span>
+      <span>SONIDOS</span>
+    </button>
+    <button id="menuBtn" onclick="showHome()">
+      <span class="btn-icon">🏠</span>
+      <span>MENÚ</span>
+    </button>
+  </div>
+
+  <script>
+    // VARIABLES GLOBALES
+    const COLORS = [
+      { id: 'blue', name: 'AZUL', icon: '●', class: 'color-blue' },
+      { id: 'green', name: 'VERDE', icon: '★', class: 'color-green' },
+      { id: 'yellow', name: 'AMARILLO', icon: '■', class: 'color-yellow' },
+      { id: 'purple', name: 'VIOLETA', icon: '♦', class: 'color-purple' },
+      { id: 'red', name: 'ROJO', icon: '♥', class: 'color-red' },
+      { id: 'orange', name: 'NARANJA', icon: '●', class: 'color-orange' }
+    ];
+
+    const ARROWS = [
+      { id: 'up', name: 'ARRIBA', icon: '↑', class: 'arrow-blue', color: 'blue' },
+      { id: 'right', name: 'DERECHA', icon: '→', class: 'arrow-green', color: 'green' },
+      { id: 'down', name: 'ABAJO', icon: '↓', class: 'arrow-yellow', color: 'yellow' },
+      { id: 'left', name: 'IZQUIERDA', icon: '←', class: 'arrow-purple', color: 'purple' }
+    ];
+
+    const HANDS = [
+      { n: 1, icon: '✋', name: 'UN DEDO' },
+      { n: 2, icon: '✌', name: 'DOS DEDOS' },
+      { n: 3, icon: '🤟', name: 'TRES DEDOS' },
+      { n: 4, icon: '👌', name: 'CUATRO DEDOS' },
+      { n: 5, icon: '✋', name: 'CINCO DEDOS' }
+    ];
+
+    let currentLevel = -1;
+    let currentRound = 0;
+    let stars = 0;
+    let soundEnabled = true;
+    let gamePaused = false;
+    let currentInstruction = '';
+    let currentHint = '';
+
+    // DEFINICIÓN DE NIVELES
+    const LEVELS = [
+      {
+        number: 1,
+        title: 'COLORES Y GESTOS',
+        emoji: '🎨',
+        description: 'Toca el color correcto',
+        rounds: 5
+      },
+      {
+        number: 2,
+        title: 'FLECHAS Y DIRECCIONES',
+        emoji: '➡',
+        description: 'Sigue las direcciones',
+        rounds: 5
+      },
+      {
+        number: 3,
+        title: 'NÚMEROS Y DADOS',
+        emoji: '🎲',
+        description: 'Cuenta y empareja',
+        rounds: 5
+      },
+      {
+        number: 4,
+        title: 'MANO IZQUIERDA Y DERECHA',
+        emoji: '🤝',
+        description: 'Coordina ambas manos',
+        rounds: 5
+      },
+      {
+        number: 5,
+        title: 'MEMORIA DE COLORES',
+        emoji: '🧠',
+        description: 'Recuerda la secuencia',
+        rounds: 5
+      },
+      {
+        number: 6,
+        title: 'TRAZOS Y DIRECCIONES',
+        emoji: '✏',
+        description: 'Sigue el camino',
+        rounds: 5
+      }
+    ];
+
+    // INICIALIZACIÓN
+    function init() {
+      renderHome();
+    }
+
+    // PANTALLA DE INICIO
+    function renderHome() {
+      showScreen('homeScreen');
+      const list = document.getElementById('levelsList');
+      list.innerHTML = '';
+
+      LEVELS.forEach((level, idx) => {
+        const card = document.createElement('div');
+        card.className = 'level-card';
+        card.tabIndex = 0;
+
+        const progress = (localStorage.getItem(`level${idx}`) || 0) / (level.rounds * 5) * 100;
+
+        card.innerHTML = `
+          <div class="level-emoji">${level.emoji}</div>
+          <div class="level-number">NIVEL ${level.number}</div>
+          <div class="level-title">${level.title}</div>
+          <div class="progress-bar">
+            <div class="progress-bar-fill" style="width: ${Math.min(progress, 100)}%"></div>
+          </div>
+        `;
+
+        card.onclick = () => startLevel(idx);
+        card.onkeypress = (e) => { if (e.key === 'Enter') startLevel(idx); };
+
+        list.appendChild(card);
+      });
+    }
+
+    // INICIO DE NIVEL
+    function startLevel(levelIdx) {
+      currentLevel = levelIdx;
+      currentRound = 0;
+      stars = parseInt(localStorage.getItem(`level${levelIdx}`) || 0);
+      showScreen('gameScreen');
+      updateRoundInfo();
+      nextRound();
+    }
+
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+    }
+
+    function showHome() {
+      if (confirm('¿Volver al menú? Perderás el progreso de esta sesión.')) {
+        showScreen('homeScreen');
+      }
+    }
+
+    // ACTUALIZAR INFORMACIÓN
+    function updateRoundInfo() {
+      const level = LEVELS[currentLevel];
+      document.getElementById('roundInfo').textContent = `NIVEL ${level.number} - RONDA ${currentRound + 1} de ${level.rounds}`;
+
+      const starsHtml = Array(Math.min(stars, 5)).fill('⭐').join('');
+      document.getElementById('starsDisplay').innerHTML = starsHtml;
+    }
+
+    // INSTRUCCIONES
+    function setInstruction(text, hint = '') {
+      currentInstruction = text;
+      currentHint = hint;
+      document.getElementById('instruction').textContent = text;
+      document.getElementById('hint').textContent = hint;
+    }
+
+    function speakInstruction() {
+      if (!currentInstruction) return;
+      const text = currentInstruction + (currentHint ? '. ' + currentHint : '');
+      speak(text);
+    }
+
+    // SONIDO Y VOZ
+    function speak(text) {
+      if (!soundEnabled) return;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'es-ES';
+      utterance.rate = 0.9;
+      speechSynthesis.cancel();
+      speechSynthesis.speak(utterance);
+    }
+
+    function beep(freq = 400, duration = 100) {
+      if (!soundEnabled) return;
+      const context = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = context.createOscillator();
+      const gain = context.createGain();
+      osc.connect(gain);
+      gain.connect(context.destination);
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.3, context.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, context.currentTime + duration / 1000);
+      osc.start(context.currentTime);
+      osc.stop(context.currentTime + duration / 1000);
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      document.getElementById('soundToggle').style.opacity = soundEnabled ? '1' : '0.5';
+      speak(soundEnabled ? 'Sonidos activados' : 'Sonidos desactivados');
+    }
+
+    // LÓGICA DE RONDAS
+    function nextRound() {
+      const level = LEVELS[currentLevel];
+      clearGameArea();
+      document.getElementById('status').textContent = '';
+      document.getElementById('status').className = 'status';
+
+      if (currentRound >= level.rounds) {
+        endLevel();
+        return;
+      }
+
+      updateRoundInfo();
+
+      switch (currentLevel) {
+        case 0: renderColorLevel(); break;
+        case 1: renderArrowLevel(); break;
+        case 2: renderDiceLevel(); break;
+        case 3: renderBilateralLevel(); break;
+        case 4: renderMemoryLevel(); break;
+        case 5: renderTraceLevel(); break;
+      }
+
+      currentRound++;
+      speakInstruction();
+    }
+
+    function clearGameArea() {
+      document.getElementById('gameArea').innerHTML = '';
+    }
+
+    // NIVEL 1: COLORES Y GESTOS
+    function renderColorLevel() {
+      const difficulty = Math.floor(currentRound / 1) + 2;
+      const colors = shuffle(COLORS).slice(0, Math.min(difficulty, 6));
+      const target = pick(colors);
+
+      setInstruction(`TOCÁ EL COLOR ${target.name}`, 'Busca el color que se indica');
+
+      const div = document.createElement('div');
+      div.className = 'sequence';
+      div.innerHTML = `<div class="choice-color ${target.class}">${target.icon}</div>`;
+      document.getElementById('gameArea').appendChild(div);
+
+      const choices = document.createElement('div');
+      choices.className = 'choices';
+
+      shuffle(colors).forEach(color => {
+        const btn = document.createElement('button');
+        btn.className = 'choice';
+        btn.innerHTML = `
+          <div class="choice-color ${color.class}">${color.icon}</div>
+          <div>${color.name}</div>
+        `;
+        btn.onclick = () => {
+          if (color.id === target.id) {
+            correct('¡MUY BIEN, RESPUESTA CORRECTA!');
+          } else {
+            incorrect('PROBEMOS OTRA VEZ');
+          }
+        };
+        choices.appendChild(btn);
+      });
+
+      document.getElementById('gameArea').appendChild(choices);
+    }
+
+    // NIVEL 2: FLECHAS
+    function renderArrowLevel() {
+      const mode = currentRound % 3;
+      if (mode === 0) renderArrowSequence();
+      else if (mode === 1) renderArrowMatch();
+      else renderArrowMissing();
+    }
+
+    function renderArrowSequence() {
+      const sequence = [pick(ARROWS), pick(ARROWS)];
+      const nextArrow = sequence[1];
+      const answer = { ...nextArrow };
+
+      setInstruction('¿QUÉ FLECHA SIGUE?', 'Observa el patrón');
+
+      const div = document.createElement('div');
+      div.className = 'sequence';
+      sequence.forEach(arrow => {
+        const box = document.createElement('div');
+        box.className = `arrow-box ${arrow.class}`;
+        box.innerHTML = arrow.icon;
+        div.appendChild(box);
+      });
+
+      const questionBox = document.createElement('div');
+      questionBox.className = 'arrow-box';
+      questionBox.innerHTML = '?';
+      div.appendChild(questionBox);
+
+      document.getElementById('gameArea').appendChild(div);
+
+      const choices = document.createElement('div');
+      choices.className = 'choices';
+
+      shuffle(ARROWS).forEach(arrow => {
+        const btn = document.createElement('button');
+        btn.className = 'choice';
+        btn.innerHTML = `
+          <div class="arrow-box ${arrow.class}">${arrow.icon}</div>
+          <div>${arrow.name}</div>
+        `;
+        btn.onclick = () => {
+          if (arrow.id === answer.id) {
+            correct('¡SECUENCIA COMPLETA!');
+          } else {
+            incorrect('MIRÁ DE NUEVO EL PATRÓN');
+          }
+        };
+        choices.appendChild(btn);
+      });
+
+      document.getElementById('gameArea').appendChild(choices);
+    }
+
+    function renderArrowMatch() {
+      const target = pick(ARROWS);
+      setInstruction(`BUSCÁ LA FLECHA ${target.name}`, 'Todas son diferentes');
+
+      const div = document.createElement('div');
+      div.className = 'sequence';
+      const box = document.createElement('div');
+      box.className = `arrow-box ${target.class}`;
+      box.innerHTML = target.icon;
+      div.appendChild(box);
+      document.getElementById('gameArea').appendChild(div);
+
+      const choices = document.createElement('div');
+      choices.className = 'choices';
+
+      shuffle(ARROWS).forEach(arrow => {
+        const btn = document.createElement('button');
+        btn.className = 'choice';
+        btn.innerHTML = `
+          <div class="arrow-box ${arrow.class}">${arrow.icon}</div>
+          <div>${arrow.name}</div>
+        `;
+        btn.onclick = () => {
+          if (arrow.id === target.id) {
+            correct('¡FLECHA CORRECTA!');
+          } else {
+            incorrect('ESA NO ES. INTENTA OTRA');
+          }
+        };
+        choices.appendChild(btn);
+      });
+
+      document.getElementById('gameArea').appendChild(choices);
+    }
+
+    function renderArrowMissing() {
+      const arrows = shuffle(ARROWS).slice(0, 3);
+      const missing = pick(arrows);
+      const sequence = shuffle([...arrows, arrows[0]]).slice(0, 3);
+
+      setInstruction('¿QUÉ FLECHA FALTA?', 'Observa las direcciones');
+
+      const div = document.createElement('div');
+      div.className = 'sequence';
+      sequence.forEach(arrow => {
+        const box = document.createElement('div');
+        box.className = `arrow-box ${arrow.class}`;
+        box.innerHTML = arrow.icon;
+        div.appendChild(box);
+      });
+      document.getElementById('gameArea').appendChild(div);
+
+      const choices = document.createElement('div');
+      choices.className = 'choices';
+
+      shuffle(ARROWS).forEach(arrow => {
+        const btn = document.createElement('button');
+        btn.className = 'choice';
+        btn.innerHTML = `
+          <div class="arrow-box ${arrow.class}">${arrow.icon}</div>
+          <div>${arrow.name}</div>
+        `;
+        btn.onclick = () => {
+          const isMissing = !sequence.some(a => a.id === arrow.id);
+          if (isMissing) {
+            correct('¡FLECHA CORRECTA!');
+          } else {
+            incorrect('ESA YA ESTÁ. BUSCA OTRA');
+          }
+        };
+        choices.appendChild(btn);
+      });
+
+      document.getElementById('gameArea').appendChild(choices);
+    }
+
+    // NIVEL 3: DADOS
+    function renderDiceLevel() {
+      const mode = currentRound % 2;
+      if (mode === 0) {
+        renderDiceToHand();
+      } else {
+        renderHandToDice();
+      }
+    }
+
+    function renderDiceToHand() {
+      const n = 1 + Math.floor(Math.random() * 5);
+      setInstruction(`MIRÁ EL DADO CON ${n} PUNTOS. ELEGÍ LA MANO CON ${n} DEDOS`, 'Deben ser iguales');
+
+      const div = document.createElement('div');
+      div.className = 'dice-container';
+      div.appendChild(createDice(n));
+      document.getElementById('gameArea').appendChild(div);
+
+      const choices = document.createElement('div');
+      choices.className = 'choices';
+
+      const handOptions = shuffle(HANDS).slice(0, 4);
+      if (!handOptions.find(h => h.n === n)) {
+        handOptions[0] = HANDS[n - 1];
+      }
+
+      shuffle(handOptions).forEach(hand => {
+        const btn = document.createElement('button');
+        btn.className = 'choice';
+        btn.innerHTML = `
+          <div class="hand">${hand.icon}</div>
+          <div>${hand.name}</div>
+        `;
+        btn.onclick = () => {
+          if (hand.n === n) {
+            correct('¡MISMA CANTIDAD!');
+          } else {
+            incorrect('CONTÁ LOS PUNTOS DEL DADO');
+          }
+        };
+        choices.appendChild(btn);
+      });
+
+      document.getElementById('gameArea').appendChild(choices);
+    }
+
+    function renderHandToDice() {
+      const n = 1 + Math.floor(Math.random() * 5);
+      const hand = HANDS[n - 1];
+
+      setInstruction(`MIRÁ LA MANO CON ${n} DEDOS. ELEGÍ EL DADO CON ${n} PUNTOS`, 'Deben ser iguales');
+
+      const div = document.createElement('div');
+      div.className = 'sequence';
+      const handDiv = document.createElement('div');
+      handDiv.className = 'hand';
+      handDiv.innerHTML = hand.icon;
+      div.appendChild(handDiv);
+      document.getElementById('gameArea').appendChild(div);
+
+      const choices = document.createElement('div');
+      choices.className = 'choices';
+
+      let nums = [];
+      for (let i = 1; i <= 5; i++) {
+        if (i !== n) nums.push(i);
+      }
+      nums = shuffle(nums).slice(0, 3);
+      nums.push(n);
+      nums = shuffle(nums);
+
+      nums.forEach(v => {
+        const btn = document.createElement('button');
+        btn.className = 'choice';
+        const diceElement = createDice(v);
+        btn.innerHTML = `
+          <div style="margin-bottom: 8px;">${diceElement.outerHTML}</div>
+          <div>DADO ${v}</div>
+        `;
+        btn.onclick = () => {
+          if (v === n) {
+            correct('¡CORRECTO! MISMA CANTIDAD!');
+          } else {
+            incorrect('CONTÁ LOS PUNTOS');
+          }
+        };
+        choices.appendChild(btn);
+      });
+
+      document.getElementById('gameArea').appendChild(choices);
+    }
+
+    function createDice(n) {
+      const positions = {
+        1: [4],
+        2: [0, 8],
+        3: [0, 4, 8],
+        4: [0, 2, 6, 8],
+        5: [0, 2, 4, 6, 8],
+        6: [0, 2, 3, 5, 6, 8]
+      };
+
+      const dice = document.createElement('div');
+      dice.className = 'dice';
+      for (let i = 0; i < 9; i++) {
+        const dot = document.createElement('div');
+        dot.className = positions[n].includes(i) ? 'dot' : 'dot empty';
+        dice.appendChild(dot);
+      }
+      return dice;
+    }
+
+    // NIVEL 4: BILATERAL
+    function renderBilateralLevel() {
+      const colors = shuffle(COLORS).slice(0, 4);
+      const target = pick(colors);
+
+      setInstruction(`TOCÁ ${target.name} A LA IZQUIERDA. DESPUÉS A LA DERECHA.`, 'Usa color y símbolo');
+
+      const bilateral = document.createElement('div');
+      bilateral.className = 'bilateral';
+
+      let leftSelected = false;
+
+      // IZQUIERDA
+      const left = document.createElement('div');
+      left.className = 'side';
+      left.innerHTML = '<div class="side-title">MANO IZQUIERDA</div>';
+
+      const leftTargets = document.createElement('div');
+      leftTargets.className = 'targets';
+
+      colors.forEach(color => {
+        const btn = document.createElement('button');
+        btn.className = 'target';
+        btn.innerHTML = `
+          <div class="target-symbol ${color.class}">${color.icon}</div>
+          <div>${color.name}</div>
+        `;
+        btn.onclick = () => {
+          if (color.id === target.id) {
+            leftSelected = true;
+            btn.classList.add('selected');
+            correct('AHORA BUSCÁ LA PAREJA A LA DERECHA');
+          } else {
+            incorrect('BUSCÁ EL COLOR INDICADO');
+          }
+        };
+        leftTargets.appendChild(btn);
+      });
+
+      left.appendChild(leftTargets);
+
+      // DERECHA
+      const right = document.createElement('div');
+      right.className = 'side';
+      right.innerHTML = '<div class="side-title">MANO DERECHA</div>';
+
+      const rightTargets = document.createElement('div');
+      rightTargets.className = 'targets';
+
+      shuffle(colors).forEach(color => {
+        const btn = document.createElement('button');
+        btn.className = 'target';
+        btn.innerHTML = `
+          <div class="target-symbol ${color.class}">${color.icon}</div>
+          <div>${color.name}</div>
+        `;
+        btn.onclick = () => {
+          if (!leftSelected) {
+            incorrect('PRIMERO TOCÁ EL LADO IZQUIERDO');
+            return;
+          }
+          if (color.id === target.id) {
+            correct('¡DOS LADOS COORDINADOS!');
+          } else {
+            incorrect('BUSCÁ EL MISMO SÍMBOLO');
+          }
+        };
+        rightTargets.appendChild(btn);
+      });
+
+      right.appendChild(rightTargets);
+
+      bilateral.appendChild(left);
+      bilateral.appendChild(right);
+      document.getElementById('gameArea').appendChild(bilateral);
+    }
+
+    // NIVEL 5: MEMORIA
+    let memorySequence = [];
+    let memoryIndex = 0;
+    let memoryAccepting = false;
+
+    function renderMemoryLevel() {
+      const sequenceLength = Math.min(2 + Math.floor(currentRound / 1), 5);
+      memorySequence = Array.from({ length: sequenceLength }, () => Math.floor(Math.random() * 4));
+      memoryIndex = 0;
+      memoryAccepting = false;
+
+      setInstruction('MIRÁ Y RECORDÁ LA SECUENCIA', 'Después la repites tocando');
+
+      const board = document.createElement('div');
+      board.className = 'memory-board';
+
+      COLORS.slice(0, 4).forEach((color, i) => {
+        const btn = document.createElement('button');
+        btn.className = `memory-pad ${color.class}`;
+        btn.innerHTML = `<div style="font-size: 28px; font-weight: 900;">${color.icon}</div><div>${color.name}</div>`;
+        btn.onclick = () => {
+          if (!memoryAccepting) return;
+          if (i === memorySequence[memoryIndex]) {
+            memoryIndex++;
+            flashPad(btn);
+            if (memoryIndex === memorySequence.length) {
+              memoryAccepting = false;
+              correct('¡SECUENCIA COMPLETA!');
+            }
+          } else {
+            memoryIndex = 0;
+            incorrect('CASI. VOLVÉ A INTENTAR');
+            beep(220, 150);
+          }
+        };
+        board.appendChild(btn);
+      });
+
+      document.getElementById('gameArea').appendChild(board);
+
+      const replayBtn = document.createElement('button');
+      replayBtn.className = 'btn btn-primary';
+      replayBtn.style.marginTop = '16px';
+      replayBtn.innerHTML = '<span class="btn-icon">👀</span><span>VER SECUENCIA</span>';
+      replayBtn.onclick = playMemorySequence;
+      document.getElementById('gameArea').appendChild(replayBtn);
+
+      setTimeout(playMemorySequence, 600);
+    }
+
+    function flashPad(btn) {
+      btn.classList.add('active');
+      beep(440 + Math.random() * 200, 150);
+      setTimeout(() => btn.classList.remove('active'), 300);
+    }
+
+    async function playMemorySequence() {
+      memoryAccepting = false;
+      memoryIndex = 0;
+      document.getElementById('status').textContent = 'OBSERVÁ...';
+      document.getElementById('status').className = 'status info';
+
+      const pads = document.querySelectorAll('.memory-pad');
+      const gap = 600;
+
+      for (const i of memorySequence) {
+        if (pads[i]) {
+          flashPad(pads[i]);
+          await new Promise(r => setTimeout(r, gap));
+        }
+      }
+
+      document.getElementById('status').textContent = 'AHORA TE TOCA A VOS';
+      document.getElementById('status').className = 'status info';
+      memoryAccepting = true;
+    }
+
+    // NIVEL 6: TRAZOS
+    function renderTraceLevel() {
+      const traceMode = currentRound % 3;
+
+      const container = document.createElement('div');
+      container.className = 'trace-container';
+
+      const canvas = document.createElement('canvas');
+      canvas.width = 700;
+      canvas.height = 380;
+      container.appendChild(canvas);
+
+      document.getElementById('gameArea').appendChild(container);
+
+      const ctx = canvas.getContext('2d');
+      let drawing = false;
+      let touchPoints = 0;
+      let pathPoints = [];
+
+      // ELEGIR TIPO DE CAMINO
+      if (traceMode === 0) {
+        setInstruction('SEGUÍ EL CAMINO EN ZIGZAG', 'De izquierda a derecha');
+        drawZigzag();
+      } else if (traceMode === 1) {
+        setInstruction('SEGUÍ EL CAMINO ONDULADO', 'Como olas suaves');
+        drawWave();
+      } else {
+        setInstruction('SEGUÍ EL CAMINO CON CURVAS', 'Forma un círculo');
+        drawCircles();
+      }
+
+      function drawZigzag() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#f5f5f5';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Camino guía
+        ctx.strokeStyle = '#ddd';
+        ctx.lineWidth = 28;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        ctx.moveTo(50, 80);
+        ctx.lineTo(50, 300);
+        ctx.lineTo(150, 80);
+        ctx.lineTo(250, 300);
+        ctx.lineTo(350, 80);
+        ctx.lineTo(450, 300);
+        ctx.lineTo(550, 80);
+        ctx.lineTo(650, 300);
+        ctx.stroke();
+
+        // Línea de referencia
+        ctx.strokeStyle = '#ccc';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 6]);
+        ctx.beginPath();
+        ctx.moveTo(50, 80);
+        ctx.lineTo(50, 300);
+        ctx.lineTo(150, 80);
+        ctx.lineTo(250, 300);
+        ctx.lineTo(350, 80);
+        ctx.lineTo(450, 300);
+        ctx.lineTo(550, 80);
+        ctx.lineTo(650, 300);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Texto
+        ctx.fillStyle = '#222';
+        ctx.font = 'bold 16px Arial';
+        ctx.fillText('INICIO', 15, 65);
+        ctx.fillText('META', 595, 330);
+      }
+
+      function drawWave() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#f5f5f5';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Onda
+        ctx.strokeStyle = '#ddd';
+        ctx.lineWidth = 28;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        for (let x = 50; x <= 650; x += 5) {
+          const y = 190 + Math.sin((x - 50) / 60) * 100;
+          if (x === 50) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        // Línea de referencia
+        ctx.strokeStyle = '#ccc';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 6]);
+        ctx.beginPath();
+        for (let x = 50; x <= 650; x += 5) {
+          const y = 190 + Math.sin((x - 50) / 60) * 100;
+          if (x === 50) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Texto
+        ctx.fillStyle = '#222';
+        ctx.font = 'bold 16px Arial';
+        ctx.fillText('INICIO', 15, 175);
+        ctx.fillText('META', 600, 195);
+      }
+
+      function drawCircles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#f5f5f5';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Dos círculos
+        ctx.strokeStyle = '#ddd';
+        ctx.lineWidth = 28;
+        ctx.beginPath();
+        ctx.arc(200, 190, 100, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(500, 190, 100, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Líneas de referencia
+        ctx.strokeStyle = '#ccc';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 6]);
+        ctx.beginPath();
+        ctx.arc(200, 190, 100, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(500, 190, 100, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Texto
+        ctx.fillStyle = '#222';
+        ctx.font = 'bold 16px Arial';
+        ctx.fillText('INICIO', 175, 100);
+        ctx.fillText('META', 570, 100);
+      }
+
+      function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return [
+          (clientX - rect.left) * canvas.width / rect.width,
+          (clientY - rect.top) * canvas.height / rect.height
+        ];
+      }
+
+      canvas.addEventListener('mousedown', (e) => {
+        drawing = true;
+        touchPoints = 0;
+        const [x, y] = getPos(e);
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        pathPoints = [[x, y]];
+      });
+
+      canvas.addEventListener('mousemove', (e) => {
+        if (!drawing) return;
+        const [x, y] = getPos(e);
+        ctx.lineWidth = 14;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.strokeStyle = '#0057B8';
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        pathPoints.push([x, y]);
+        touchPoints++;
+      });
+
+      canvas.addEventListener('mouseup', () => {
+        drawing = false;
+        checkCompletion();
+      });
+
+      // Touch events
+      canvas.addEventListener('touchstart', (e) => {
+        drawing = true;
+        touchPoints = 0;
+        const [x, y] = getPos(e);
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        pathPoints = [[x, y]];
+        e.preventDefault();
+      }, { passive: false });
+
+      canvas.addEventListener('touchmove', (e) => {
+        if (!drawing) return;
+        const [x, y] = getPos(e);
+        ctx.lineWidth = 14;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.strokeStyle = '#0057B8';
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        pathPoints.push([x, y]);
+        touchPoints++;
+        e.preventDefault();
+      }, { passive: false });
+
+      canvas.addEventListener('touchend', () => {
+        drawing = false;
+        checkCompletion();
+      });
+
+      function checkCompletion() {
+        if (touchPoints > 100) {
+          correct('¡TRAZO COMPLETADO!');
+        } else {
+          document.getElementById('status').textContent = 'SEGUÍ MÁS EL CAMINO. INTENTA NUEVAMENTE.';
+          document.getElementById('status').className = 'status bad';
+          beep(220, 150);
+        }
+      }
+
+      const redoBtn = document.createElement('button');
+      redoBtn.className = 'btn btn-primary';
+      redoBtn.style.marginTop = '16px';
+      redoBtn.innerHTML = '<span class="btn-icon">🧽</span><span>BORRAR Y REPETIR</span>';
+      redoBtn.onclick = () => {
+        touchPoints = 0;
+        pathPoints = [];
+        if (traceMode === 0) drawZigzag();
+        else if (traceMode === 1) drawWave();
+        else drawCircles();
+        document.getElementById('status').textContent = '';
+      };
+      document.getElementById('gameArea').appendChild(redoBtn);
+    }
+
+    // RESPUESTAS
+    function correct(message) {
+      document.getElementById('status').textContent = message;
+      document.getElementById('status').className = 'status ok';
+      beep(600, 200);
+      speak(message);
+      stars = Math.min(stars + 1, 50);
+      localStorage.setItem(`level${currentLevel}`, stars);
+      setTimeout(nextRound, 2000);
+    }
+
+    function incorrect(message) {
+      document.getElementById('status').textContent = message;
+      document.getElementById('status').className = 'status bad';
+      beep(220, 150);
+      speak(message);
+    }
+
+    function repeatRound() {
+      nextRound();
+    }
+
+    // FIN DE NIVEL
+    function endLevel() {
+      const level = LEVELS[currentLevel];
+      const celebrate = document.getElementById('celebrate');
+
+      document.getElementById('celebrateEmoji').textContent = '🎉';
+      document.getElementById('celebrateText').textContent = `¡NIVEL ${level.number} SUPERADO!`;
+      document.getElementById('starCount').textContent = `⭐ x${Math.min(stars, 5)}`;
+
+      document.getElementById('nextBtn').onclick = () => {
+        celebrate.classList.remove('show');
+        if (currentLevel < LEVELS.length - 1) {
+          startLevel(currentLevel + 1);
+        } else {
+          showHome();
+        }
+      };
+
+      celebrate.classList.add('show');
+      speak(`¡Nivel superado! Ganaste ${stars} estrellas`);
+    }
+
+    // UTILIDADES
+    function shuffle(arr) {
+      const result = [...arr];
+      for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+      }
+      return result;
+    }
+
+    function pick(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    // INICIALIZAR
+    init();
+  </script>
+</body>
+</html>
