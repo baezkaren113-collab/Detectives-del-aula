@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>UNO - Juego de Cartas</title>
+<style>
+  :root{--bg:#10151f;--panel:#1a2230;--text:#f7f7f7;--muted:#c4c9d1;--accent:#ffffff;--shadow:0 10px 25px rgba(0,0,0,.28)}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,#111827,#0b1020);color:var(--text);display:flex;justify-content:center}
+  button{font:inherit}
+  .app{width:min(100%,760px);min-height:100vh;padding:14px 12px 24px}
+  h1{margin:4px 0 12px;text-align:center;font-size:clamp(28px,8vw,48px);letter-spacing:1px}
+  .topbar{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+  .stat{background:var(--panel);border:2px solid #334155;border-radius:16px;padding:10px 12px;text-align:center;font-weight:800}
+  .message{min-height:58px;display:flex;align-items:center;justify-content:center;text-align:center;background:#0f172a;border:2px solid #334155;border-radius:16px;padding:10px 14px;margin-bottom:12px;font-weight:750}
+  .table{background:radial-gradient(circle at center,#23412e,#10251a 68%);border:3px solid #43596a;border-radius:28px;padding:18px 12px;box-shadow:var(--shadow)}
+  .computer{text-align:center;margin-bottom:12px}
+  .computer-hand{display:flex;justify-content:center;gap:4px;min-height:78px;overflow:hidden;padding:5px}
+  .card-back{width:48px;height:72px;border-radius:10px;background:linear-gradient(135deg,#111 0 35%,#e11d48 35% 65%,#111 65%);border:3px solid #fff;box-shadow:0 4px 8px rgba(0,0,0,.3)}
+  .center{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center;justify-items:center;margin:12px 0 18px}
+  .pile-wrap{text-align:center}.pile-label{font-size:14px;font-weight:800;margin-top:6px;color:#e5e7eb}
+  .draw{width:112px;height:158px;border:4px solid #fff;border-radius:18px;background:linear-gradient(145deg,#0b0b0b 0 28%,#ef123f 28% 72%,#0b0b0b 72%);color:#fff;font-size:24px;font-weight:1000;cursor:pointer;box-shadow:var(--shadow)}
+  .draw:disabled{opacity:.5;cursor:not-allowed}
+  .card{width:112px;height:158px;border-radius:18px;border:4px solid #fff;position:relative;display:flex;align-items:center;justify-content:center;font-weight:1000;font-size:42px;color:#fff;text-shadow:0 2px 2px rgba(0,0,0,.35);box-shadow:var(--shadow);flex:0 0 auto;user-select:none}
+  .card::before{content:"";position:absolute;inset:25px 14px;border-radius:50%;border:3px solid rgba(255,255,255,.85);transform:rotate(-24deg)}
+  .card .main{z-index:2}.card .corner{position:absolute;z-index:3;top:6px;left:8px;font-size:22px;text-shadow:0 1px 2px rgba(0,0,0,.45)}
+  .red{background:#d62436}.yellow{background:#e3b400;color:#111;text-shadow:none}.green{background:#15803d}.blue{background:#1769aa}
+  .wild{background:conic-gradient(#d62436 0 25%,#e3b400 25% 50%,#15803d 50% 75%,#1769aa 75% 100%)}
+  .current-color{margin:0 auto 14px;width:max-content;max-width:100%;border-radius:999px;padding:8px 14px;background:#0f172a;border:2px solid #475569;font-weight:900}
+  .player-title{font-size:19px;font-weight:900;margin:6px 0 8px}
+  .hand{display:flex;gap:8px;overflow-x:auto;padding:8px 4px 14px;scroll-snap-type:x proximity}
+  .hand .card{width:92px;height:132px;font-size:34px;cursor:pointer;scroll-snap-align:start;transition:transform .12s ease,outline .12s ease}
+  .hand .card .corner{font-size:18px}.hand .card.playable{outline:4px solid #fff;transform:translateY(-5px)}.hand .card:not(.playable){opacity:.72}
+  .controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+  .btn{border:none;border-radius:16px;padding:14px 12px;font-weight:950;font-size:17px;cursor:pointer;min-height:52px}
+  .btn-primary{background:#f8fafc;color:#111827}.btn-uno{background:#f59e0b;color:#111827}.btn:disabled{opacity:.45;cursor:not-allowed}
+  .legend{margin-top:14px;background:var(--panel);border-radius:18px;padding:12px 14px;color:#e5e7eb;line-height:1.4}.legend strong{color:#fff}
+  .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.72);z-index:20;padding:20px}.modal.show{display:flex}
+  .modal-box{width:min(100%,430px);background:#111827;border:3px solid #fff;border-radius:24px;padding:22px;text-align:center;box-shadow:var(--shadow)}
+  .colors{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+  .color-btn{min-height:72px;border:4px solid #fff;border-radius:16px;font-weight:950;font-size:18px;cursor:pointer}.win-title{font-size:34px;margin:0 0 8px}
+  @media (max-width:430px){.app{padding-left:8px;padding-right:8px}.table{padding-left:8px;padding-right:8px}.draw,.card{width:94px;height:138px}.hand .card{width:82px;height:120px}.center{gap:10px}}
+  @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main class="app">
+  <h1>UNO</h1>
+  <div class="topbar" aria-label="Marcador"><div class="stat">TUS CARTAS: <span id="playerCount">0</span></div><div class="stat">RIVAL: <span id="cpuCount">0</span></div></div>
+  <div id="message" class="message" role="status" aria-live="polite">PRESIONÁ “NUEVA PARTIDA”.</div>
+  <section class="table" aria-label="Mesa de juego">
+    <div class="computer"><div><strong>COMPUTADORA</strong></div><div id="cpuHand" class="computer-hand" aria-label="Cartas de la computadora"></div></div>
+    <div id="currentColor" class="current-color">COLOR ACTUAL: —</div>
+    <div class="center">
+      <div class="pile-wrap"><button id="drawPile" class="draw" aria-label="Robar una carta" disabled>ROBAR</button><div class="pile-label">MAZO</div></div>
+      <div class="pile-wrap"><div id="discard" aria-label="Carta en juego"></div><div class="pile-label">CARTA EN JUEGO</div></div>
+    </div>
+    <div class="player-title">TUS CARTAS</div>
+    <div id="playerHand" class="hand" aria-label="Tu mano de cartas"></div>
+  </section>
+  <div class="controls"><button id="newGame" class="btn btn-primary">NUEVA PARTIDA</button><button id="unoButton" class="btn btn-uno" disabled>¡UNO!</button></div>
+  <div class="legend"><strong>CÓMO JUGAR:</strong> TOCÁ UNA CARTA QUE COINCIDA EN <strong>COLOR, NÚMERO O SÍMBOLO</strong>. SI NO PODÉS JUGAR, TOCÁ <strong>ROBAR</strong>. LAS CARTAS <strong>+2, SALTA, CAMBIO DE SENTIDO, COMODÍN Y +4</strong> TIENEN EFECTOS ESPECIALES. CUANDO TE QUEDE UNA SOLA CARTA, PRESIONÁ <strong>¡UNO!</strong>.</div>
+</main>
+<div id="colorModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="colorTitle"><div class="modal-box"><h2 id="colorTitle">ELEGÍ UN COLOR</h2><div class="colors"><button class="color-btn red" data-color="red">ROJO</button><button class="color-btn yellow" data-color="yellow">AMARILLO</button><button class="color-btn green" data-color="green">VERDE</button><button class="color-btn blue" data-color="blue">AZUL</button></div></div></div>
+<div id="endModal" class="modal" role="dialog" aria-modal="true"><div class="modal-box"><h2 id="endTitle" class="win-title">¡GANASTE!</h2><p id="endText"></p><button id="playAgain" class="btn btn-primary" style="width:100%">JUGAR OTRA VEZ</button></div></div>
+<script>
+(() => {
+  const COLORS=["red","yellow","green","blue"];
+  const COLOR_NAMES={red:"ROJO",yellow:"AMARILLO",green:"VERDE",blue:"AZUL"};
+  const SYMBOLS={skip:"⛔",reverse:"↔",draw2:"+2",wild:"★",wild4:"+4"};
+  let deck=[],discardPile=[],player=[],cpu=[],currentColor=null,playerTurn=true,gameOver=true,unoCalled=false,pendingWild=null,playerDrewThisTurn=false;
+  const el=id=>document.getElementById(id),msg=t=>el("message").textContent=t;
+  function makeDeck(){const d=[];for(const color of COLORS){d.push({color,value:"0"});for(let n=1;n<=9;n++){d.push({color,value:String(n)});d.push({color,value:String(n)})}for(const action of ["skip","reverse","draw2"]){d.push({color,value:action});d.push({color,value:action})}}for(let i=0;i<4;i++){d.push({color:"wild",value:"wild"});d.push({color:"wild",value:"wild4"})}return shuffle(d)}
+  function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+  function replenishDeck(){if(deck.length===0&&discardPile.length>1){const top=discardPile.pop();deck=shuffle(discardPile.splice(0));discardPile=[top]}}
+  function drawCard(hand,amount=1){for(let i=0;i<amount;i++){replenishDeck();if(deck.length)hand.push(deck.pop())}}
+  function topCard(){return discardPile[discardPile.length-1]}
+  function label(card){if(card.value.match(/^\d$/))return card.value;return SYMBOLS[card.value]||card.value}
+  function cardAria(card){const color=card.color==="wild"?"COMODÍN":COLOR_NAMES[card.color];const value={skip:"SALTA TURNO",reverse:"CAMBIO DE SENTIDO",draw2:"ROBA DOS",wild:"COMODÍN",wild4:"COMODÍN ROBA CUATRO"}[card.value]||card.value;return color+" "+value}
+  function canPlay(card){const top=topCard();if(!top)return false;if(card.color==="wild")return true;return card.color===currentColor||card.value===top.value}
+  function createCard(card,idx=null,interactive=false){const div=document.createElement(interactive?"button":"div");div.className="card "+card.color;div.setAttribute("aria-label",cardAria(card));if(interactive){div.type="button";div.dataset.index=idx;if(canPlay(card)&&playerTurn&&!gameOver){div.classList.add("playable");div.addEventListener("click",()=>playPlayerCard(Number(div.dataset.index)))}else div.disabled=true}const corner=document.createElement("div");corner.className="corner";corner.textContent=label(card);const main=document.createElement("div");main.className="main";main.textContent=label(card);div.append(corner,main);return div}
+  function render(){el("playerCount").textContent=player.length;el("cpuCount").textContent=cpu.length;const ch=el("cpuHand");ch.innerHTML="";cpu.forEach(()=>{const b=document.createElement("div");b.className="card-back";ch.appendChild(b)});const ph=el("playerHand");ph.innerHTML="";player.forEach((c,i)=>ph.appendChild(createCard(c,i,true)));const dis=el("discard");dis.innerHTML="";if(topCard())dis.appendChild(createCard(topCard()));el("currentColor").textContent="COLOR ACTUAL: "+(currentColor?COLOR_NAMES[currentColor]:"—");el("drawPile").disabled=gameOver||!playerTurn||playerDrewThisTurn;el("unoButton").disabled=gameOver||player.length!==1||unoCalled}
+  function startGame(){deck=makeDeck();discardPile=[];player=[];cpu=[];playerTurn=true;gameOver=false;unoCalled=false;playerDrewThisTurn=false;el("drawPile").textContent="ROBAR";for(let i=0;i<7;i++){drawCard(player);drawCard(cpu)}let first;do{first=deck.pop();if(first.color==="wild")deck.unshift(first)}while(first.color==="wild");discardPile.push(first);currentColor=first.color;msg("TU TURNO. JUGÁ UNA CARTA DEL MISMO COLOR, NÚMERO O SÍMBOLO.");render();if(first.value==="draw2"){drawCard(player,2);playerTurn=false;msg("LA PARTIDA EMPEZÓ CON +2. ROBÁS 2 CARTAS Y PIERDES EL TURNO.");render();setTimeout(cpuTurn,700)}else if(first.value==="skip"||first.value==="reverse"){msg("LA PRIMERA CARTA TE HACE PERDER EL TURNO.");playerTurn=false;render();setTimeout(cpuTurn,700)}}
+  function playPlayerCard(index){if(!playerTurn||gameOver)return;const card=player[index];if(!canPlay(card))return;player.splice(index,1);discardPile.push(card);playerDrewThisTurn=false;el("drawPile").textContent="ROBAR";if(card.color==="wild"){pendingWild={source:"player",card};el("colorModal").classList.add("show");render();return}currentColor=card.color;afterCardPlayed("player",card)}
+  function afterCardPlayed(source,card){render();if(checkWin(source))return;const otherHand=source==="player"?cpu:player;if(card.value==="draw2"){drawCard(otherHand,2);msg(source==="player"?"¡+2! LA COMPUTADORA ROBA 2. VOLVÉS A JUGAR.":"LA COMPUTADORA JUGÓ +2. ROBÁS 2. SU TURNO CONTINÚA.");render();if(source==="player")playerTurn=true;else{playerTurn=false;setTimeout(cpuTurn,900)}return}if(card.value==="skip"||card.value==="reverse"){msg(source==="player"?"¡SALTA! LA COMPUTADORA PIERDE EL TURNO. VOLVÉS A JUGAR.":"LA COMPUTADORA TE HACE PERDER EL TURNO.");if(source==="player"){playerTurn=true;render()}else{playerTurn=false;render();setTimeout(cpuTurn,900)}return}if(source==="player"){playerTurn=false;unoCalled=false;msg("TURNO DE LA COMPUTADORA…");render();setTimeout(cpuTurn,700)}else{playerTurn=true;unoCalled=false;playerDrewThisTurn=false;msg("TU TURNO.");render()}}
+  function chooseCpuColor(){const counts={red:0,yellow:0,green:0,blue:0};cpu.forEach(c=>{if(counts[c.color]!==undefined)counts[c.color]++});return COLORS.slice().sort((a,b)=>counts[b]-counts[a])[0]||COLORS[Math.floor(Math.random()*4)]}
+  function cpuTurn(){if(gameOver)return;playerTurn=false;render();const playable=cpu.map((c,i)=>({c,i})).filter(x=>canPlay(x.c));if(playable.length===0){drawCard(cpu,1);msg("LA COMPUTADORA ROBÓ UNA CARTA.");render();const i=cpu.length-1;if(canPlay(cpu[i]))setTimeout(()=>cpuPlay(i),550);else setTimeout(()=>{playerTurn=true;playerDrewThisTurn=false;msg("TU TURNO.");render()},550);return}playable.sort((a,b)=>{const s=v=>["wild4","draw2","skip","reverse","wild"].includes(v)?1:0;return s(b.c.value)-s(a.c.value)});setTimeout(()=>cpuPlay(playable[0].i),550)}
+  function cpuPlay(index){if(gameOver)return;const card=cpu[index];cpu.splice(index,1);discardPile.push(card);if(card.color==="wild"){currentColor=chooseCpuColor();msg("LA COMPUTADORA CAMBIÓ EL COLOR A "+COLOR_NAMES[currentColor]+".");render();if(checkWin("cpu"))return;if(card.value==="wild4"){drawCard(player,4);msg("LA COMPUTADORA JUGÓ +4 Y ELIGIÓ "+COLOR_NAMES[currentColor]+". ROBÁS 4 CARTAS Y PIERDES EL TURNO.");render();setTimeout(cpuTurn,950)}else{playerTurn=true;playerDrewThisTurn=false;setTimeout(()=>{msg("TU TURNO. COLOR: "+COLOR_NAMES[currentColor]+".");render()},400)}return}currentColor=card.color;afterCardPlayed("cpu",card)}
+  function checkWin(source){const hand=source==="player"?player:cpu;if(hand.length===0){gameOver=true;const won=source==="player";el("endTitle").textContent=won?"🏆 ¡GANASTE!":"FIN DE LA PARTIDA";el("endText").textContent=won?"¡Muy bien! Te quedaste sin cartas.":"La computadora se quedó sin cartas primero.";el("endModal").classList.add("show");msg(won?"¡GANASTE LA PARTIDA!":"GANÓ LA COMPUTADORA.");render();return true}return false}
+  el("drawPile").addEventListener("click",()=>{if(playerDrewThisTurn&&el("drawPile").textContent==="PASAR"){playerTurn=false;playerDrewThisTurn=false;el("drawPile").textContent="ROBAR";msg("PASASTE. TURNO DE LA COMPUTADORA.");render();setTimeout(cpuTurn,600);return}if(gameOver||!playerTurn||playerDrewThisTurn)return;drawCard(player,1);playerDrewThisTurn=true;const card=player[player.length-1];if(canPlay(card)){msg("ROBASTE UNA CARTA. PODÉS JUGARLA SI QUERÉS.");render();setTimeout(()=>{if(playerTurn&&playerDrewThisTurn&&!gameOver){el("drawPile").disabled=false;el("drawPile").textContent="PASAR"}},30)}else{msg("NO PODÉS JUGAR LA CARTA ROBADA. TURNO DE LA COMPUTADORA.");render();setTimeout(()=>{playerTurn=false;playerDrewThisTurn=false;el("drawPile").textContent="ROBAR";cpuTurn()},700)}});
+  document.querySelectorAll(".color-btn").forEach(btn=>btn.addEventListener("click",()=>{const chosen=btn.dataset.color;el("colorModal").classList.remove("show");currentColor=chosen;const p=pendingWild;pendingWild=null;if(!p)return;if(checkWin("player"))return;if(p.card.value==="wild4"){drawCard(cpu,4);msg("ELEGISTE "+COLOR_NAMES[chosen]+". LA COMPUTADORA ROBA 4 Y PIERDE EL TURNO. VOLVÉS A JUGAR.");playerTurn=true;render()}else{msg("ELEGISTE "+COLOR_NAMES[chosen]+". TURNO DE LA COMPUTADORA.");playerTurn=false;render();setTimeout(cpuTurn,700)}}));
+  el("unoButton").addEventListener("click",()=>{if(player.length===1&&!gameOver){unoCalled=true;msg("¡UNO! TE QUEDA UNA SOLA CARTA.");render()}});
+  el("newGame").addEventListener("click",startGame);
+  el("playAgain").addEventListener("click",()=>{el("endModal").classList.remove("show");startGame()});
+  render();
+})();
+</script>
+</body>
+</html>
