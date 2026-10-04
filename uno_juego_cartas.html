@@ -1,122 +1,54 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>UNO Multijugador</title>
-<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>UNO - Elegir modo</title>
 <style>
-:root{--bg:#0d1117;--panel:#171d26;--panel2:#202938;--text:#f8fafc;--muted:#cbd5e1;--line:#475569;--ok:#22c55e;--warn:#f59e0b;--danger:#ef4444;--shadow:0 10px 28px rgba(0,0,0,.32)}
-*{box-sizing:border-box} body{margin:0;min-height:100vh;background:linear-gradient(180deg,#111827,#070b12);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-button,input{font:inherit} button{touch-action:manipulation}.app{width:min(100%,820px);margin:0 auto;padding:14px 12px 30px}h1{text-align:center;font-size:clamp(30px,8vw,50px);margin:4px 0 8px;letter-spacing:1px}.subtitle{text-align:center;color:var(--muted);font-weight:750;margin:0 0 14px}.panel{background:var(--panel);border:2px solid #334155;border-radius:22px;padding:16px;box-shadow:var(--shadow)}.hidden{display:none!important}.setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.setup-card{background:var(--panel2);border:2px solid #475569;border-radius:18px;padding:14px}.setup-card h2{margin:0 0 10px;font-size:20px}.field{display:grid;gap:6px;margin:10px 0}.field label{font-weight:850}.field input{width:100%;min-height:48px;border:2px solid #64748b;border-radius:12px;background:#0f172a;color:white;padding:10px 12px;font-size:17px;text-transform:uppercase}.btn{border:0;border-radius:14px;min-height:50px;padding:12px 14px;font-weight:950;cursor:pointer}.btn-main{background:#f8fafc;color:#111827}.btn-alt{background:#334155;color:#fff}.btn-uno{background:#f59e0b;color:#111827}.btn-danger{background:#991b1b;color:#fff}.btn:disabled{opacity:.48;cursor:not-allowed}.status{margin-top:12px;min-height:52px;display:flex;align-items:center;justify-content:center;text-align:center;border-radius:14px;background:#0f172a;border:2px solid #334155;padding:10px;font-weight:800}.room-head{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap}.room-code{background:#020617;border:2px dashed #94a3b8;border-radius:14px;padding:10px 14px;font-size:24px;font-weight:1000;letter-spacing:3px}.players{display:grid;gap:8px;margin:14px 0}.player-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#0f172a;border:2px solid #334155;border-radius:14px;padding:10px 12px}.player-row.current{outline:4px solid white}.player-row.me{border-color:#e2e8f0}.tag{font-size:12px;font-weight:950;padding:4px 8px;border-radius:999px;background:#334155}.lobby-actions{display:flex;gap:10px;flex-wrap:wrap}.game-top{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}.stat{background:var(--panel);border:2px solid #334155;border-radius:14px;text-align:center;padding:9px;font-weight:900;min-width:0}.stat small{display:block;color:var(--muted);font-size:11px}.message{min-height:58px;display:flex;align-items:center;justify-content:center;text-align:center;background:#0f172a;border:2px solid #334155;border-radius:16px;padding:10px 14px;margin:10px 0;font-weight:850}.table{background:radial-gradient(circle at center,#21432d,#10231a 70%);border:3px solid #43596a;border-radius:28px;padding:16px 10px;box-shadow:var(--shadow)}.opponents{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 10px}.opp{min-width:128px;background:rgba(2,6,23,.72);border:2px solid #64748b;border-radius:14px;padding:8px;text-align:center}.opp.current{outline:4px solid white}.opp-name{font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.opp-count{font-size:28px;font-weight:1000}.color-pill{width:max-content;max-width:100%;margin:6px auto 10px;background:#0f172a;border:2px solid #64748b;border-radius:999px;padding:8px 14px;font-weight:950}.center{display:grid;grid-template-columns:1fr 1fr;gap:14px;justify-items:center;align-items:center;margin:10px 0 16px}.pile-wrap{text-align:center}.pile-label{font-size:13px;font-weight:900;margin-top:6px}.draw{width:110px;height:154px;border:4px solid white;border-radius:18px;background:linear-gradient(145deg,#090909 0 28%,#ef123f 28% 72%,#090909 72%);color:white;font-size:22px;font-weight:1000;box-shadow:var(--shadow);cursor:pointer}.card{width:110px;height:154px;border-radius:18px;border:4px solid white;position:relative;display:flex;align-items:center;justify-content:center;font-weight:1000;font-size:40px;color:white;text-shadow:0 2px 2px rgba(0,0,0,.4);box-shadow:var(--shadow);flex:0 0 auto;user-select:none}.card::before{content:"";position:absolute;inset:24px 13px;border-radius:50%;border:3px solid rgba(255,255,255,.88);transform:rotate(-24deg)}.card .main{z-index:2}.card .corner{position:absolute;z-index:3;top:6px;left:8px;font-size:21px}.red{background:#c81e32}.yellow{background:#e0ad00;color:#111;text-shadow:none}.green{background:#16783b}.blue{background:#1764a6}.wild{background:conic-gradient(#c81e32 0 25%,#e0ad00 25% 50%,#16783b 50% 75%,#1764a6 75% 100%)}.hand-title{font-weight:950;font-size:19px;margin:6px 2px}.hand{display:flex;gap:8px;overflow-x:auto;padding:9px 4px 14px;scroll-snap-type:x proximity}.hand .card{width:88px;height:128px;font-size:33px;cursor:pointer;scroll-snap-align:start;transition:transform .12s ease,outline .12s ease}.hand .card .corner{font-size:17px}.hand .card.playable{outline:4px solid white;transform:translateY(-5px)}.hand .card:disabled{opacity:.58;cursor:not-allowed}.game-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.note{margin-top:12px;background:#111827;border:2px solid #334155;border-radius:16px;padding:12px;line-height:1.45;color:#e2e8f0}.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.76);z-index:30;padding:20px}.modal.show{display:flex}.modal-box{width:min(100%,430px);background:#111827;border:3px solid white;border-radius:22px;padding:20px;text-align:center}.colors{display:grid;grid-template-columns:1fr 1fr;gap:10px}.color-btn{min-height:70px;border:4px solid white;border-radius:15px;font-weight:1000;font-size:17px;cursor:pointer}.winner{font-size:34px;margin:0 0 6px}.confetti{font-size:44px;line-height:1.1}.connection-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;margin-right:6px}.connection-dot.on{background:#22c55e}@media(max-width:560px){.setup-grid{grid-template-columns:1fr}.game-top{grid-template-columns:1fr 1fr}.game-top .stat:last-child{grid-column:1/-1}.app{padding-left:8px;padding-right:8px}.table{padding-left:7px;padding-right:7px}.draw,.card{width:94px;height:138px}.hand .card{width:80px;height:118px}.center{gap:8px}.room-code{font-size:21px}}@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+:root{--bg:#0b1020;--panel:#171d2a;--text:#f8fafc;--muted:#cbd5e1;--line:#475569;--shadow:0 16px 40px rgba(0,0,0,.35)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#1f2937 0,#0b1020 55%,#060910 100%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;display:flex;justify-content:center;align-items:center;padding:18px}
+main{width:min(100%,720px)}
+.logo{width:120px;height:120px;border-radius:50%;margin:0 auto 18px;background:conic-gradient(#d62436 0 25%,#e3b400 25% 50%,#15803d 50% 75%,#1769aa 75%);border:6px solid white;display:flex;align-items:center;justify-content:center;transform:rotate(-9deg);box-shadow:var(--shadow)}
+.logo span{font-size:46px;font-weight:1000;letter-spacing:-3px;text-shadow:0 3px 3px rgba(0,0,0,.45);transform:rotate(9deg)}
+h1{text-align:center;font-size:clamp(30px,8vw,52px);margin:0 0 6px}
+.subtitle{text-align:center;color:var(--muted);font-size:18px;font-weight:700;margin:0 0 24px}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.option{display:flex;flex-direction:column;gap:8px;min-height:210px;text-decoration:none;color:inherit;background:var(--panel);border:3px solid var(--line);border-radius:24px;padding:22px;box-shadow:var(--shadow);transition:transform .15s ease,border-color .15s ease}
+.option:focus-visible{outline:5px solid white;outline-offset:4px}
+.option:hover{transform:translateY(-3px);border-color:white}
+.icon{font-size:48px;line-height:1}
+.option h2{font-size:25px;margin:4px 0 0}
+.option p{margin:0;color:var(--muted);line-height:1.45;font-weight:650}
+.badge{margin-top:auto;align-self:flex-start;background:#f8fafc;color:#111827;padding:8px 12px;border-radius:999px;font-weight:950}
+.note{text-align:center;color:#94a3b8;margin:18px 0 0;font-size:14px}
+@media(max-width:560px){.options{grid-template-columns:1fr}.option{min-height:170px}.logo{width:96px;height:96px}.logo span{font-size:37px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
-<main class="app">
-<h1>UNO MULTIJUGADOR</h1>
-<p class="subtitle">CADA JUGADOR JUEGA DESDE SU PROPIO CELULAR</p>
-<section id="setup" class="panel">
-  <div class="setup-grid">
-    <div class="setup-card">
-      <h2>CREAR SALA</h2>
-      <div class="field"><label for="hostName">TU NOMBRE</label><input id="hostName" maxlength="16" placeholder="EJ.: KAREN" autocomplete="off"></div>
-      <button id="createRoom" class="btn btn-main" type="button">CREAR SALA</button>
-    </div>
-    <div class="setup-card">
-      <h2>ENTRAR A UNA SALA</h2>
-      <div class="field"><label for="joinName">TU NOMBRE</label><input id="joinName" maxlength="16" placeholder="EJ.: ANA" autocomplete="off"></div>
-      <div class="field"><label for="roomInput">CÓDIGO DE SALA</label><input id="roomInput" maxlength="6" placeholder="ABC123" autocomplete="off"></div>
-      <button id="joinRoom" class="btn btn-main" type="button">ENTRAR</button>
-    </div>
+<main>
+  <div class="logo" aria-hidden="true"><span>UNO</span></div>
+  <h1>¿CÓMO QUERÉS JUGAR?</h1>
+  <p class="subtitle">ELEGÍ UN MODO PARA EMPEZAR</p>
+
+  <div class="options">
+    <a class="option" href="uno_multijugador.html">
+      <div class="icon" aria-hidden="true">👥</div>
+      <h2>MULTIJUGADOR</h2>
+      <p>JUGÁ CON OTRAS PERSONAS. CADA JUGADOR PUEDE ENTRAR DESDE SU PROPIO CELULAR CON UN CÓDIGO DE SALA.</p>
+      <span class="badge">ENTRAR AL MULTIJUGADOR</span>
+    </a>
+
+    <a class="option" href="uno_solo.html">
+      <div class="icon" aria-hidden="true">👤</div>
+      <h2>JUGAR SOLO</h2>
+      <p>JUGÁ UNA PARTIDA INDIVIDUAL CONTRA LA COMPUTADORA DESDE UN SOLO DISPOSITIVO.</p>
+      <span class="badge">JUGAR SOLO</span>
+    </a>
   </div>
-  <div id="setupStatus" class="status" role="status" aria-live="polite"><span><span id="netDot" class="connection-dot"></span>CREÁ UNA SALA O INGRESÁ CON UN CÓDIGO.</span></div>
-</section>
 
-<section id="lobby" class="panel hidden" aria-label="Sala de espera">
-  <div class="room-head"><div><strong>SALA DE ESPERA</strong><div style="color:#cbd5e1;font-size:14px">COMPARTÍ ESTE CÓDIGO</div></div><div id="roomCode" class="room-code">------</div></div>
-  <div id="lobbyPlayers" class="players"></div>
-  <div id="lobbyMessage" class="status" role="status" aria-live="polite">ESPERANDO JUGADORES…</div>
-  <div class="lobby-actions"><button id="startGame" class="btn btn-main" type="button">INICIAR PARTIDA</button><button id="leaveLobby" class="btn btn-danger" type="button">SALIR</button></div>
-  <div class="note">SE NECESITAN <strong>2 A 6 JUGADORES</strong>. EL CREADOR DE LA SALA INICIA LA PARTIDA.</div>
-</section>
-
-<section id="game" class="hidden">
-  <div class="game-top"><div class="stat"><small>SALA</small><span id="gameRoom">—</span></div><div class="stat"><small>TURNO</small><span id="turnName">—</span></div><div class="stat"><small>TUS CARTAS</small><span id="myCount">0</span></div></div>
-  <div id="gameMessage" class="message" role="status" aria-live="polite">PREPARANDO PARTIDA…</div>
-  <section class="table" aria-label="Mesa de UNO">
-    <div id="opponents" class="opponents"></div>
-    <div id="currentColor" class="color-pill">COLOR ACTUAL: —</div>
-    <div class="center">
-      <div class="pile-wrap"><button id="drawPile" class="draw" type="button" disabled>ROBAR</button><div class="pile-label">MAZO</div></div>
-      <div class="pile-wrap"><div id="discard"></div><div class="pile-label">CARTA EN JUEGO</div></div>
-    </div>
-    <div class="hand-title">TUS CARTAS</div>
-    <div id="myHand" class="hand" aria-label="Tus cartas"></div>
-  </section>
-  <div class="game-controls"><button id="passTurn" class="btn btn-alt" type="button" disabled>PASAR</button><button id="unoButton" class="btn btn-uno" type="button" disabled>¡UNO!</button></div>
-  <div class="note"><strong>CÓMO JUGAR:</strong> TOCÁ UNA CARTA DEL MISMO <strong>COLOR, NÚMERO O SÍMBOLO</strong>. SI NO TENÉS UNA CARTA VÁLIDA, TOCÁ <strong>ROBAR</strong>. LAS CARTAS <strong>+2, SALTA, CAMBIO DE SENTIDO, COMODÍN Y +4</strong> TIENEN EFECTOS ESPECIALES.</div>
-</section>
+  <p class="note">PRIMERO APARECE MULTIJUGADOR Y DESPUÉS JUGAR SOLO.</p>
 </main>
-
-<div id="colorModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="colorTitle"><div class="modal-box"><h2 id="colorTitle">ELEGÍ UN COLOR</h2><div class="colors"><button class="color-btn red" data-color="red" type="button">ROJO</button><button class="color-btn yellow" data-color="yellow" type="button">AMARILLO</button><button class="color-btn green" data-color="green" type="button">VERDE</button><button class="color-btn blue" data-color="blue" type="button">AZUL</button></div></div></div>
-<div id="endModal" class="modal" role="dialog" aria-modal="true"><div class="modal-box"><div class="confetti">🎉🏆🎉</div><h2 id="endTitle" class="winner">FIN DE LA PARTIDA</h2><p id="endText"></p><button id="backLobby" class="btn btn-main" style="width:100%" type="button">VOLVER A LA SALA</button></div></div>
-
-<script>
-(() => {
-'use strict';
-const COLORS=['red','yellow','green','blue'];
-const COLOR_NAMES={red:'ROJO',yellow:'AMARILLO',green:'VERDE',blue:'AZUL'};
-const SYMBOLS={skip:'⛔',reverse:'↔',draw2:'+2',wild:'★',wild4:'+4'};
-const MAX_PLAYERS=6;
-let peer=null,hostConn=null,isHost=false,myId=null,roomCode='',pendingWildCardId=null;
-let conns=new Map();
-let hostState=null;
-let view={started:false,players:[],hand:[],top:null,currentColor:null,currentId:null,message:'',winner:null,canDraw:false,canPass:false,unoCalled:false,roomCode:''};
-const el=id=>document.getElementById(id);
-const cleanName=v=>(v||'').trim().replace(/\s+/g,' ').slice(0,16).toUpperCase();
-const cleanCode=v=>(v||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);
-const randCode=()=>{const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<6;i++)s+=chars[Math.floor(Math.random()*chars.length)];return s};
-const safeSend=(conn,data)=>{try{if(conn&&conn.open)conn.send(data)}catch(e){console.warn(e)}};
-function setScreen(name){el('setup').classList.toggle('hidden',name!=='setup');el('lobby').classList.toggle('hidden',name!=='lobby');el('game').classList.toggle('hidden',name!=='game')}
-function setSetupStatus(text,ok=false){el('setupStatus').innerHTML='<span><span class="connection-dot '+(ok?'on':'')+'"></span>'+escapeHtml(text)+'</span>'}
-function escapeHtml(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
-function destroyPeer(){try{if(hostConn)hostConn.close()}catch{};hostConn=null;for(const c of conns.values()){try{c.close()}catch{}}conns.clear();try{if(peer)peer.destroy()}catch{}peer=null;isHost=false;myId=null;roomCode='';hostState=null;view={started:false,players:[],hand:[],top:null,currentColor:null,currentId:null,message:'',winner:null,canDraw:false,canPass:false,unoCalled:false,roomCode:''}}
-function makeDeck(){let uid=0,d=[];for(const color of COLORS){d.push({id:'c'+(++uid),color,value:'0'});for(let n=1;n<=9;n++){d.push({id:'c'+(++uid),color,value:String(n)});d.push({id:'c'+(++uid),color,value:String(n)})}for(const value of ['skip','reverse','draw2']){d.push({id:'c'+(++uid),color,value});d.push({id:'c'+(++uid),color,value})}}for(let i=0;i<4;i++){d.push({id:'c'+(++uid),color:'wild',value:'wild'});d.push({id:'c'+(++uid),color:'wild',value:'wild4'})}return shuffle(d)}
-function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-function topCard(){return hostState?.discard?.[hostState.discard.length-1]||null}
-function replenish(){if(hostState.deck.length===0&&hostState.discard.length>1){const top=hostState.discard.pop();hostState.deck=shuffle(hostState.discard.splice(0));hostState.discard=[top]}}
-function drawTo(playerId,n=1){const h=hostState.hands[playerId];if(!h)return;for(let i=0;i<n;i++){replenish();if(hostState.deck.length)h.push(hostState.deck.pop())}}
-function canPlay(card){const top=topCard();if(!card||!top)return false;if(card.color==='wild')return true;return card.color===hostState.currentColor||card.value===top.value}
-function activePlayer(){return hostState.players[hostState.currentIndex]||null}
-function stepIndex(from,steps=1){const n=hostState.players.length;if(!n)return 0;let x=from;for(let i=0;i<steps;i++)x=(x+hostState.direction+n)%n;return x}
-function advance(steps=1){hostState.currentIndex=stepIndex(hostState.currentIndex,steps);hostState.drawnCardId=null;hostState.canPass=false;hostState.unoCalled=false}
-function startHostGame(){if(!isHost||!hostState)return;if(hostState.players.length<2){hostState.message='SE NECESITAN AL MENOS 2 JUGADORES.';broadcastViews();return}if(hostState.players.length>MAX_PLAYERS)return;hostState.started=true;hostState.winner=null;hostState.deck=makeDeck();hostState.discard=[];hostState.hands={};hostState.direction=1;hostState.currentIndex=0;hostState.currentColor=null;hostState.drawnCardId=null;hostState.canPass=false;hostState.unoCalled=false;for(const p of hostState.players)hostState.hands[p.id]=[];for(let i=0;i<7;i++)for(const p of hostState.players)drawTo(p.id,1);let first=null;while(hostState.deck.length){const c=hostState.deck.pop();if(c.color!=='wild'){first=c;break}hostState.deck.unshift(c)}if(!first)first=hostState.deck.pop();hostState.discard.push(first);hostState.currentColor=first.color==='wild'?COLORS[Math.floor(Math.random()*4)]:first.color;hostState.message='COMIENZA LA PARTIDA. TURNO DE '+activePlayer().name+'.';broadcastViews()}
-function processAction(playerId,action){if(!isHost||!hostState?.started||hostState.winner)return;const current=activePlayer();if(!current||current.id!==playerId){sendNotice(playerId,'ESPERÁ TU TURNO.');return}const hand=hostState.hands[playerId]||[];
- if(action.type==='UNO'){if(hand.length===1){hostState.unoCalled=true;hostState.message='¡UNO! '+current.name+' TIENE UNA SOLA CARTA.';broadcastViews()}return}
- if(action.type==='DRAW'){if(hostState.drawnCardId||hostState.canPass)return;const playable=hand.some(canPlay);if(playable){sendNotice(playerId,'TENÉS UNA CARTA QUE PODÉS JUGAR.');return}drawTo(playerId,1);const drawn=hand[hand.length-1];if(drawn&&canPlay(drawn)){hostState.drawnCardId=drawn.id;hostState.canPass=true;hostState.message=current.name+' ROBÓ UNA CARTA Y PUEDE JUGARLA O PASAR.'}else{hostState.message=current.name+' ROBÓ UNA CARTA. PASA EL TURNO.';advance(1)}broadcastViews();return}
- if(action.type==='PASS'){if(!hostState.canPass)return;hostState.message=current.name+' PASÓ EL TURNO.';advance(1);broadcastViews();return}
- if(action.type==='PLAY'){const idx=hand.findIndex(c=>c.id===action.cardId);if(idx<0)return;const card=hand[idx];if(hostState.drawnCardId&&card.id!==hostState.drawnCardId){sendNotice(playerId,'DESPUÉS DE ROBAR SOLO PODÉS JUGAR LA CARTA ROBADA.');return}if(!canPlay(card)){sendNotice(playerId,'ESA CARTA NO COINCIDE.');return}if(card.color==='wild'&&!COLORS.includes(action.chosenColor)){sendNotice(playerId,'ELEGÍ UN COLOR.');return}hand.splice(idx,1);hostState.discard.push(card);hostState.currentColor=card.color==='wild'?action.chosenColor:card.color;hostState.drawnCardId=null;hostState.canPass=false;if(hand.length===0){hostState.winner={id:current.id,name:current.name};hostState.message='¡'+current.name+' GANÓ LA PARTIDA!';broadcastViews();return}
- let steps=1;let extra='';if(card.value==='reverse'){hostState.direction*=-1;if(hostState.players.length===2)steps=2;extra=' CAMBIO DE SENTIDO.'}else if(card.value==='skip'){steps=2;extra=' SALTA UN TURNO.'}else if(card.value==='draw2'){const target=hostState.players[stepIndex(hostState.currentIndex,1)];drawTo(target.id,2);steps=2;extra=' '+target.name+' ROBA 2 Y PIERDE EL TURNO.'}else if(card.value==='wild4'){const target=hostState.players[stepIndex(hostState.currentIndex,1)];drawTo(target.id,4);steps=2;extra=' '+target.name+' ROBA 4 Y PIERDE EL TURNO.'}hostState.message=current.name+' JUGÓ '+cardLabel(card)+'.'+extra;advance(steps);broadcastViews();return}
-}
-function sendNotice(playerId,text){if(playerId===myId){view.message=text;renderGame()}else safeSend(conns.get(playerId),{type:'NOTICE',text})}
-function createViewFor(playerId){const hand=(hostState.hands[playerId]||[]).map(c=>({...c}));const current=activePlayer();const isCurrent=current?.id===playerId;const anyPlayable=hand.some(canPlay);const canDraw=!!(hostState.started&&!hostState.winner&&isCurrent&&!hostState.drawnCardId&&!hostState.canPass&&!anyPlayable);return{started:hostState.started,roomCode:hostState.roomCode,players:hostState.players.map(p=>({id:p.id,name:p.name,count:(hostState.hands[p.id]||[]).length})),hand,top:topCard()?{...topCard()}:null,currentColor:hostState.currentColor,currentId:current?.id||null,message:hostState.message,winner:hostState.winner,direction:hostState.direction,canDraw,canPass:!!(isCurrent&&hostState.canPass),unoCalled:hostState.unoCalled}}
-function broadcastViews(){if(!hostState)return;for(const p of hostState.players){const v=createViewFor(p.id);if(p.id===myId){view=v;renderAll()}else safeSend(conns.get(p.id),{type:'STATE',view:v})}}
-function renderAll(){if(view.started)setScreen('game');else setScreen('lobby');renderLobby();renderGame()}
-function renderLobby(){if(!view.players)return;el('roomCode').textContent=view.roomCode||roomCode||'------';const box=el('lobbyPlayers');box.innerHTML='';view.players.forEach((p,i)=>{const row=document.createElement('div');row.className='player-row'+(p.id===myId?' me':'');row.innerHTML='<strong>'+(i+1)+'. '+escapeHtml(p.name)+'</strong><span class="tag">'+(i===0?'ANFITRIÓN':(p.id===myId?'VOS':'JUGADOR'))+'</span>';box.appendChild(row)});el('startGame').classList.toggle('hidden',!isHost);el('startGame').disabled=!isHost||view.players.length<2;el('lobbyMessage').textContent=view.message||('JUGADORES: '+view.players.length+'/'+MAX_PLAYERS)}
-function cardLabel(card){if(/^\d$/.test(card.value))return card.value;return SYMBOLS[card.value]||card.value}
-function cardAria(card){const color=card.color==='wild'?'COMODÍN':COLOR_NAMES[card.color];const value={skip:'SALTA',reverse:'CAMBIO DE SENTIDO',draw2:'ROBA DOS',wild:'COMODÍN',wild4:'COMODÍN ROBA CUATRO'}[card.value]||card.value;return color+' '+value}
-function createCard(card,interactive=false){const node=document.createElement(interactive?'button':'div');node.className='card '+card.color;node.setAttribute('aria-label',cardAria(card));if(interactive){node.type='button';const isTurn=view.currentId===myId&&!view.winner;const drawnRestricted=isHost?hostState?.drawnCardId:null;let playable=isTurn&&clientCanPlay(card);if(view.canPass&&isHost&&drawnRestricted&&card.id!==drawnRestricted)playable=false;if(playable){node.classList.add('playable');node.addEventListener('click',()=>requestPlay(card))}else node.disabled=true}const corner=document.createElement('div');corner.className='corner';corner.textContent=cardLabel(card);const main=document.createElement('div');main.className='main';main.textContent=cardLabel(card);node.append(corner,main);return node}
-function clientCanPlay(card){if(!view.top)return false;if(card.color==='wild')return true;return card.color===view.currentColor||card.value===view.top.value}
-function renderGame(){if(!view.started)return;el('gameRoom').textContent=view.roomCode||roomCode;const turn=view.players.find(p=>p.id===view.currentId);el('turnName').textContent=turn?turn.name:'—';el('myCount').textContent=view.hand.length;el('gameMessage').textContent=view.message||'';const opp=el('opponents');opp.innerHTML='';view.players.filter(p=>p.id!==myId).forEach(p=>{const d=document.createElement('div');d.className='opp'+(p.id===view.currentId?' current':'');d.innerHTML='<div class="opp-name">'+escapeHtml(p.name)+'</div><div class="opp-count">'+p.count+'</div><div>CARTAS</div>';opp.appendChild(d)});el('currentColor').textContent='COLOR ACTUAL: '+(view.currentColor?COLOR_NAMES[view.currentColor]:'—');const dis=el('discard');dis.innerHTML='';if(view.top)dis.appendChild(createCard(view.top,false));const hand=el('myHand');hand.innerHTML='';view.hand.forEach(c=>hand.appendChild(createCard(c,true)));el('drawPile').disabled=!view.canDraw;el('passTurn').disabled=!view.canPass;el('unoButton').disabled=!!view.winner||view.hand.length!==1||view.unoCalled;if(view.winner){el('endTitle').textContent=view.winner.id===myId?'🏆 ¡GANASTE!':'GANÓ '+view.winner.name;el('endText').textContent=view.winner.id===myId?'TE QUEDASTE SIN CARTAS.':'LA PARTIDA TERMINÓ.';el('backLobby').textContent=isHost?'VOLVER A LA SALA':'ESPERAR NUEVA PARTIDA';el('endModal').classList.add('show')}}
-function requestAction(action){if(isHost)processAction(myId,action);else safeSend(hostConn,{type:'ACTION',action})}
-function requestPlay(card){if(card.color==='wild'){pendingWildCardId=card.id;el('colorModal').classList.add('show')}else requestAction({type:'PLAY',cardId:card.id})}
-function setupConnAsHost(conn){conns.set(conn.peer,conn);conn.on('data',data=>{if(!data||typeof data!=='object')return;if(data.type==='JOIN'){const name=cleanName(data.name);if(!name){safeSend(conn,{type:'ERROR',text:'NOMBRE INVÁLIDO.'});return}if(hostState.started){safeSend(conn,{type:'ERROR',text:'LA PARTIDA YA COMENZÓ.'});return}if(hostState.players.length>=MAX_PLAYERS){safeSend(conn,{type:'ERROR',text:'LA SALA ESTÁ COMPLETA.'});return}if(!hostState.players.some(p=>p.id===conn.peer))hostState.players.push({id:conn.peer,name});hostState.message='SE UNIÓ '+name+'.';safeSend(conn,{type:'WELCOME',playerId:conn.peer});broadcastViews()}else if(data.type==='ACTION')processAction(conn.peer,data.action||{})});conn.on('close',()=>removePlayer(conn.peer));conn.on('error',()=>removePlayer(conn.peer))}
-function removePlayer(playerId){conns.delete(playerId);if(!isHost||!hostState)return;const idx=hostState.players.findIndex(p=>p.id===playerId);if(idx<0)return;const wasCurrent=hostState.started&&idx===hostState.currentIndex;const name=hostState.players[idx].name;hostState.players.splice(idx,1);delete hostState.hands?.[playerId];if(hostState.started){if(!hostState.players.length){hostState.started=false}else{if(idx<hostState.currentIndex)hostState.currentIndex--;if(hostState.currentIndex>=hostState.players.length)hostState.currentIndex=0;if(wasCurrent)hostState.message=name+' SALIÓ. CONTINÚA '+activePlayer().name+'.';if(hostState.players.length===1&&!hostState.winner){hostState.winner={id:hostState.players[0].id,name:hostState.players[0].name};hostState.message='GANÓ '+hostState.players[0].name+' POR SER EL ÚNICO JUGADOR CONECTADO.'}}}else hostState.message=name+' SALIÓ DE LA SALA.';broadcastViews()}
-function createRoom(){const name=cleanName(el('hostName').value);if(!name){setSetupStatus('ESCRIBÍ TU NOMBRE.');return}if(typeof Peer==='undefined'){setSetupStatus('NO SE PUDO CARGAR LA CONEXIÓN ONLINE.');return}destroyPeer();isHost=true;roomCode=randCode();const peerId='uno-room-'+roomCode.toLowerCase();setSetupStatus('CREANDO SALA…');peer=new Peer(peerId);peer.on('open',id=>{myId=id;hostState={roomCode,started:false,players:[{id:myId,name}],hands:{},deck:[],discard:[],currentColor:null,currentIndex:0,direction:1,drawnCardId:null,canPass:false,unoCalled:false,winner:null,message:'SALA CREADA. COMPARTÍ EL CÓDIGO '+roomCode+'.'};view=createViewFor(myId);setSetupStatus('SALA CREADA.',true);renderAll()});peer.on('connection',setupConnAsHost);peer.on('error',err=>{if(err?.type==='unavailable-id'){destroyPeer();setSetupStatus('ESE CÓDIGO YA ESTABA EN USO. TOCÁ CREAR SALA OTRA VEZ.')}else setSetupStatus('ERROR DE CONEXIÓN: '+(err?.type||'INTENTÁ DE NUEVO.'))})}
-function joinRoom(){const name=cleanName(el('joinName').value),code=cleanCode(el('roomInput').value);if(!name){setSetupStatus('ESCRIBÍ TU NOMBRE.');return}if(code.length!==6){setSetupStatus('EL CÓDIGO DE SALA DEBE TENER 6 CARACTERES.');return}if(typeof Peer==='undefined'){setSetupStatus('NO SE PUDO CARGAR LA CONEXIÓN ONLINE.');return}destroyPeer();isHost=false;roomCode=code;setSetupStatus('CONECTANDO A LA SALA…');peer=new Peer();peer.on('open',id=>{myId=id;hostConn=peer.connect('uno-room-'+code.toLowerCase(),{reliable:true});hostConn.on('open',()=>{setSetupStatus('CONECTADO.',true);safeSend(hostConn,{type:'JOIN',name})});hostConn.on('data',data=>{if(!data||typeof data!=='object')return;if(data.type==='WELCOME'){myId=data.playerId}else if(data.type==='STATE'){view=data.view;renderAll()}else if(data.type==='NOTICE'){view.message=data.text;renderGame()}else if(data.type==='ERROR'){setSetupStatus(data.text);destroyPeer();setScreen('setup')}});hostConn.on('close',()=>{el('endModal').classList.remove('show');setScreen('setup');setSetupStatus('EL ANFITRIÓN CERRÓ LA SALA.');destroyPeer()});hostConn.on('error',()=>setSetupStatus('NO SE PUDO CONECTAR A LA SALA.'))});peer.on('error',err=>setSetupStatus('NO SE PUDO ENTRAR: '+(err?.type||'VERIFICÁ EL CÓDIGO.')))}
-function returnLobbyHost(){if(!isHost||!hostState)return;hostState.started=false;hostState.winner=null;hostState.hands={};hostState.deck=[];hostState.discard=[];hostState.currentColor=null;hostState.currentIndex=0;hostState.direction=1;hostState.message='LISTOS PARA OTRA PARTIDA.';el('endModal').classList.remove('show');broadcastViews()}
-el('createRoom').addEventListener('click',createRoom);el('joinRoom').addEventListener('click',joinRoom);el('roomInput').addEventListener('input',e=>e.target.value=cleanCode(e.target.value));el('hostName').addEventListener('input',e=>e.target.value=e.target.value.toUpperCase());el('joinName').addEventListener('input',e=>e.target.value=e.target.value.toUpperCase());el('startGame').addEventListener('click',startHostGame);el('leaveLobby').addEventListener('click',()=>{destroyPeer();setScreen('setup');setSetupStatus('SALISTE DE LA SALA.')});el('drawPile').addEventListener('click',()=>requestAction({type:'DRAW'}));el('passTurn').addEventListener('click',()=>requestAction({type:'PASS'}));el('unoButton').addEventListener('click',()=>requestAction({type:'UNO'}));document.querySelectorAll('.color-btn').forEach(btn=>btn.addEventListener('click',()=>{const chosen=btn.dataset.color;el('colorModal').classList.remove('show');if(pendingWildCardId){requestAction({type:'PLAY',cardId:pendingWildCardId,chosenColor:chosen});pendingWildCardId=null}}));el('backLobby').addEventListener('click',()=>{if(isHost)returnLobbyHost();else{el('endModal').classList.remove('show');view.message='ESPERANDO QUE EL ANFITRIÓN INICIE OTRA PARTIDA…';renderGame()}});window.addEventListener('beforeunload',()=>{try{destroyPeer()}catch{}});setScreen('setup');
-})();
-</script>
 </body>
 </html>
