@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Camino de Colores</title>
+<style>
+  :root{
+    --bg:#f7f7f7;
+    --panel:#ffffff;
+    --text:#222;
+    --muted:#666;
+    --border:#d8d8d8;
+    --ok:#1f8f4e;
+    --bad:#d93025;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Arial, Helvetica, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+  }
+  .wrap{
+    width:min(760px, 100%);
+    margin:0 auto;
+    padding:16px;
+  }
+  .card{
+    background:var(--panel);
+    border:2px solid var(--border);
+    border-radius:20px;
+    padding:18px;
+  }
+  h1{
+    margin:0 0 6px;
+    font-size:clamp(26px, 5vw, 38px);
+    text-align:center;
+  }
+  .sub{
+    text-align:center;
+    color:var(--muted);
+    font-weight:700;
+    margin-bottom:16px;
+  }
+  .order{
+    border:2px solid var(--border);
+    border-radius:16px;
+    padding:14px;
+    text-align:center;
+    margin-bottom:16px;
+  }
+  .order small{
+    display:block;
+    color:var(--muted);
+    font-weight:700;
+    margin-bottom:8px;
+  }
+  .order strong{
+    font-size:clamp(24px, 5vw, 34px);
+    letter-spacing:2px;
+  }
+  #stepText{
+    text-align:center;
+    font-weight:800;
+    font-size:clamp(20px, 4vw, 28px);
+    margin:12px 0 16px;
+  }
+  .board{
+    width:100%;
+    aspect-ratio: 4 / 3;
+    border:2px solid var(--border);
+    border-radius:20px;
+    background:#fafafa;
+    display:block;
+  }
+  .numberPoint{
+    cursor:pointer;
+    outline:none;
+  }
+  .numberPoint circle{
+    transition:transform .12s ease, stroke-width .12s ease, opacity .12s ease;
+  }
+  .numberPoint:active circle{
+    transform:scale(.95);
+    transform-origin:center;
+  }
+  .numberPoint.done circle{ opacity:.72; }
+  .numberPoint.wrong circle{
+    stroke:var(--bad) !important;
+    stroke-width:10 !important;
+  }
+  .actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:center;
+    margin-top:16px;
+  }
+  button{
+    min-height:52px;
+    border:2px solid var(--border);
+    border-radius:14px;
+    background:#fff;
+    color:#222;
+    font-weight:800;
+    font-size:18px;
+    padding:0 18px;
+    cursor:pointer;
+  }
+  button:active{ transform:scale(.98); }
+  #feedback{
+    min-height:36px;
+    margin-top:14px;
+    text-align:center;
+    font-size:clamp(18px, 4vw, 24px);
+    font-weight:800;
+  }
+  .help{
+    margin-top:14px;
+    padding:12px;
+    border-radius:14px;
+    background:#f0f0f0;
+    font-size:16px;
+    line-height:1.4;
+  }
+  @media (max-width:520px){
+    .wrap{padding:10px}
+    .card{padding:12px;border-radius:16px}
+    button{width:100%}
+  }
+</style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="card">
+      <h1>CAMINO DE COLORES</h1>
+      <div class="sub">TOCÁ LOS NÚMEROS EN EL ORDEN INDICADO.</div>
+
+      <div class="order">
+        <small>SEGUÍ ESTE ORDEN:</small>
+        <strong>1 → 2 → 5 → 4 → 8 → 6</strong>
+      </div>
+
+      <div id="stepText" aria-live="polite">EMPEZÁ TOCANDO EL NÚMERO 1</div>
+
+      <svg id="board" class="board" viewBox="0 0 420 320" role="img" aria-label="Tablero con puntos de colores numerados">
+        <g id="lines"></g>
+
+        <g class="numberPoint" data-n="1" tabindex="0" role="button" aria-label="Número 1, violeta">
+          <circle cx="90" cy="70" r="32" fill="#7c3aed" stroke="#ffffff" stroke-width="5"></circle>
+          <text x="90" y="79" text-anchor="middle" font-size="26" font-weight="700" fill="#ffffff">1</text>
+        </g>
+
+        <g class="numberPoint" data-n="2" tabindex="0" role="button" aria-label="Número 2, rojo">
+          <circle cx="210" cy="55" r="32" fill="#ef4444" stroke="#ffffff" stroke-width="5"></circle>
+          <text x="210" y="64" text-anchor="middle" font-size="26" font-weight="700" fill="#ffffff">2</text>
+        </g>
+
+        <g class="numberPoint" data-n="3" tabindex="0" role="button" aria-label="Número 3, amarillo">
+          <circle cx="330" cy="85" r="32" fill="#eab308" stroke="#ffffff" stroke-width="5"></circle>
+          <text x="330" y="94" text-anchor="middle" font-size="26" font-weight="700" fill="#111827">3</text>
+        </g>
+
+        <g class="numberPoint" data-n="4" tabindex="0" role="button" aria-label="Número 4, azul">
+          <circle cx="105" cy="180" r="32" fill="#2563eb" stroke="#ffffff" stroke-width="5"></circle>
+          <text x="105" y="189" text-anchor="middle" font-size="26" font-weight="700" fill="#ffffff">4</text>
+        </g>
+
+        <g class="numberPoint" data-n="5" tabindex="0" role="button" aria-label="Número 5, naranja">
+          <circle cx="220" cy="160" r="32" fill="#f97316" stroke="#ffffff" stroke-width="5"></circle>
+          <text x="220" y="169" text-anchor="middle" font-size="26" font-weight="700" fill="#ffffff">5</text>
+        </g>
+
+        <g class="numberPoint" data-n="6" tabindex="0" role="button" aria-label="Número 6, rosa">
+          <circle cx="335" cy="190" r="32" fill="#ec4899" stroke="#ffffff" stroke-width="5"></circle>
+          <text x="335" y="199" text-anchor="middle" font-size="26" font-weight="700" fill="#ffffff">6</text>
+        </g>
+
+        <g class="numberPoint" data-n="7" tabindex="0" role="button" aria-label="Número 7, celeste">
+          <circle cx="145" cy="275" r="32" fill="#0891b2" stroke="#ffffff" stroke-width="5"></circle>
+          <text x="145" y="284" text-anchor="middle" font-size="26" font-weight="700" fill="#ffffff">7</text>
+        </g>
+
+        <g class="numberPoint" data-n="8" tabindex="0" role="button" aria-label="Número 8, gris">
+          <circle cx="285" cy="265" r="32" fill="#4b5563" stroke="#ffffff" stroke-width="5"></circle>
+          <text x="285" y="274" text-anchor="middle" font-size="26" font-weight="700" fill="#ffffff">8</text>
+        </g>
+      </svg>
+
+      <div class="actions">
+        <button id="resetBtn" type="button">VOLVER A EMPEZAR</button>
+      </div>
+
+      <div id="feedback" aria-live="polite"></div>
+
+      <div class="help">
+        <b>¿CÓMO SE JUEGA?</b><br>
+        MIRÁ EL ORDEN DE ARRIBA Y TOCÁ LOS NÚMEROS UNO POR UNO.
+        LA LÍNEA SE DIBUJA SOLA. SI TE EQUIVOCÁS, EL JUEGO TE DICE QUÉ NÚMERO TOCAR.
+      </div>
+    </section>
+  </main>
+
+<script>
+(function(){
+  const order=[1,2,5,4,8,6];
+  let current=0;
+  let chosen=[];
+
+  const root=document;
+  const lines=root.getElementById('lines');
+  const feedback=root.getElementById('feedback');
+  const stepText=root.getElementById('stepText');
+
+  function getPoint(n){
+    return root.querySelector('.numberPoint[data-n="'+n+'"]');
+  }
+
+  function centerOf(n){
+    const circle=getPoint(n).querySelector('circle');
+    return {
+      x:circle.getAttribute('cx'),
+      y:circle.getAttribute('cy')
+    };
+  }
+
+  function drawLine(a,b){
+    const p1=centerOf(a);
+    const p2=centerOf(b);
+    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',p1.x);
+    line.setAttribute('y1',p1.y);
+    line.setAttribute('x2',p2.x);
+    line.setAttribute('y2',p2.y);
+    line.setAttribute('stroke','#222');
+    line.setAttribute('stroke-width','7');
+    line.setAttribute('stroke-linecap','round');
+    lines.appendChild(line);
+  }
+
+  function updateStep(){
+    if(current<order.length){
+      stepText.textContent='AHORA TOCÁ EL NÚMERO '+order[current];
+    }else{
+      stepText.textContent='¡CAMINO TERMINADO!';
+    }
+  }
+
+  function choose(n,el){
+    if(current>=order.length) return;
+
+    if(n!==order[current]){
+      feedback.textContent='❌ ESE NO. AHORA TENÉS QUE TOCAR EL '+order[current];
+      feedback.style.color='#d93025';
+      el.classList.add('wrong');
+      setTimeout(()=>el.classList.remove('wrong'),500);
+      return;
+    }
+
+    chosen.push(n);
+    el.classList.add('done');
+
+    if(chosen.length>1){
+      drawLine(chosen[chosen.length-2],chosen[chosen.length-1]);
+    }
+
+    current++;
+
+    if(current===order.length){
+      feedback.textContent='🎉 ¡FELICITACIONES! COMPLETASTE EL CAMINO.';
+      feedback.style.color='#1f8f4e';
+    }else{
+      feedback.textContent='✅ MUY BIEN';
+      feedback.style.color='#1f8f4e';
+    }
+
+    updateStep();
+  }
+
+  root.querySelectorAll('.numberPoint').forEach(el=>{
+    const n=Number(el.dataset.n);
+    el.addEventListener('click',()=>choose(n,el));
+    el.addEventListener('keydown',e=>{
+      if(e.key==='Enter' || e.key===' '){
+        e.preventDefault();
+        choose(n,el);
+      }
+    });
+  });
+
+  root.getElementById('resetBtn').addEventListener('click',()=>{
+    current=0;
+    chosen=[];
+    lines.innerHTML='';
+    feedback.textContent='';
+    root.querySelectorAll('.numberPoint').forEach(el=>el.classList.remove('done','wrong'));
+    updateStep();
+  });
+
+  updateStep();
+})();
+</script>
+</body>
+</html>
