@@ -1,0 +1,2114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¿VOS QUÉ HARÍAS? - Videojuego de Inclusión</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary: #91e6d4;
+            --dark: #102a43;
+            --darker: #0d1f2d;
+            --accent: #ffcb63;
+            --text-light: #d7e4f0;
+            --text-muted: #bed0e1;
+            --success: #6dd5b3;
+            --warning: #ff8c42;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Arial', sans-serif;
+            background: var(--darker);
+            color: var(--text-light);
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* INTERFAZ GENERAL */
+        #ui-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .ui-element {
+            pointer-events: all;
+            position: absolute;
+        }
+
+        /* PANTALLA DE INICIO */
+        #startScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--dark) 0%, #1a3a52 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 200;
+            overflow-y: auto;
+        }
+
+        .start-content {
+            text-align: center;
+            max-width: 600px;
+        }
+
+        .title-main {
+            font-size: clamp(32px, 8vw, 72px);
+            font-weight: 900;
+            color: var(--primary);
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-size: clamp(16px, 4vw, 24px);
+            color: var(--text-light);
+            margin: 10px 0 30px;
+        }
+
+        .start-options {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin: 30px 0;
+        }
+
+        .mode-button {
+            padding: 20px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            min-height: 60px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .mode-button:hover, .mode-button:focus-visible {
+            transform: scale(1.05);
+            outline: 4px solid var(--accent);
+            outline-offset: 4px;
+        }
+
+        .adventure-btn {
+            background: linear-gradient(135deg, #ff6b6b, var(--warning));
+            color: white;
+        }
+
+        .guided-btn {
+            background: linear-gradient(135deg, var(--primary), #40e0d0);
+            color: var(--dark);
+        }
+
+        .mode-label {
+            font-size: 24px;
+            font-weight: 900;
+        }
+
+        .mode-desc {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .character-display {
+            margin: 40px 0;
+            font-size: 80px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* CONTROLES ACCESIBILIDAD */
+        .accessibility-bar {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 8px;
+            z-index: 150;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .control-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            border: 2px solid var(--primary);
+            background: var(--dark);
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover, .control-btn:focus-visible {
+            background: var(--primary);
+            color: var(--dark);
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        /* CANVAS Y ESCENARIOS */
+        canvas {
+            display: block;
+            background: linear-gradient(to bottom, #87ceeb, #90ee90);
+            cursor: pointer;
+        }
+
+        /* HUD (Interfaz en el juego) */
+        .hud {
+            position: fixed;
+            top: 70px;
+            left: 20px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            z-index: 100;
+        }
+
+        .hud-item {
+            margin: 8px 0;
+            background: rgba(16, 42, 67, 0.8);
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: 2px solid var(--primary);
+        }
+
+        .coin-counter::before {
+            content: '🪙 ';
+            margin-right: 6px;
+        }
+
+        .level-counter::before {
+            content: '🏆 ';
+            margin-right: 6px;
+        }
+
+        /* MODAL DE SITUACIÓN */
+        .situation-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, var(--dark), #1a3a52);
+            border: 3px solid var(--primary);
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 90%;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            z-index: 500;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        .modal-header {
+            font-size: 14px;
+            color: var(--primary);
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .modal-title {
+            font-size: clamp(20px, 5vw, 32px);
+            color: var(--text-light);
+            font-weight: 900;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: -0.5px;
+        }
+
+        .modal-story {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            font-size: clamp(14px, 2vw, 18px);
+            line-height: 1.6;
+            color: var(--text-light);
+            border-left: 4px solid var(--accent);
+        }
+
+        .modal-question {
+            font-size: clamp(16px, 3vw, 20px);
+            font-weight: bold;
+            color: var(--primary);
+            margin: 24px 0 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .choices-container {
+            display: grid;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .choice-btn {
+            background: var(--dark);
+            border: 3px solid var(--primary);
+            border-radius: 12px;
+            padding: 18px 24px;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: clamp(14px, 2vw, 16px);
+            font-weight: 600;
+            text-align: left;
+            transition: all 0.3s ease;
+            min-height: 56px;
+            display: flex;
+            align-items: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            line-height: 1.4;
+        }
+
+        .choice-btn:hover, .choice-btn:focus-visible {
+            background: var(--primary);
+            color: var(--dark);
+            outline: 3px solid var(--accent);
+            outline-offset: 2px;
+            transform: scale(1.02);
+        }
+
+        .choice-letter {
+            display: inline-block;
+            background: var(--accent);
+            color: var(--dark);
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+
+        /* RESULTADO */
+        .result-screen {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, var(--dark), #1a3a52);
+            border: 3px solid var(--success);
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 90%;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            z-index: 500;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        .result-title {
+            font-size: clamp(20px, 5vw, 32px);
+            color: var(--success);
+            font-weight: 900;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .result-chosen {
+            background: rgba(109, 213, 179, 0.2);
+            border-left: 4px solid var(--success);
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 8px;
+            color: var(--text-light);
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .result-content {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--text-light);
+        }
+
+        .result-idea {
+            background: rgba(255, 203, 99, 0.15);
+            border-left: 4px solid var(--accent);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-style: italic;
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .modal-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--dark);
+        }
+
+        .btn-secondary {
+            background: #23435f;
+            color: white;
+            border: 2px solid var(--primary);
+        }
+
+        .btn-primary:hover, .btn-primary:focus-visible {
+            background: var(--accent);
+            outline: 3px solid var(--primary);
+            outline-offset: 2px;
+        }
+
+        .btn-secondary:hover, .btn-secondary:focus-visible {
+            background: var(--primary);
+            color: var(--dark);
+            outline: 3px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        /* MODO GUIADO */
+        .guided-layout {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--dark) 0%, #1a3a52 100%);
+            overflow-y: auto;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .guided-header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 16px 24px;
+            border-bottom: 2px solid var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .guided-content {
+            flex: 1;
+            padding: 24px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .guided-progress {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .level-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .level-select-btn {
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            border: 2px solid var(--primary);
+            background: transparent;
+            color: var(--primary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .level-select-btn:hover, .level-select-btn.active {
+            background: var(--primary);
+            color: var(--dark);
+        }
+
+        .level-select-btn:focus-visible {
+            outline: 3px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        /* PANTALLA FINAL */
+        .final-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--dark) 0%, #1a3a52 100%);
+            overflow-y: auto;
+            z-index: 100;
+            padding: 24px;
+        }
+
+        .final-content {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .final-title {
+            font-size: clamp(28px, 6vw, 56px);
+            color: var(--primary);
+            font-weight: 900;
+            text-transform: uppercase;
+            text-align: center;
+            margin: 30px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .final-message {
+            font-size: 18px;
+            color: var(--text-light);
+            text-align: center;
+            margin: 20px 0 40px;
+            line-height: 1.6;
+        }
+
+        .summary-section {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .summary-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .summary-item {
+            background: rgba(16, 42, 67, 0.5);
+            padding: 12px 16px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .summary-item strong {
+            color: var(--accent);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .idea-form {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .idea-input {
+            width: 100%;
+            padding: 16px;
+            border-radius: 8px;
+            border: 2px solid var(--primary);
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--dark);
+            font-size: 16px;
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .idea-input:focus-visible {
+            outline: 3px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        .form-helper {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .modal button, .modal input[type="button"], .modal button:not([class]) {
+            padding: 16px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            min-height: 56px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .modal .btn-primary {
+            background: var(--primary);
+            color: var(--dark);
+        }
+
+        /* OVERLAY */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 400;
+        }
+
+        /* MENÚ DE PAUSA */
+        .pause-menu {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, var(--dark), #1a3a52);
+            border: 4px solid var(--primary);
+            border-radius: 16px;
+            padding: 40px;
+            z-index: 600;
+            text-align: center;
+        }
+
+        .pause-title {
+            font-size: 32px;
+            color: var(--primary);
+            font-weight: 900;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+        }
+
+        .pause-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .pause-btn {
+            padding: 16px 32px;
+            font-size: 18px;
+            font-weight: bold;
+            background: var(--primary);
+            color: var(--dark);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .pause-btn:hover, .pause-btn:focus-visible {
+            background: var(--accent);
+            outline: 3px solid var(--primary);
+            outline-offset: 2px;
+            transform: scale(1.05);
+        }
+
+        /* FOCUS VISIBLE */
+        *:focus-visible {
+            outline: 3px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .accessibility-bar {
+                flex-direction: column;
+                width: auto;
+                max-width: 50px;
+            }
+
+            .modal-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .situation-modal {
+                padding: 20px;
+                max-height: 90vh;
+            }
+
+            .character-display {
+                font-size: 60px;
+            }
+
+            .start-options {
+                flex-direction: column;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+
+        /* NOTIFICACIONES */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: var(--dark);
+            padding: 16px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* ARIA LIVE REGION */
+        [role="status"] {
+            position: absolute;
+            left: -10000px;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+<div id="startScreen" class="start-content-wrapper">
+    <div class="start-content">
+        <div class="subtitle" style="font-size: 14px; color: var(--primary); letter-spacing: 2px; text-transform: uppercase;">MES DE LA INCLUSIÓN</div>
+        <div class="character-display">👨‍🦰</div>
+        <div class="title-main">¿VOS QUÉ HARÍAS?</div>
+        <div class="subtitle">UNA AVENTURA SOBRE INCLUSIÓN</div>
+        
+        <div class="start-options">
+            <button class="mode-button adventure-btn" onclick="startGame('adventure')" tabindex="0">
+                <span class="mode-label">⚡ MODO AVENTURA</span>
+                <span class="mode-desc">Salta, explora y recolecta</span>
+            </button>
+            <button class="mode-button guided-btn" onclick="startGame('guided')" tabindex="0">
+                <span class="mode-label">♿ MODO GUIADO</span>
+                <span class="mode-desc">Navegación con botones</span>
+            </button>
+        </div>
+
+        <div style="margin-top: 40px; color: var(--text-muted); font-size: 12px;">
+            <p>TRES NIVELES · 15 SITUACIONES · SIN TIEMPO LÍMITE</p>
+            <p>PODÉS CAMBIAR ENTRE MODOS EN CUALQUIER MOMENTO</p>
+        </div>
+    </div>
+</div>
+
+<canvas id="gameCanvas"></canvas>
+
+<div id="uiContainer" class="ui-container"></div>
+
+<div class="accessibility-bar">
+    <button class="control-btn" id="textSizeBtn" onclick="changeTextSize()" title="Aumentar tamaño de texto">A+</button>
+    <button class="control-btn" id="contrastBtn" onclick="toggleContrast()" title="Alto contraste">◐</button>
+    <button class="control-btn" id="soundBtn" onclick="toggleSound()" title="Silenciar sonidos">🔊</button>
+    <button class="control-btn" id="pauseBtn" onclick="togglePause()" title="Pausa">❚❚</button>
+    <button class="control-btn" id="menuBtn" onclick="showMenu()" title="Menú">☰</button>
+</div>
+
+<div id="liveRegion" role="status" aria-live="polite" aria-atomic="true"></div>
+
+<script>
+    // ==================== DATOS ====================
+    const LEVELS = [
+        {
+            name: 'EXPLORAR',
+            description: 'Descubrí cómo la accesibilidad permite que todos participen.',
+            color: '#ff6b6b',
+            scenes: [
+                {
+                    topic: 'ACCESO',
+                    title: 'LA CLASE ESTÁ POR EMPEZAR.',
+                    story: 'ALEX USA SILLA DE RUEDAS. EL AULA TIENE UN ESCALÓN Y NO PUEDE ENTRAR. TE PREGUNTA QUÉ PUEDEN HACER.',
+                    choices: [
+                        ['LO SUBIMOS ENTRE VARIOS.', 'ALEX DICE QUE PREFIERE QUE NO LO LEVANTEN. LA AYUDA DEBE RESPETAR SU DECISIÓN Y SU SEGURIDAD. EL ESCALÓN SIGUE SIENDO UNA BARRERA.'],
+                        ['LE PREGUNTAMOS SI LE SIRVE OTRA ENTRADA ACCESIBLE.', 'ALEX ELIGE UNA ENTRADA QUE PUEDE USAR. RESUELVEN EL ACCESO DE HOY, PERO TODAVÍA HAY QUE MEJORAR LA ENTRADA PRINCIPAL.'],
+                        ['ACORDAMOS CON ALEX USAR UN AULA ACCESIBLE Y PEDIMOS ELIMINAR EL ESCALÓN.', 'EL GRUPO TIENE CLASE JUNTO. ALEX PUEDE ENTRAR CON AUTONOMÍA. LA ESCUELA RECIBE UNA PROPUESTA PARA RESOLVER LA BARRERA.']
+                    ],
+                    idea: 'LA ACCESIBILIDAD PERMITE PARTICIPAR CON AUTONOMÍA.'
+                },
+                {
+                    topic: 'INFORMACIÓN',
+                    title: 'LA FOTOCOPIA NO SE LEE.',
+                    story: 'SOFÍA TIENE BAJA VISIÓN. LA GUÍA TIENE LETRA MUY PEQUEÑA Y POCO CONTRASTE. QUIERE HACER LA ACTIVIDAD CON EL GRUPO.',
+                    choices: [
+                        ['LE DECIMOS QUE COPIE DESPUÉS.', 'SOFÍA QUEDA AFUERA DEL TRABAJO DE HOY. POSTERGAR SU PARTICIPACIÓN NO RESUELVE EL FORMATO INACCESIBLE.'],
+                        ['LE PREGUNTAMOS QUÉ FORMATO LE SIRVE Y LO PREPARAMOS.', 'SOFÍA PIDE TEXTO AMPLIADO Y CON BUEN CONTRASTE. CON ESE MATERIAL PUEDE TRABAJAR AL MISMO TIEMPO QUE EL GRUPO.'],
+                        ['LE OFRECEMOS LEERLE LA GUÍA MIENTRAS CONSIGUE SU FORMATO.', 'SOFÍA PUEDE ACEPTAR ESA AYUDA. ES UN APOYO MOMENTÁNEO; TAMBIÉN NECESITA EL MATERIAL EN EL FORMATO QUE ELIJA.']
+                    ],
+                    idea: 'EL MISMO CONTENIDO PUEDE PRESENTARSE DE DISTINTAS FORMAS.'
+                },
+                {
+                    topic: 'COMUNICACIÓN',
+                    title: 'TODAVÍA ESTÁ RESPONDIENDO.',
+                    story: 'DANI USA UNA APLICACIÓN PARA COMUNICARSE. EN EL GRUPO TARDA UN POCO MÁS EN PREPARAR SU IDEA.',
+                    choices: [
+                        ['ESPERAMOS Y LE PREGUNTAMOS SI NECESITA ALGÚN APOYO.', 'DANI TERMINA SU MENSAJE. SU IDEA CAMBIA LA PROPUESTA DEL EQUIPO. DAR TIEMPO HACE POSIBLE ESCUCHAR SU VOZ.'],
+                        ['TERMINAMOS LA FRASE POR DANI.', 'DANI INDICA QUE ESA NO ERA SU IDEA. HABLAR POR OTRA PERSONA PUEDE BORRAR LO QUE QUERÍA DECIR.'],
+                        ['SEGUIMOS Y LE PEDIMOS SU IDEA AL FINAL.', 'EL GRUPO YA DECIDIÓ CUANDO DANI LOGRA RESPONDER. NECESITA TIEMPO PARA PARTICIPAR ANTES DE LA DECISIÓN.']
+                    ],
+                    idea: 'COMUNICARSE DE OTRA MANERA TAMBIÉN ES TENER VOZ.'
+                },
+                {
+                    topic: 'PARTICIPACIÓN',
+                    title: 'EL VIDEO LO HACEMOS ENTRE TODOS.',
+                    story: 'EL CURSO PREPARA UN VIDEO. LUZ PREFIERE NO HABLAR FRENTE A CÁMARA. QUIERE PARTICIPAR EN LA PRODUCCIÓN.',
+                    choices: [
+                        ['LE DAMOS UNA TAREA SIN PREGUNTARLE.', 'LUZ QUERÍA EDITAR EL AUDIO, PERO LE ASIGNARON OTRA COSA. INCLUIR TAMBIÉN ES PODER ELEGIR.'],
+                        ['LE DECIMOS QUE TODOS TIENEN QUE ACTUAR.', 'LUZ NO ENCUENTRA UNA FORMA DE PARTICIPAR. HACER LO MISMO NO ES LA ÚNICA MANERA DE APORTAR AL PROYECTO.'],
+                        ['OFRECEMOS DISTINTOS ROLES Y CADA PERSONA ELIGE.', 'LUZ ELIGE EDITAR. OTRAS PERSONAS ACTÚAN, ESCRIBEN O AGREGAN SUBTÍTULOS. TODOS APORTAN A UNA MISMA PRODUCCIÓN.']
+                    ],
+                    idea: 'DISTINTAS FORMAS DE PARTICIPAR, UNA META COMPARTIDA.'
+                },
+                {
+                    topic: 'PERTENENCIA',
+                    title: 'UN MENSAJE EN EL CHAT.',
+                    story: 'ALGUIEN ESCRIBE: «NO SUMEMOS A TOMI AL EQUIPO, NOS VA A RETRASAR». TOMI TODAVÍA NO PUDO ELEGIR CÓMO PARTICIPAR.',
+                    choices: [
+                        ['NO RESPONDEMOS PARA EVITAR UNA DISCUSIÓN.', 'EL EQUIPO SE FORMA SIN TOMI. EL SILENCIO DEJA QUE LA EXCLUSIÓN CONTINÚE.'],
+                        ['FRENAMOS EL COMENTARIO Y HABLAMOS CON TOMI SOBRE SU PARTICIPACIÓN.', 'TOMI ELIGE UN ROL Y EL GRUPO ACUERDA LOS APOYOS. SI LA EXCLUSIÓN CONTINÚA, BUSCAN ACOMPAÑAMIENTO DE UN ADULTO DE LA ESCUELA.'],
+                        ['HACEMOS SU PARTE PARA QUE FIGURE SU NOMBRE.', 'EL NOMBRE DE TOMI APARECE, PERO SU VOZ Y SUS DECISIONES NO. PERTENECER ES PARTICIPAR DE VERDAD.']
+                    ],
+                    idea: 'ESCUCHAR, PREGUNTAR Y ACTUAR PUEDE CAMBIAR EL GRUPO.'
+                }
+            ]
+        },
+        {
+            name: 'DECIDIR',
+            description: 'Elegí las opciones más inclusivas en cada situación.',
+            color: '#ff8c42',
+            scenes: [
+                {
+                    topic: 'ACCESO',
+                    title: 'SE MOJÓ LA SILLA DE RUEDAS.',
+                    story: 'CAMILA LLEGÓ CON SU SILLA WET DESPUÉS DE LLOVER. EL EDIFICIO NO TIENE RAMPAS Y EL ASCENSOR ESTÁ ROTO. ¿QUÉ HACEN?',
+                    choices: [
+                        ['LE DECIMOS QUE VENGA MAÑANA.', 'CAMILA SE PIERDE UNA CLASE IMPORTANTE. ESPERAR NO RESUELVE LA FALTA DE ACCESIBILIDAD.'],
+                        ['BAJAMOS LAS ESCALERAS CON ELLA Y LA SILLA.', 'ES PELIGROSO PARA CAMILA Y PARA QUIENES LA AYUDAN. ARREGLAR EL ASCENSOR ES LA SOLUCIÓN.'],
+                        ['PEDIMOS AL DIRECTOR UN AULA EN PLANTA BAJA Y ARREGLAMOS EL ASCENSOR.', 'CAMILA VA A CLASE HOYY SU ACCESIBILIDAD MEJORA PARA EL FUTURO.']
+                    ],
+                    idea: 'UNA SOLA BARRERA PUEDE DIFICULTAR LA PARTICIPACIÓN.'
+                },
+                {
+                    topic: 'INFORMACIÓN',
+                    title: 'EL EXAMEN ES VIRTUAL.',
+                    story: 'JOAQUÍN TIENE BAJA VISIÓN. EL EXAMEN EN LA PLATAFORMA NO TIENE ALT TEXT EN LAS IMÁGENES NI SE PUEDE AMPLIAR EL TEXTO.',
+                    choices: [
+                        ['LE DECIMOS QUE ESTUDIE MÁS.', 'JOAQUÍN FALLA NO PORQUE NO SABE, SINO PORQUE NO PUEDE VER EL EXAMEN. ESO NO ES JUSTO.'],
+                        ['LE OFRECEMOS LEERLE EL EXAMEN EN VOZ ALTA.', 'ESTÁ BIEN PARA AHORA, PERO EL FORMATO SIGUE SIENDO INACCESIBLE PARA OTROS.'],
+                        ['PEDIMOS A LA ESCUELA QUE TODOS LOS EXÁMENES SEAN ACCESIBLES DESDE EL INICIO.', 'JOAQUÍN Y OTROS ESTUDIANTES PUEDEN RENDIR EN IGUALDAD DE CONDICIONES.']
+                    ],
+                    idea: 'LA ACCESIBILIDAD BENEFICIA A TODOS, NO SOLO A PERSONAS CON DISCAPACIDAD.'
+                },
+                {
+                    topic: 'COMUNICACIÓN',
+                    title: 'EL INTERPRETE NO VIENE.',
+                    story: 'LUCAS USA LENGUA DE SIGNOS. EL INTÉRPRETE NO PUDO VENIR POR LA LLUVIA. ¿QUÉ HACEN EN LA REUNIÓN DE PADRES?',
+                    choices: [
+                        ['POSTERGAMOS LA REUNIÓN DE LUCAS.', 'LUCAS PIERDE INFORMACIÓN SOBRE SU EDUCACIÓN. POSPONER NO RESUELVE LA FALTA DE ACCESO.'],
+                        ['HABLAMOS CON LUCAS EN VOZ ALTA Y LENTAMENTE.', 'LUCAS SIGUE SIN ACCESO. SU LENGUA NO ES ESPAÑOL HABLADO.'],
+                        ['BUSCAMOS UN INTÉRPRETE EN OTRA ESCUELA Y HACEMOS VIDEO LLAMADA CON LUCAS.', 'LUCAS ACCEDE A LA INFORMACIÓN EN SU LENGUA. LA REUNIÓN SUCEDE CON ACCESO COMPLETO.']
+                    ],
+                    idea: 'COMUNICARSE REQUIERE APOYOS ESPECÍFICOS Y RESPETO POR CADA FORMA DE LENGUAJE.'
+                },
+                {
+                    topic: 'PARTICIPACIÓN',
+                    title: 'LA SALIDA TIENE MUCHOS ESCALONES.',
+                    story: 'EL CURSO VA AL MUSEO. ANTES NECESITA SUBIR UNA ESCALERA EMPINADA. CUATRO COMPAÑEROS NO PUEDEN SUBIR (SUS RAZONES SON DISTINTAS: UNO TIENE SILLA DE RUEDAS, OTRO TIENE UN CARRITO DE BEBÉ, OTRO TIENE LESIÓN EN LA RODILLA, OTRA TIENE PROBLEMAS DE EQUILIBRIO).',
+                    choices: [
+                        ['SOLO SUBEN LOS QUE PUEDEN.', 'CUATRO PERSONAS SE QUEDAN FUERA. UNA ESCALERA EXCLUYE A VARIAS.'],
+                        ['TODOS SUBEN DE A UNO.', 'TARDA MUCHO Y SIGUE SIENDO RIESGOSO PARA ALGUNOS.'],
+                        ['BUSCAMOS LA ENTRADA POR ASCENSOR O LA RAMPA DEL MUSEO.', 'TODOS ENTRAN JUNTOS CON ACCESIBILIDAD.']
+                    ],
+                    idea: 'LA ACCESIBILIDAD NO ES PARA UNO, ES PARA TODOS.'
+                },
+                {
+                    topic: 'PERTENENCIA',
+                    title: 'OTRO GRUPO LA EXCLUYÓ.',
+                    story: 'VALENTINA QUISO HACER EL PROYECTO CON OTRO GRUPO. LE DIJERON QUE NO, QUE ELLA «RETRASA». VALENTINA TIENE SORDERA Y NECESITA INTÉRPRETE.',
+                    choices: [
+                        ['LE EXPLICAMOS QUE EL OTRO GRUPO NO QUIERE.', 'VALENTINA SIGUE SIN UN EQUIPO. LA EXCLUSIÓN CONTINÚA SIN ACCIÓN.'],
+                        ['HACEMOS QUE VALENTINA TRABAJE SOLA CON UN ADULTO.', 'VALENTINA TRABAJA, PERO NO CON SUS COMPAÑEROS. LA INCLUSIÓN NO ES SEGREGACIÓN.'],
+                        ['HABLAMOS CON EL OTRO GRUPO, OFRECEMOS INTÉRPRETE Y EXPLICAMOS QUE TODOS LOS GRUPOS DEBEN INCLUIR.', 'VALENTINA TRABAJA CON SUS COMPAÑEROS COMO UNO MÁS. EL GRUPO APRENDE A INCLUIR.']
+                    ],
+                    idea: 'INCLUIR NO ES UN FAVOR, ES UN DERECHO Y UNA RESPONSABILIDAD COMPARTIDA.'
+                }
+            ]
+        },
+        {
+            name: 'TRANSFORMAR',
+            description: 'Proponé cambios reales para tu escuela.',
+            color: '#6dd5b3',
+            scenes: [
+                {
+                    topic: 'ACCESO',
+                    title: 'LA ESCUELA TIENE BAÑOS INACCESIBLES.',
+                    story: 'NADIE CON DISCAPACIDAD MOTRIZ PUEDE USAR LOS BAÑOS. PIDIERON AL DIRECTOR QUE HAGA UNO ACCESIBLE. LA RESPUESTA FUE: «SON MUY CAROS».',
+                    choices: [
+                        ['IGNORAMOS LA RESPUESTA.', 'EL PROBLEMA CONTINÚA. NADIE PRESIONA PARA CAMBIAR.'],
+                        ['HACEMOS UNA PETICIÓN CON FIRMAS.', 'EL DIRECTOR VE LA PRESIÓN. PUEDE GESTIONAR FONDOS Y MATERIALES. LA ESCUELA EMPIEZA A PLANIFICAR.'],
+                        ['BUSCAMOS PRESUPUESTO CON EL CONSEJO DIRECTIVO, PRESENTAMOS PROYECTOS Y PLAZOS.', 'EL CAMBIO ES SOSTENIBLE Y LA ESCUELA ASUME LA RESPONSABILIDAD.']
+                    ],
+                    idea: 'PARA TRANSFORMAR HAY QUE PERSISTIR, PROPONER Y SUMAR.'
+                },
+                {
+                    topic: 'INFORMACIÓN',
+                    title: 'TODO EL MATERIAL ES SOLO EN PAPEL.',
+                    story: 'LOS LIBROS DE LA BIBLIOTECA NO EXISTEN EN DIGITAL. ESTUDIANTES CON BAJA VISIÓN DEPENDEN DE FOTOCOPIAS AMPLIADAS. PIDIERON QUE DONEN LIBROS DIGITALES.',
+                    choices: [
+                        ['LA ESCUELA DICE QUE NO HAY PRESUPUESTO.', 'EL ACCESO A INFORMACIÓN SIGUE LIMITADO.'],
+                        ['BUSCAMOS EDITORIALES QUE DONEN VERSIONES DIGITALES.', 'ALGUNOS LIBROS LLEGAN. PERO LA BIBLIOTECA SIGUE INCOMPLETA.'],
+                        ['FORMAMOS UN GRUPO: ESCUELA + ESTUDIANTES + EDITORIALES. PEDIMOS LICENCIAS ESPECIALES Y HACEMOS UN FONDO COMÚN DE LIBROS ACCESIBLES.', 'LA BIBLIOTECA CRECE. TODOS ACCEDEN AL MISMO MATERIAL.']
+                    ],
+                    idea: 'TRABAJAR JUNTOS MULTIPLICA POSIBILIDADES.'
+                },
+                {
+                    topic: 'COMUNICACIÓN',
+                    title: 'EN LAS REUNIONES DE PADRES NADIE TOMA NOTA EN LENGUAJE DE SIGNOS.',
+                    story: 'ESTUDIANTES SORDOS NO PUEDEN PARTICIPAR PORQUE NO HAY INTÉRPRETE. PIDIERON QUE LA ESCUELA CONTRATE UNO.',
+                    choices: [
+                        ['LA ESCUELA DICE QUE BUSQUEN UN INTÉRPRETE ELLOS MISMOS.', 'LA RESPONSABILIDAD RECAE EN LAS FAMILIAS. LA ESCUELA NO ASUME SU ROL.'],
+                        ['CONTRATAN UN INTÉRPRETE UNA VEZ AL AÑO PARA EVENTOS GRANDES.', 'ES ALGO, PERO EXCLUYENTE. REUNIONES DIARIAS SIGUEN SIN ACCESO.'],
+                        ['LA ESCUELA CONTRATA INTÉRPRETES PARA TODAS LAS REUNIONES Y CAPACITA AL EQUIPO DOCENTE EN LENGUAJE DE SIGNOS BÁSICO.', 'LA INCLUSIÓN ES SOSTENIBLE Y SE EXPANDE.']
+                    ],
+                    idea: 'LA ESCUELA DEBE INVERTIR EN ACCESIBILIDAD COMO PARTE DE SU PRESUPUESTO.'
+                },
+                {
+                    topic: 'PARTICIPACIÓN',
+                    title: 'LOS ACTOS NO SON ACCESIBLES.',
+                    story: 'EN LOS ACTOS ESCOLARES NO HAY SUBTÍTULOS, DESCRIPCIÓN DE AUDIO, NI INTÉRPRETE. ALGUNOS ESTUDIANTES NO PUEDEN VERLOS/ESCUCHARLOS.',
+                    choices: [
+                        ['SOLO VAN LOS QUE PUEDEN ACCEDER.', 'LA CELEBRACIÓN EXCLUYE.'],
+                        ['GRABAMOS EL ACTO Y LO COMPARTIMOS DESPUÉS CON SUBTÍTULOS.', 'LLEGA MÁS TARDE A ALGUNOS. PERO TODAVÍA NO ES ACCESIBLE EN VIVO.'],
+                        ['LOS ACTOS TIENEN SUBTÍTULOS EN VIVO, DESCRIPCIÓN DE AUDIO EN AURICULARES Y INTÉRPRETE. LA ESCUELA INVIERTE EN TECNOLOGÍA Y CAPACITACIÓN.', 'TODOS VEN Y ESCUCHAN EL ACTO. LA INCLUSIÓN ES PARTE DE LA CELEBRACIÓN.']
+                    ],
+                    idea: 'INCLUIR DESDE EL DISEÑO ES LA BASE DEL CAMBIO.'
+                },
+                {
+                    topic: 'PERTENENCIA',
+                    title: 'UN ESTUDIANTE QUISO DEJAR LA ESCUELA.',
+                    story: 'JAVIER PIDIÓ IRSE PORQUE «NO HABÍA LUGAR» PARA ÉL. SUS COMPAÑEROS SE DIERON CUENTA Y QUIEREN QUE LA ESCUELA CAMBIE PARA QUE NADIE SE SIENTA ASÍ.',
+                    choices: [
+                        ['LA ESCUELA HABLA CON JAVIER SOLO.', 'EL CAMBIO DEPENDE DE UNA PERSONA. SIN PRESIÓN SISTÉMICA, VUELVE A PASAR.'],
+                        ['EL GRUPO LE DICE A JAVIER QUE VUELVA, QUE LO QUIEREN.', 'JAVIER VUELVE, PERO EL SISTEMA SIGUE EXCLUYENDO. OTROS SE IRÁN.'],
+                        ['LA ESCUELA HACE UN CAMBIO REAL: CAPACITA AL EQUIPO, REVISA LAS POLÍTICAS, AMPLÍA LOS APOYOS Y FORMA GRUPOS DE ESTUDIANTES PARA MONITOREAR LA INCLUSIÓN. JAVIER VUELVE Y LA ESCUELA GARANTIZA QUE NADIE SIENTA QUE NO HAY LUGAR.', 'LA PERTENENCIA PASA A SER PARTE DE LA CULTURA DE LA ESCUELA.']
+                    ],
+                    idea: 'LOS CAMBIOS QUE DURAN SON LOS QUE LA COMUNIDAD CONSTRUYE JUNTOS.'
+                }
+            ]
+        }
+    ];
+
+    // ==================== ESTADO ====================
+    let gameState = {
+        currentMode: null,
+        currentLevel: 0,
+        currentScene: 0,
+        currentChoice: null,
+        coins: 0,
+        decisions: {},
+        soundEnabled: true,
+        textSize: 1,
+        highContrast: false,
+        paused: false
+    };
+
+    let platformGame = null;
+
+    // ==================== UTILIDADES ====================
+    function announceToScreenReader(text) {
+        const region = document.getElementById('liveRegion');
+        region.textContent = text;
+    }
+
+    function showNotification(message) {
+        const notif = document.createElement('div');
+        notif.className = 'notification';
+        notif.textContent = message;
+        document.body.appendChild(notif);
+        setTimeout(() => notif.remove(), 3000);
+    }
+
+    function playSound(name) {
+        if (!gameState.soundEnabled) return;
+        
+        // Crear sonidos simples sin archivos externos
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
+        
+        const now = audioContext.currentTime;
+        
+        switch(name) {
+            case 'coin':
+                oscillator.frequency.value = 800;
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                oscillator.start(now);
+                oscillator.stop(now + 0.1);
+                break;
+            case 'success':
+                oscillator.frequency.setValueAtTime(400, now);
+                oscillator.frequency.linearRampToValueAtTime(600, now + 0.2);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                oscillator.start(now);
+                oscillator.stop(now + 0.2);
+                break;
+        }
+    }
+
+    function changeTextSize() {
+        gameState.textSize = gameState.textSize === 1 ? 1.3 : 1;
+        const body = document.body;
+        body.style.fontSize = (16 * gameState.textSize) + 'px';
+        const all = document.querySelectorAll('*');
+        all.forEach(el => {
+            const computed = window.getComputedStyle(el);
+            const size = parseFloat(computed.fontSize);
+            el.style.fontSize = (size * gameState.textSize) + 'px';
+        });
+        showNotification('TAMAÑO DE TEXTO: ' + (gameState.textSize === 1.3 ? 'GRANDE' : 'NORMAL'));
+    }
+
+    function toggleContrast() {
+        gameState.highContrast = !gameState.highContrast;
+        if (gameState.highContrast) {
+            document.body.style.filter = 'contrast(1.3)';
+            document.body.style.backgroundColor = '#000';
+        } else {
+            document.body.style.filter = 'none';
+            document.body.style.backgroundColor = 'var(--darker)';
+        }
+        showNotification('CONTRASTE: ' + (gameState.highContrast ? 'ALTO' : 'NORMAL'));
+    }
+
+    function toggleSound() {
+        gameState.soundEnabled = !gameState.soundEnabled;
+        const btn = document.getElementById('soundBtn');
+        btn.textContent = gameState.soundEnabled ? '🔊' : '🔇';
+        showNotification('SONIDO: ' + (gameState.soundEnabled ? 'ACTIVADO' : 'SILENCIADO'));
+    }
+
+    function togglePause() {
+        gameState.paused = !gameState.paused;
+        if (gameState.currentMode === 'adventure' && platformGame) {
+            platformGame.paused = gameState.paused;
+        }
+        if (gameState.paused) {
+            showPauseMenu();
+        } else {
+            closePauseMenu();
+        }
+    }
+
+    function showPauseMenu() {
+        const overlay = document.createElement('div');
+        overlay.className = 'overlay';
+        overlay.id = 'pauseOverlay';
+        
+        const menu = document.createElement('div');
+        menu.className = 'pause-menu';
+        menu.innerHTML = `
+            <div class="pause-title">PAUSADO</div>
+            <div class="pause-buttons">
+                <button class="pause-btn" onclick="togglePause()">REANUDAR</button>
+                <button class="pause-btn" onclick="showMenu()">MENÚ</button>
+            </div>
+        `;
+        
+        overlay.appendChild(menu);
+        document.body.appendChild(overlay);
+    }
+
+    function closePauseMenu() {
+        const overlay = document.getElementById('pauseOverlay');
+        if (overlay) overlay.remove();
+    }
+
+    function showMenu() {
+        closePauseMenu();
+        gameState.paused = false;
+        if (platformGame) platformGame.paused = false;
+        startGame(null);
+    }
+
+    // ==================== MODOS DE JUEGO ====================
+    function startGame(mode) {
+        document.getElementById('startScreen').style.display = mode ? 'none' : 'block';
+        
+        if (!mode) {
+            // Volver a pantalla de inicio
+            gameState.currentMode = null;
+            document.getElementById('gameCanvas').style.display = 'none';
+            if (platformGame) platformGame.destroy();
+            document.querySelectorAll('.overlay, .situation-modal, .result-screen, .guided-layout').forEach(el => el.remove());
+            return;
+        }
+
+        gameState.currentMode = mode;
+        
+        if (mode === 'adventure') {
+            startAdventureMode();
+        } else if (mode === 'guided') {
+            startGuidedMode();
+        }
+    }
+
+    function startAdventureMode() {
+        document.getElementById('gameCanvas').style.display = 'block';
+        document.getElementById('startScreen').style.display = 'none';
+        
+        platformGame = new PlatformerGame(0);
+        platformGame.start();
+    }
+
+    function startGuidedMode() {
+        document.getElementById('gameCanvas').style.display = 'none';
+        document.getElementById('startScreen').style.display = 'none';
+        
+        const layout = document.createElement('div');
+        layout.className = 'guided-layout';
+        layout.id = 'guidedLayout';
+        
+        layout.innerHTML = `
+            <div class="guided-header">
+                <div>
+                    <div style="font-size: 24px; margin-bottom: 8px;">¿VOS QUÉ HARÍAS?</div>
+                    <div class="guided-progress" id="guidedProgress">SELECCIONÁ UN NIVEL</div>
+                </div>
+                <div class="level-buttons" id="levelButtons"></div>
+            </div>
+            <div class="guided-content" id="guidedContent"></div>
+        `;
+        
+        document.body.appendChild(layout);
+        
+        // Botones de niveles
+        const levelButtons = document.getElementById('levelButtons');
+        LEVELS.forEach((level, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'level-select-btn' + (idx === 0 ? ' active' : '');
+            btn.textContent = 'NIVEL ' + (idx + 1);
+            btn.onclick = () => startGuidedLevel(idx);
+            levelButtons.appendChild(btn);
+        });
+        
+        startGuidedLevel(0);
+    }
+
+    function startGuidedLevel(levelIdx) {
+        gameState.currentLevel = levelIdx;
+        gameState.currentScene = 0;
+        gameState.decisions = {};
+        
+        // Actualizar botones
+        document.querySelectorAll('.level-select-btn').forEach((btn, idx) => {
+            btn.classList.toggle('active', idx === levelIdx);
+        });
+        
+        showGuidedScene();
+    }
+
+    function showGuidedScene() {
+        const level = LEVELS[gameState.currentLevel];
+        const scene = level.scenes[gameState.currentScene];
+        
+        const content = document.getElementById('guidedContent');
+        content.innerHTML = `
+            <div class="modal-header">NIVEL ${gameState.currentLevel + 1} · SITUACIÓN ${gameState.currentScene + 1} DE 5 · ${scene.topic}</div>
+            <div class="modal-title">${scene.title}</div>
+            <div class="modal-story">${scene.story}</div>
+            <div class="modal-question">¿QUÉ HACÉS?</div>
+            <div class="choices-container" id="choicesContainer"></div>
+        `;
+        
+        const container = document.getElementById('choicesContainer');
+        scene.choices.forEach((choice, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'choice-btn';
+            btn.innerHTML = `<span class="choice-letter">${String.fromCharCode(65 + idx)}</span>${choice[0]}`;
+            btn.onclick = () => showGuidedResult(idx, choice);
+            container.appendChild(btn);
+        });
+        
+        document.getElementById('guidedProgress').textContent = `NIVEL ${gameState.currentLevel + 1} · SITUACIÓN ${gameState.currentScene + 1} DE 5`;
+    }
+
+    function showGuidedResult(choiceIdx, choice) {
+        gameState.decisions[gameState.currentScene] = choiceIdx;
+        playSound('success');
+        
+        const content = document.getElementById('guidedContent');
+        const level = LEVELS[gameState.currentLevel];
+        const scene = level.scenes[gameState.currentScene];
+        
+        content.innerHTML = `
+            <div class="result-screen" style="position: relative; border: none; padding: 0; max-height: none; background: transparent;">
+                <div class="modal-header">NIVEL ${gameState.currentLevel + 1} · SITUACIÓN ${gameState.currentScene + 1} DE 5 · DESENLACE</div>
+                <div class="result-title">ESTO ES LO QUE PASA.</div>
+                <div class="result-chosen">ELEGISTE: ${choice[0]}</div>
+                <div class="result-content">${choice[1]}</div>
+                <div class="result-idea">${scene.idea}</div>
+                <div class="modal-actions" style="margin-top: 24px;">
+                    ${gameState.currentScene < 4 ? `<button class="choice-btn" style="grid-column: 1/3; border: 3px solid var(--primary);" onclick="nextGuidedScene()">CONTINUAR</button>` : `<button class="choice-btn" style="grid-column: 1/3; border: 3px solid var(--primary);" onclick="finishGuidedLevel()">VER MI RECORRIDO</button>`}
+                    <button class="choice-btn" style="border: 3px solid var(--accent); color: var(--accent);" onclick="showGuidedScene()">OTRA DECISIÓN</button>
+                </div>
+            </div>
+        `;
+    }
+
+    function nextGuidedScene() {
+        gameState.currentScene++;
+        if (gameState.currentScene < 5) {
+            showGuidedScene();
+        } else {
+            finishGuidedLevel();
+        }
+    }
+
+    function finishGuidedLevel() {
+        const level = LEVELS[gameState.currentLevel];
+        
+        const content = document.getElementById('guidedContent');
+        content.innerHTML = `
+            <div class="final-content">
+                <div class="modal-header">NIVEL ${gameState.currentLevel + 1} COMPLETADO</div>
+                <div class="final-title">TODOS TENEMOS UN LUGAR.</div>
+                <div class="final-message">LA INCLUSIÓN ES QUE TODOS TENGAMOS LA POSIBILIDAD DE PARTICIPAR.</div>
+                
+                <div class="summary-section">
+                    <div class="summary-title">TU RECORRIDO EN ESTE NIVEL</div>
+                    ${level.scenes.map((scene, idx) => `
+                        <div class="summary-item">
+                            <strong>${idx + 1}. ${scene.topic}</strong>
+                            ${scene.choices[gameState.decisions[idx]][0]}
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <div class="idea-form">
+                    <label for="ideaInput" class="form-label">¿QUÉ CAMBIARÍAS EN TU ESCUELA?</label>
+                    <textarea id="ideaInput" class="idea-input" placeholder="ESCRIBÍ UNA IDEA CONCRETA…" maxlength="600"></textarea>
+                    <p class="form-helper">TU IDEA SE DESCARGA EN ESTE DISPOSITIVO. NO SE ENVÍA A LA ESCUELA.</p>
+                </div>
+                
+                <div class="modal-actions">
+                    ${gameState.currentLevel < 2 ? `<button class="choice-btn" style="grid-column: 1/3; border: 3px solid var(--primary);" onclick="nextGuidedLevel()">SIGUIENTE NIVEL</button>` : ''}
+                    <button class="choice-btn" style="border: 3px solid var(--primary);" onclick="downloadIdea()">DESCARGAR MI IDEA</button>
+                    <button class="choice-btn" style="border: 3px solid var(--accent); color: var(--accent);" onclick="startGame(null)">MENÚ</button>
+                </div>
+            </div>
+        `;
+    }
+
+    function nextGuidedLevel() {
+        startGuidedLevel(gameState.currentLevel + 1);
+    }
+
+    function downloadIdea() {
+        const idea = document.getElementById('ideaInput').value.trim();
+        if (!idea) {
+            showNotification('ESCRIBÍ TU IDEA ANTES DE DESCARGAR');
+            document.getElementById('ideaInput').focus();
+            return;
+        }
+        
+        const level = LEVELS[gameState.currentLevel];
+        const text = `NIVEL ${gameState.currentLevel + 1} · ${level.name}
+MES DE LA INCLUSIÓN — ¿VOS QUÉ HARÍAS?
+
+MI IDEA PARA LA ESCUELA:
+${idea}
+
+MI RECORRIDO:
+${level.scenes.map((s, i) => `${i + 1}. ${s.topic}: ${s.choices[gameState.decisions[i]][0]}`).join('\n')}`;
+        
+        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'MI_IDEA_PARA_UNA_ESCUELA_INCLUSIVA.txt';
+        link.click();
+        URL.revokeObjectURL(url);
+        
+        showNotification('IDEA DESCARGADA. PODÉS COMPARTIRLA CON TU DOCENTE');
+    }
+
+    // ==================== PERSONAJES ====================
+    const CHARACTERS = [
+        { emoji: '👨‍🦰', name: 'ALEX', color: '#ff6b6b' },
+        { emoji: '👩‍🦱', name: 'SOFÍA', color: '#ff6b9d' },
+        { emoji: '👨‍🎓', name: 'DANI', color: '#c44569' },
+        { emoji: '👩‍🦳', name: 'LUZ', color: '#f8a623' },
+        { emoji: '👨‍💼', name: 'TOMI', color: '#7ed321' },
+    ];
+
+    // ==================== JUEGO DE PLATAFORMAS ====================
+    class PlatformerGame {
+        constructor(levelIdx) {
+            this.levelIdx = levelIdx;
+            this.level = LEVELS[levelIdx];
+            this.canvas = document.getElementById('gameCanvas');
+            this.ctx = this.canvas.getContext('2d');
+            this.paused = false;
+            this.gameScale = 1;
+            this.cameraX = 0;
+            this.time = 0;
+            this.unlockedPaths = new Set();
+            this.particleSystem = [];
+            
+            this.resizeCanvas();
+            window.addEventListener('resize', () => this.resizeCanvas());
+            
+            // Controles
+            this.keys = {};
+            document.addEventListener('keydown', e => {
+                this.keys[e.key.toLowerCase()] = true;
+                if (e.key === ' ' || e.key === 'Enter') e.preventDefault();
+            });
+            document.addEventListener('keyup', e => {
+                this.keys[e.key.toLowerCase()] = false;
+            });
+            
+            this.canvas.addEventListener('click', e => this.handleCanvasClick(e));
+            
+            // Seleccionar personaje basado en el nivel
+            this.character = CHARACTERS[levelIdx % CHARACTERS.length];
+            
+            // Jugador
+            this.player = {
+                x: 80,
+                y: 0,
+                width: 32,
+                height: 48,
+                velocityY: 0,
+                velocityX: 0,
+                jumping: false,
+                facing: 'right',
+                animation: 0,
+                groundTime: 0
+            };
+            
+            // Entidades
+            this.platforms = [];
+            this.coins = [];
+            this.boxes = []; // Bloques sorpresa
+            this.obstacles = [];
+            this.bridges = [];
+            this.doors = [];
+            this.powerUps = [];
+            this.enemies = [];
+            this.flag = null;
+            this.activeSituation = null;
+            
+            this.setupLevel();
+        }
+        
+        resizeCanvas() {
+            this.canvas.width = window.innerWidth;
+            this.canvas.height = window.innerHeight;
+        }
+        
+        setupLevel() {
+            const levelColor = this.level.color;
+            const w = this.canvas.width;
+            const h = this.canvas.height;
+            
+            // Piso base
+            this.platforms = [
+                { x: 0, y: h - 60, width: w * 2, height: 60, type: 'ground', color: '#333' }
+            ];
+            
+            // Plataformas variadas
+            const platformData = [
+                { x: 200, y: h - 200, w: 150, color: '#4a4a4a' },
+                { x: 550, y: h - 280, w: 120, color: '#555' },
+                { x: 900, y: h - 180, w: 180, color: '#4a4a4a' },
+                { x: 1250, y: h - 300, w: 140, color: '#555' },
+                { x: 1700, y: h - 150, w: 200, color: '#4a4a4a' }
+            ];
+            
+            platformData.forEach((p, i) => {
+                this.platforms.push({
+                    x: p.x,
+                    y: p.y,
+                    width: p.w,
+                    height: 20,
+                    type: 'platform',
+                    color: p.color
+                });
+                
+                // Plataformas adicionales para complejidad
+                if (i < 4) {
+                    this.platforms.push({
+                        x: p.x + p.w + 80,
+                        y: p.y - 120,
+                        width: 100,
+                        height: 15,
+                        type: 'platform',
+                        color: '#3a3a3a'
+                    });
+                }
+            });
+            
+            // Puertas/portales que se abren al completar situaciones
+            this.doors = [
+                { x: 400, y: h - 270, width: 50, height: 60, sceneIdx: 0, unlocked: false, pathIdx: 1 },
+                { x: 750, y: h - 350, width: 50, height: 60, sceneIdx: 1, unlocked: false, pathIdx: 2 },
+                { x: 1100, y: h - 250, width: 50, height: 60, sceneIdx: 2, unlocked: false, pathIdx: 3 },
+                { x: 1450, y: h - 370, width: 50, height: 60, sceneIdx: 3, unlocked: false, pathIdx: 4 },
+                { x: 1800, y: h - 220, width: 50, height: 60, sceneIdx: 4, unlocked: false, pathIdx: 5 }
+            ];
+            
+            // Puentes que necesitan ser activados
+            this.bridges = [
+                { x: 350, y: h - 180, width: 80, height: 15, sceneIdx: 1, active: false },
+                { x: 950, y: h - 160, width: 100, height: 15, sceneIdx: 3, active: false }
+            ];
+            
+            // Bloques sorpresa
+            for (let i = 0; i < 5; i++) {
+                this.boxes.push({
+                    x: platformData[i].x + platformData[i].w - 60,
+                    y: platformData[i].y - 50,
+                    width: 45,
+                    height: 45,
+                    sceneIdx: i,
+                    opened: false,
+                    animation: 0
+                });
+            }
+            
+            // Monedas distribuidas estratégicamente
+            const coinPositions = [
+                { x: 250, y: h - 300 },
+                { x: 500, y: h - 350 },
+                { x: 650, y: h - 200 },
+                { x: 950, y: h - 400 },
+                { x: 1200, y: h - 350 },
+                { x: 1400, y: h - 250 },
+                { x: 1700, y: h - 380 },
+                { x: 1900, y: h - 200 },
+                { x: 2100, y: h - 300 },
+                { x: 2250, y: h - 150 }
+            ];
+            
+            coinPositions.forEach(pos => {
+                this.coins.push({
+                    x: pos.x,
+                    y: pos.y,
+                    radius: 8,
+                    collected: false,
+                    animation: 0
+                });
+            });
+            
+            // Obstáculos simples (sin daño, solo para navegar)
+            this.obstacles = [
+                { x: 600, y: h - 150, width: 40, height: 40, type: 'barrel' },
+                { x: 1350, y: h - 180, width: 35, height: 35, type: 'box' }
+            ];
+            
+            // Bandera de meta
+            this.flag = {
+                x: w * 2 - 150,
+                y: h - 180,
+                width: 40,
+                height: 100,
+                animation: 0
+            };
+            
+            this.player.y = h - 150;
+        }
+        
+        handleCanvasClick(e) {
+            if (this.paused) return;
+            
+            const rect = this.canvas.getBoundingClientRect();
+            const clickX = (e.clientX - rect.left) + this.cameraX;
+            const clickY = e.clientY - rect.top;
+            
+            // Click en cajas
+            for (let box of this.boxes) {
+                if (this.distance(clickX, clickY, box.x + box.width / 2, box.y + box.height / 2) < 60) {
+                    this.openSituation(box.sceneIdx);
+                }
+            }
+            
+            // Click en puertas
+            for (let door of this.doors) {
+                if (this.distance(clickX, clickY, door.x + door.width / 2, door.y + door.height / 2) < 60 && door.unlocked) {
+                    this.unlockedPaths.add(door.pathIdx);
+                    playSound('success');
+                    showNotification('¡CAMINO DESBLOQUEADO!');
+                }
+            }
+        }
+        
+        distance(x1, y1, x2, y2) {
+            return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
+        }
+        
+        openSituation(sceneIdx) {
+            if (this.activeSituation !== null) return;
+            
+            this.paused = true;
+            gameState.paused = true;
+            
+            const scene = this.level.scenes[sceneIdx];
+            gameState.currentScene = sceneIdx;
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'overlay';
+            
+            const modal = document.createElement('div');
+            modal.className = 'situation-modal';
+            
+            modal.innerHTML = `
+                <div class="modal-header">NIVEL ${this.levelIdx + 1} · SITUACIÓN ${sceneIdx + 1} DE 5 · ${scene.topic}</div>
+                <div class="modal-title">${scene.title}</div>
+                <div class="modal-story">${scene.story}</div>
+                <div class="modal-question">¿QUÉ HACÉS?</div>
+                <div class="choices-container" id="adventureChoices"></div>
+            `;
+            
+            const choicesContainer = modal.querySelector('#adventureChoices');
+            scene.choices.forEach((choice, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                btn.innerHTML = `<span class="choice-letter">${String.fromCharCode(65 + idx)}</span>${choice[0]}`;
+                btn.onclick = () => this.showResult(sceneIdx, idx, choice);
+                choicesContainer.appendChild(btn);
+            });
+            
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+            
+            setTimeout(() => modal.querySelector('.choice-btn').focus(), 100);
+        }
+        
+        showResult(sceneIdx, choiceIdx, choice) {
+            const scene = this.level.scenes[sceneIdx];
+            gameState.decisions[sceneIdx] = choiceIdx;
+            playSound('success');
+            
+            const overlay = document.querySelector('.overlay');
+            const modal = overlay.querySelector('.situation-modal');
+            
+            modal.innerHTML = `
+                <div class="modal-header">NIVEL ${this.levelIdx + 1} · SITUACIÓN ${sceneIdx + 1} DE 5 · DESENLACE</div>
+                <div class="result-title">ESTO ES LO QUE PASA.</div>
+                <div class="result-chosen">ELEGISTE: ${choice[0]}</div>
+                <div class="result-content">${choice[1]}</div>
+                <div class="result-idea">${scene.idea}</div>
+                <div class="modal-actions">
+                    <button class="choice-btn" style="grid-column: 1/3; border: 3px solid var(--primary);" onclick="platformGame.closeSituation()">CONTINUAR</button>
+                    <button class="choice-btn" style="border: 3px solid var(--accent); color: var(--accent);" onclick="platformGame.openSituation(${sceneIdx})">OTRA DECISIÓN</button>
+                </div>
+            `;
+        }
+        
+        closeSituation() {
+            const overlay = document.querySelector('.overlay');
+            if (overlay) overlay.remove();
+            this.paused = false;
+            gameState.paused = false;
+            const sceneIdx = gameState.currentScene;
+            this.boxes[sceneIdx].opened = true;
+            
+            // Desbloquear puerta correspondiente
+            if (this.doors[sceneIdx]) {
+                this.doors[sceneIdx].unlocked = true;
+                this.createParticles(this.doors[sceneIdx].x + this.doors[sceneIdx].width / 2, 
+                                    this.doors[sceneIdx].y, 10);
+            }
+            
+            playSound('coin');
+        }
+        
+        handleCanvasClick(e) {
+            if (this.paused) return;
+            
+            const rect = this.canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+            
+            // Seleccionar caja tocada
+            for (let box of this.boxes) {
+                if (this.distance(clickX, clickY, box.x + box.width / 2, box.y + box.height / 2) < 60) {
+                    this.openSituation(box.sceneIdx);
+                }
+            }
+        }
+        
+        distance(x1, y1, x2, y2) {
+            return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
+        }
+        
+        openSituation(sceneIdx) {
+            if (this.activeSituation !== null) return;
+            
+            this.paused = true;
+            gameState.paused = true;
+            
+            const scene = this.level.scenes[sceneIdx];
+            gameState.currentScene = sceneIdx;
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'overlay';
+            
+            const modal = document.createElement('div');
+            modal.className = 'situation-modal';
+            
+            modal.innerHTML = `
+                <div class="modal-header">NIVEL ${this.levelIdx + 1} · SITUACIÓN ${sceneIdx + 1} DE 5 · ${scene.topic}</div>
+                <div class="modal-title">${scene.title}</div>
+                <div class="modal-story">${scene.story}</div>
+                <div class="modal-question">¿QUÉ HACÉS?</div>
+                <div class="choices-container" id="adventureChoices"></div>
+            `;
+            
+            const choicesContainer = modal.querySelector('#adventureChoices');
+            scene.choices.forEach((choice, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                btn.innerHTML = `<span class="choice-letter">${String.fromCharCode(65 + idx)}</span>${choice[0]}`;
+                btn.onclick = () => this.showResult(sceneIdx, idx, choice);
+                choicesContainer.appendChild(btn);
+            });
+            
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+            
+            // Focus en primer botón
+            setTimeout(() => modal.querySelector('.choice-btn').focus(), 100);
+        }
+        
+        showResult(sceneIdx, choiceIdx, choice) {
+            const scene = this.level.scenes[sceneIdx];
+            gameState.decisions[sceneIdx] = choiceIdx;
+            playSound('success');
+            
+            const overlay = document.querySelector('.overlay');
+            const modal = overlay.querySelector('.situation-modal');
+            
+            modal.innerHTML = `
+                <div class="modal-header">NIVEL ${this.levelIdx + 1} · SITUACIÓN ${sceneIdx + 1} DE 5 · DESENLACE</div>
+                <div class="result-title">ESTO ES LO QUE PASA.</div>
+                <div class="result-chosen">ELEGISTE: ${choice[0]}</div>
+                <div class="result-content">${choice[1]}</div>
+                <div class="result-idea">${scene.idea}</div>
+                <div class="modal-actions">
+                    <button class="choice-btn" style="grid-column: 1/3; border: 3px solid var(--primary);" onclick="platformGame.closeSituation()">CONTINUAR</button>
+                    <button class="choice-btn" style="border: 3px solid var(--accent); color: var(--accent);" onclick="platformGame.openSituation(${sceneIdx})">OTRA DECISIÓN</button>
+                </div>
+            `;
+        }
+        
+        closeSituation() {
+            const overlay = document.querySelector('.overlay');
+            if (overlay) overlay.remove();
+            this.paused = false;
+            gameState.paused = false;
+            this.boxes[gameState.currentScene].opened = true;
+            playSound('coin');
+        }
+        
+        update() {
+            if (this.paused) return;
+            
+            this.time++;
+            this.player.animation++;
+            
+            // Gravedad
+            this.player.velocityY += 0.5;
+            if (this.player.velocityY > 15) this.player.velocityY = 15;
+            
+            // Entrada
+            const moveLeft = this.keys['arrowleft'] || this.keys['a'];
+            const moveRight = this.keys['arrowright'] || this.keys['d'];
+            
+            if (moveLeft) {
+                this.player.velocityX = -6;
+                this.player.facing = 'left';
+            } else if (moveRight) {
+                this.player.velocityX = 6;
+                this.player.facing = 'right';
+            } else {
+                this.player.velocityX *= 0.85;
+            }
+            
+            // Salto
+            if ((this.keys[' '] || this.keys['enter']) && !this.player.jumping) {
+                this.player.velocityY = -13;
+                this.player.jumping = true;
+                playSound('coin');
+            }
+            
+            // Actualizar posición
+            this.player.x += this.player.velocityX;
+            this.player.y += this.player.velocityY;
+            
+            // Cámara sigue al jugador
+            const targetCameraX = Math.max(0, this.player.x - this.canvas.width / 3);
+            this.cameraX += (targetCameraX - this.cameraX) * 0.15;
+            
+            // Colisión con plataformas
+            let onPlatform = false;
+            
+            for (let platform of this.platforms) {
+                if (
+                    this.player.velocityY >= 0 &&
+                    this.player.y + this.player.height <= platform.y + 8 &&
+                    this.player.y + this.player.height >= platform.y - 15 &&
+                    this.player.x + this.player.width > platform.x &&
+                    this.player.x < platform.x + platform.width
+                ) {
+                    this.player.y = platform.y - this.player.height;
+                    this.player.velocityY = 0;
+                    this.player.jumping = false;
+                    onPlatform = true;
+                    this.player.groundTime++;
+                }
+            }
+            
+            // Colisión con puentes
+            for (let bridge of this.bridges) {
+                if (bridge.active &&
+                    this.player.velocityY >= 0 &&
+                    this.player.y + this.player.height <= bridge.y + 8 &&
+                    this.player.y + this.player.height >= bridge.y - 15 &&
+                    this.player.x + this.player.width > bridge.x &&
+                    this.player.x < bridge.x + bridge.width
+                ) {
+                    this.player.y = bridge.y - this.player.height;
+                    this.player.velocityY = 0;
+                    this.player.jumping = false;
+                    onPlatform = true;
+                }
+            }
+            
+            if (!onPlatform) {
+                this.player.groundTime = 0;
+            }
+            
+            // Colisión con monedas
+            for (let coin of this.coins) {
+                if (!coin.collected && this.distance(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2, coin.x, coin.y) < 35) {
+                    coin.collected = true;
+                    gameState.coins++;
+                    playSound('coin');
+                    this.createParticles(coin.x, coin.y, 8);
+                }
+            }
+            
+            // Actualizar animación de monedas
+            for (let coin of this.coins) {
+                coin.animation = (coin.animation + 1) % 60;
+            }
+            
+            // Bandera de meta
+            if (this.distance(this.player.x + this.player.width / 2, this.player.y, this.flag.x + this.flag.width / 2, this.flag.y) < 60) {
+                this.finishLevel();
+            }
+            
+            // Reiniciar si cae
+            if (this.player.y > this.canvas.height + 100) {
+                this.player.x = 80;
+                this.player.y = this.canvas.height - 150;
+                this.player.velocityY = 0;
+                this.cameraX = 0;
+            }
+            
+            // Actualizar partículas
+            this.particleSystem = this.particleSystem.filter(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.3;
+                p.life--;
+                return p.life > 0;
+            });
+        }
+        
+        createParticles(x, y, count) {
+            for (let i = 0; i < count; i++) {
+                const angle = (Math.PI * 2 * i) / count;
+                this.particleSystem.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * 3,
+                    vy: Math.sin(angle) * 3 - 2,
+                    life: 30,
+                    color: '#FFD700'
+                });
+            }
+        }
+        
+        draw() {
+            // Fondo con gradiente dinámico
+            const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
+            gradient.addColorStop(0, '#87ceeb');
+            gradient.addColorStop(1, '#a8e6b8');
+            this.ctx.fillStyle = gradient;
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            
+            // Nubes decorativas
+            this.drawClouds();
+            
+            // Guardar contexto para aplicar cámara
+            this.ctx.save();
+            this.ctx.translate(-this.cameraX, 0);
+            
+            // Plataformas base
+            for (let platform of this.platforms) {
+                this.ctx.fillStyle = platform.color || '#4a4a4a';
+                this.ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+                
+                // Textura
+                this.ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                for (let i = 0; i < platform.width; i += 20) {
+                    this.ctx.fillRect(platform.x + i, platform.y, 10, platform.height);
+                }
+            }
+            
+            // Puentes
+            for (let bridge of this.bridges) {
+                if (bridge.active) {
+                    this.ctx.fillStyle = '#8B4513';
+                    this.ctx.fillRect(bridge.x, bridge.y, bridge.width, bridge.height);
+                    
+                    // Cuerdas
+                    this.ctx.strokeStyle = '#FFD700';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.setLineDash([5, 5]);
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(bridge.x, bridge.y);
+                    this.ctx.lineTo(bridge.x + bridge.width, bridge.y);
+                    this.ctx.stroke();
+                    this.ctx.setLineDash([]);
+                } else {
+                    // Puente roto/gris
+                    this.ctx.fillStyle = '#aaa';
+                    this.ctx.globalAlpha = 0.4;
+                    this.ctx.fillRect(bridge.x, bridge.y, bridge.width, bridge.height);
+                    this.ctx.globalAlpha = 1;
+                }
+            }
+            
+            // Puertas/portales
+            for (let door of this.doors) {
+                if (door.unlocked) {
+                    // Portal brillante
+                    this.ctx.fillStyle = 'rgba(145, 230, 212, 0.6)';
+                    this.ctx.fillRect(door.x, door.y, door.width, door.height);
+                    
+                    // Borde
+                    this.ctx.strokeStyle = '#91e6d4';
+                    this.ctx.lineWidth = 3;
+                    this.ctx.strokeRect(door.x, door.y, door.width, door.height);
+                    
+                    // Pulso
+                    const pulse = Math.sin(this.time * 0.05) * 5 + 10;
+                    this.ctx.strokeStyle = 'rgba(145, 230, 212, ' + (0.8 - pulse / 20) + ')';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.strokeRect(door.x - pulse/2, door.y - pulse/2, door.width + pulse, door.height + pulse);
+                } else {
+                    // Puerta cerrada
+                    this.ctx.fillStyle = '#555';
+                    this.ctx.fillRect(door.x, door.y, door.width, door.height);
+                    this.ctx.strokeStyle = '#333';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.strokeRect(door.x, door.y, door.width, door.height);
+                    
+                    // Candado
+                    this.ctx.fillStyle = '#FFD700';
+                    this.ctx.beginPath();
+                    this.ctx.arc(door.x + door.width / 2, door.y + door.height / 2 - 5, 6, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+            }
+            
+            // Monedas giratorias
+            for (let coin of this.coins) {
+                if (!coin.collected) {
+                    const scale = Math.cos(coin.animation * Math.PI / 30);
+                    const size = coin.radius * (0.5 + Math.abs(scale) * 0.5);
+                    
+                    // Moneda
+                    this.ctx.fillStyle = '#FFD700';
+                    this.ctx.beginPath();
+                    this.ctx.arc(coin.x, coin.y - Math.sin(coin.animation * Math.PI / 30) * 3, size, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    
+                    // Brillo
+                    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                    this.ctx.beginPath();
+                    this.ctx.arc(coin.x + 3, coin.y - Math.sin(coin.animation * Math.PI / 30) * 3 - 3, size / 3, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+            }
+            
+            // Bloques sorpresa con animación
+            for (let box of this.boxes) {
+                box.animation = (box.animation + 1) % 60;
+                const bounce = Math.sin(box.animation * Math.PI / 30) * 5;
+                
+                if (box.opened) {
+                    this.ctx.fillStyle = '#888';
+                    this.ctx.globalAlpha = 0.5;
+                } else {
+                    this.ctx.fillStyle = '#ff6b6b';
+                }
+                
+                this.ctx.fillRect(box.x, box.y + bounce, box.width, box.height);
+                this.ctx.globalAlpha = 1;
+                
+                // Borde
+                this.ctx.strokeStyle = box.opened ? '#666' : '#ff3333';
+                this.ctx.lineWidth = 3;
+                this.ctx.strokeRect(box.x, box.y + bounce, box.width, box.height);
+                
+                // Símbolo
+                if (!box.opened) {
+                    this.ctx.fillStyle = 'white';
+                    this.ctx.font = 'bold 28px Arial';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.textBaseline = 'middle';
+                    this.ctx.fillText('?', box.x + box.width / 2, box.y + box.height / 2 + bounce);
+                }
+            }
+            
+            // Jugador con animación
+            const playerBobbingY = Math.sin(this.time * 0.1) * 2;
+            this.ctx.fillStyle = this.character.color;
+            this.ctx.fillRect(this.player.x, this.player.y + playerBobbingY - 2, this.player.width, this.player.height);
+            
+            // Sombra del jugador
+            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            this.ctx.ellipse(this.player.x + this.player.width / 2, this.player.y + this.player.height + 5, 16, 4, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            
+            // Emoji del personaje
+            this.ctx.font = 'bold 28px Arial';
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            this.ctx.scale(this.player.facing === 'left' ? -1 : 1, 1);
+            const scaleX = this.player.facing === 'left' ? -1 : 1;
+            this.ctx.fillText(this.character.emoji, scaleX * (this.player.x + this.player.width / 2), this.player.y + this.player.height / 2 + playerBobbingY);
+            this.ctx.scale(scaleX, 1);
+            
+            // Bandera animada
+            this.flag.animation = (this.flag.animation + 1) % 60;
+            const flagWave = Math.sin(this.flag.animation * Math.PI / 30) * 5;
+            
+            // Poste
+            this.ctx.fillStyle = '#8B4513';
+            this.ctx.fillRect(this.flag.x + 5, this.flag.y, 8, this.flag.height);
+            
+            // Bandera ondeante
+            this.ctx.fillStyle = '#FFD700';
+            this.ctx.fillRect(this.flag.x + 13, this.flag.y + 10, 30 + flagWave, 30);
+            this.ctx.strokeStyle = '#FF6b6b';
+            this.ctx.lineWidth = 2;
+            this.ctx.strokeRect(this.flag.x + 13, this.flag.y + 10, 30 + flagWave, 30);
+            
+            // Partículas
+            for (let p of this.particleSystem) {
+                this.ctx.fillStyle = p.color;
+                this.ctx.globalAlpha = p.life / 30;
+                this.ctx.beginPath();
+                this.ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+            this.ctx.globalAlpha = 1;
+            
+            // Restaurar contexto de cámara
+            this.ctx.restore();
+            
+            // HUD (sin cámara)
+            this.drawHUD();
+        }
+        
+        drawClouds() {
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            for (let i = 0; i < 3; i++) {
+                const cloudX = (this.time * 0.3 + i * 300) % (this.canvas.width + 100);
+                this.drawCloud(cloudX, 50 + i * 60, 40);
+            }
+        }
+        
+        drawCloud(x, y, size) {
+            this.ctx.beginPath();
+            this.ctx.arc(x, y, size, 0, Math.PI * 2);
+            this.ctx.arc(x + size, y - size / 2, size * 1.2, 0, Math.PI * 2);
+            this.ctx.arc(x + size * 2, y, size, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+        
+        drawHUD() {
+            const h = this.canvas.height;
+            
+            // Fondo del HUD
+            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            this.ctx.fillRect(10, 70, 280, 140);
+            
+            // Border
+            this.ctx.strokeStyle = '#91e6d4';
+            this.ctx.lineWidth = 2;
+            this.ctx.strokeRect(10, 70, 280, 140);
+            
+            // Personaje
+            this.ctx.font = 'bold 32px Arial';
+            this.ctx.fillStyle = this.character.color;
+            this.ctx.textAlign = 'left';
+            this.ctx.textBaseline = 'top';
+            this.ctx.fillText(this.character.emoji, 25, 85);
+            
+            // Nombre
+            this.ctx.fillStyle = '#91e6d4';
+            this.ctx.font = 'bold 14px Arial';
+            this.ctx.fillText(this.character.name, 65, 85);
+            
+            // Info
+            this.ctx.fillStyle = 'white';
+            this.ctx.font = 'bold 13px Arial';
+            this.ctx.fillText('🪙 MONEDAS: ' + gameState.coins, 20, 125);
+            this.ctx.fillText('📍 NIVEL ' + (this.levelIdx + 1) + '/' + LEVELS.length, 20, 145);
+            this.ctx.fillText('🔑 PUERTAS: ' + this.unlockedPaths.size + '/5', 20, 165);
+            this.ctx.fillText('PRESIONA ❚❚ PARA PAUSAR', 20, 185);
+            
+            // Controles
+            this.ctx.fillStyle = '#FFD700';
+            this.ctx.font = 'bold 11px Arial';
+            this.ctx.fillText('← → MOVER  •  ESPACIO SALTAR  •  CLICK EN ?', 10, h - 20);
+        }
+        
+        finishLevel() {
+            this.paused = true;
+            gameState.paused = true;
+            
+            if (gameState.currentLevel < LEVELS.length - 1) {
+                showNotification('¡COMPLETASTE ESTE NIVEL!');
+                setTimeout(() => {
+                    gameState.currentLevel++;
+                    this.destroy();
+                    platformGame = new PlatformerGame(gameState.currentLevel);
+                    platformGame.start();
+                }, 2000);
+            } else {
+                showNotification('¡COMPLETASTE EL JUEGO ENTERO!');
+                setTimeout(() => startGame(null), 2000);
+            }
+        }
+        
+        destroy() {
+            // Limpieza
+        }
+        
+        start() {
+            const gameLoop = () => {
+                this.update();
+                this.draw();
+                requestAnimationFrame(gameLoop);
+            };
+            gameLoop();
+        }
+    }
+
+    // Iniciar cuando el DOM está listo
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('startScreen').style.display = 'flex';
+    });
+</script>
+
+</body>
+</html>
