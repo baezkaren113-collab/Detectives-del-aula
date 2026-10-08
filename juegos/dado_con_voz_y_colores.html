@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Dado con Voz y Colores</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,sans-serif}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+transition:background-color .25s;user-select:none;touch-action:manipulation;padding:18px;background:#FFD54F}
+#dice{width:min(76vw,410px);aspect-ratio:1;position:relative}
+.pip{position:absolute;width:17%;aspect-ratio:1;border-radius:50%;background:#111;
+transform:translate(-50%,-50%);display:none}
+.tl{left:22%;top:22%}.tr{left:78%;top:22%}.ml{left:22%;top:50%}.mc{left:50%;top:50%}
+.mr{left:78%;top:50%}.bl{left:22%;top:78%}.br{left:78%;top:78%}
+#total{background:white;color:#111;padding:8px 16px;border-radius:9px;font-size:25px;font-weight:bold;
+margin:18px 0;box-shadow:0 2px 8px #0003}
+#roll{border:0;border-radius:16px;background:#111;color:#fff;padding:15px 30px;font-size:20px;font-weight:bold}
+#sound{position:absolute;top:calc(12px + env(safe-area-inset-top));right:12px;border:0;border-radius:50%;
+width:52px;height:52px;font-size:23px;background:#fff;color:#111}
+#hint{position:absolute;bottom:calc(12px + env(safe-area-inset-bottom));font-size:13px;font-weight:bold;
+background:#ffffffd9;padding:7px 11px;border-radius:12px;color:#111;text-align:center}
+</style>
+</head>
+<body>
+<div id="app">
+<button id="sound" type="button" aria-label="Probar sonido">🔊</button>
+<div id="dice">
+<span class="pip tl"></span><span class="pip tr"></span><span class="pip ml"></span>
+<span class="pip mc"></span><span class="pip mr"></span><span class="pip bl"></span><span class="pip br"></span>
+</div>
+<div id="total">TOTAL: 1</div>
+<button id="roll" type="button">TIRAR DADO</button>
+<div id="hint">AL TIRAR, EL TELÉFONO DICE EL NÚMERO EN VOZ ALTA</div>
+</div>
+<script>
+const app=document.getElementById('app'),total=document.getElementById('total'),
+rollBtn=document.getElementById('roll'),soundBtn=document.getElementById('sound'),
+pips=[...document.querySelectorAll('.pip')];
+
+const patterns={1:['mc'],2:['tl','br'],3:['tl','mc','br'],4:['tl','tr','bl','br'],
+5:['tl','tr','mc','bl','br'],6:['tl','ml','bl','tr','mr','br']};
+const colors=['#FFD54F','#64B5F6','#81C784','#EF5350','#BA68C8','#FFB74D'];
+const words={1:'uno',2:'dos',3:'tres',4:'cuatro',5:'cinco',6:'seis'};
+let lastColor=-1;
+
+function speak(text){
+ if(!('speechSynthesis' in window)) return;
+ speechSynthesis.cancel();
+ const u=new SpeechSynthesisUtterance(text);
+ u.lang='es-AR'; u.rate=.78; u.volume=1; u.pitch=1;
+ const voices=speechSynthesis.getVoices();
+ const spanish=voices.find(v=>v.lang && v.lang.toLowerCase().startsWith('es'));
+ if(spanish) u.voice=spanish;
+ speechSynthesis.speak(u);
+}
+function show(n,withVoice=true){
+ pips.forEach(p=>p.style.display='none');
+ patterns[n].forEach(c=>document.querySelector('.'+c).style.display='block');
+ total.textContent='TOTAL: '+n;
+ let ci; do{ci=Math.floor(Math.random()*colors.length)}while(ci===lastColor);
+ lastColor=ci; app.style.backgroundColor=colors[ci];
+ if(withVoice) setTimeout(()=>speak(words[n]),80);
+}
+function roll(){show(Math.floor(Math.random()*6)+1,true)}
+rollBtn.addEventListener('click',e=>{e.stopPropagation();roll()});
+soundBtn.addEventListener('click',e=>{e.stopPropagation();speak('sonido activado')});
+app.addEventListener('click',roll);
+show(1,false);
+</script>
+</body>
+</html>
