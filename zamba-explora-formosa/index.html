@@ -64,6 +64,12 @@
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
   }
+body { min-height: 100dvh; height: auto; overflow-y: auto; }
+body > * { flex-shrink: 0; }
+.temas { width: min(94vw, 460px); display: grid; grid-template-columns: repeat(2, 1fr); }
+.temas button { min-height: 44px; font-size: 1rem; }
+.controles { flex-wrap: wrap; justify-content: center; width: 100%; }
+.escena { width: min(88vw, 320px); }
 </style>
 </head>
 <body>
@@ -72,6 +78,12 @@
   <h1>Zamba explora Formosa</h1>
   <p class="aviso">Recreación educativa con IA. Sin vinculación oficial con Pakapaka.</p>
 </header>
+<div class="temas" aria-label="Cambiar escenario">
+  <button data-escena="historia">Historia</button>
+  <button data-escena="selva">Fauna</button>
+  <button data-escena="selva">Flora</button>
+  <button data-escena="colorado">El Colorado</button>
+</div>
 
 <div class="escena" id="escena">
 
@@ -221,12 +233,7 @@
 <div id="subtitulo" aria-live="polite">Hola, soy Zamba. Tocá el botón para charlar.</div>
 <div id="estado">Listo para empezar.</div>
 
-<div class="temas" aria-label="Cambiar escenario">
-  <button data-escena="historia">Historia</button>
-  <button data-escena="selva">Fauna</button>
-  <button data-escena="selva">Flora</button>
-  <button data-escena="colorado">El Colorado</button>
-</div>
+
 
 <div class="controles">
   <button id="btnHablar">Hablar con Zamba</button>
