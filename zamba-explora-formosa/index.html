@@ -5,30 +5,62 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Zamba explora Formosa</title>
 <style>
-  :root { --bg1:#fdf3d0; --bg2:#bfe6a0; --ink:#2b2b2b; --accent:#e8612c; --btn:#2f8f5b; }
+  :root { --ink:#24303a; --verde:#2f8f5b; --gris:#6b7280; }
   * { box-sizing: border-box; }
   html, body { height: 100%; margin: 0; }
   body {
     font-family: system-ui, "Segoe UI", Roboto, sans-serif;
     color: var(--ink);
-    background: linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
+    background: #f7f4ea;
     display: flex; flex-direction: column; align-items: center;
-    padding: env(safe-area-inset-top, 0px) 16px env(safe-area-inset-bottom, 0px);
+    padding: env(safe-area-inset-top, 0px) 14px env(safe-area-inset-bottom, 0px);
   }
-  header { text-align: center; padding-top: 16px; }
+  header { text-align: center; padding-top: 14px; }
   h1 { margin: 0; font-size: clamp(1.4rem, 4vw, 2rem); }
-  .aviso { font-size: .9rem; margin: 6px 0 0; max-width: 46ch; }
-  .escena { width: min(92vw, 380px); margin: 8px auto 0; }
-  .escena svg { width: 100%; height: auto; display: block; }
-  #estado { font-weight: 600; min-height: 1.4em; margin: 6px 0; text-align: center; }
-  .controles { display: flex; gap: 12px; margin-bottom: 20px; }
+  .aviso { font-size: .9rem; margin: 6px 0 0; max-width: 46ch; color: var(--gris); }
+
+  /* Escena: fondo + personaje */
+  .escena {
+    position: relative; width: min(92vw, 380px); aspect-ratio: 300 / 380;
+    margin: 10px auto 0; border-radius: 24px; overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,.12);
+  }
+  .fondo { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 1.4s ease; }
+  .fondo.activo { opacity: 1; }
+  .personaje { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+  /* Gestos suaves */
+  .idle #cuerpo { animation: respirar 3.6s ease-in-out infinite; }
+  @keyframes respirar { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+  #cabeza { transform-box: view-box; transform-origin: 150px 230px; transition: transform .8s ease; }
+  .escuchando #cabeza { transform: rotate(-6deg); }
+  .hablando #cabeza { animation: asentir 1.6s ease-in-out infinite; }
+  @keyframes asentir { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(2.5deg); } }
+  #brazo-der { transform-box: view-box; transform-origin: 210px 214px; transition: transform .6s ease; }
+  .hablando #brazo-der { animation: saludo 2.4s ease-in-out infinite; }
+  @keyframes saludo { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(-22deg); } }
+  #brazo-izq { transform-box: view-box; transform-origin: 90px 214px; transition: transform .6s ease; }
+  .escuchando #brazo-der { transform: rotate(-70deg) translate(-4px, 0); }
+
+  /* Subtítulos */
+  #subtitulo {
+    min-height: 3.2em; max-width: min(92vw, 380px); margin: 10px auto 0; padding: 10px 14px;
+    background: #fff; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,.08);
+    font-size: 1rem; text-align: center;
+  }
+  #estado { font-weight: 700; min-height: 1.4em; margin: 10px 0 6px; text-align: center; }
+  .controles { display: flex; gap: 12px; margin-bottom: 14px; }
   button {
-    font: inherit; font-weight: 700; color: #fff; background: var(--btn);
+    font: inherit; font-weight: 700; color: #fff; background: var(--verde);
     border: 0; border-radius: 999px; padding: 12px 22px; cursor: pointer; min-width: 150px;
   }
   button.secundario { background: #7a7a7a; }
   button:disabled { opacity: .5; cursor: default; }
-  .pie { font-size: .8rem; opacity: .85; text-align: center; max-width: 48ch; margin-bottom: 16px; }
+  .pie { font-size: .8rem; color: var(--gris); text-align: center; max-width: 48ch; margin-bottom: 16px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
 </style>
 </head>
 <body>
@@ -38,60 +70,153 @@
   <p class="aviso">Recreación educativa con IA. Sin vinculación oficial con Pakapaka.</p>
 </header>
 
-<div class="escena">
-  <svg viewBox="0 0 300 380" role="img" aria-label="Zamba, personaje de la página">
-    <!-- Sombra -->
-    <ellipse cx="150" cy="362" rx="82" ry="10" fill="rgba(0,0,0,.15)"/>
+<div class="escena" id="escena">
+
+  <!-- Fondo: llanura (inicio y pueblos originarios) -->
+  <svg class="fondo activo" id="fondo-llanura" viewBox="0 0 300 380" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <rect width="300" height="380" fill="#fde68a"/>
+    <rect y="200" width="300" height="180" fill="#9bd27f"/>
+    <circle cx="240" cy="70" r="26" fill="#fff4b8"/>
+    <path d="M0 200 Q60 180 120 200 T300 200 L300 200 L0 200 Z" fill="#c8e6a0"/>
+    <ellipse cx="60" cy="230" rx="30" ry="18" fill="#6fb35b"/>
+    <ellipse cx="250" cy="250" rx="34" ry="20" fill="#6fb35b"/>
+    <path d="M0 330 Q150 300 300 330 L300 380 L0 380 Z" fill="#b7de8d"/>
+  </svg>
+
+  <!-- Fondo: selva y humedal (fauna y flora) -->
+  <svg class="fondo" id="fondo-selva" viewBox="0 0 300 380" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <rect width="300" height="380" fill="#2d6a4f"/>
+    <rect y="0" width="300" height="120" fill="#52b788" opacity=".5"/>
+    <g fill="#1b4332">
+      <path d="M30 0 L36 150 L28 150 Z"/>
+      <path d="M260 0 L266 170 L258 170 Z"/>
+    </g>
+    <g fill="#40916c">
+      <ellipse cx="32" cy="130" rx="40" ry="10" transform="rotate(-25 32 130)"/>
+      <ellipse cx="28" cy="132" rx="40" ry="10" transform="rotate(25 28 132)"/>
+      <ellipse cx="262" cy="150" rx="40" ry="10" transform="rotate(-20 262 150)"/>
+      <ellipse cx="266" cy="152" rx="40" ry="10" transform="rotate(20 266 152)"/>
+    </g>
+    <rect y="270" width="300" height="110" fill="#4a9bb0"/>
+    <path d="M0 290 Q75 280 150 290 T300 290" stroke="#8fd3e0" stroke-width="3" fill="none"/>
+    <g fill="#1b4332" opacity=".75">
+      <ellipse cx="220" cy="318" rx="38" ry="9"/>
+      <path d="M182 316 Q196 306 204 316 L186 322 Z"/>
+      <path d="M230 312 L250 300 L252 304 L234 316 Z"/>
+    </g>
+  </svg>
+
+  <!-- Fondo: escenario histórico (historia de Formosa) -->
+  <svg class="fondo" id="fondo-historia" viewBox="0 0 300 380" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <rect width="300" height="380" fill="#f4e3c1"/>
+    <rect y="290" width="300" height="90" fill="#d9b98c"/>
+    <rect x="40" y="110" width="220" height="180" fill="#fff8ea" stroke="#c9a46b" stroke-width="3"/>
+    <path d="M30 110 L150 50 L270 110 Z" fill="#c8553d"/>
+    <g fill="#c9a46b">
+      <rect x="60" y="150" width="14" height="140"/>
+      <rect x="110" y="150" width="14" height="140"/>
+      <rect x="176" y="150" width="14" height="140"/>
+      <rect x="226" y="150" width="14" height="140"/>
+    </g>
+    <rect x="134" y="200" width="32" height="90" fill="#8b5e34"/>
+    <rect x="148" y="30" width="3" height="28" fill="#555"/>
+    <rect x="151" y="30" width="28" height="16" fill="#3a7ca5"/>
+    <rect x="151" y="38" width="28" height="8" fill="#fff"/>
+  </svg>
+
+  <!-- Fondo: El Colorado (río Bermejo y puente) -->
+  <svg class="fondo" id="fondo-colorado" viewBox="0 0 300 380" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <rect width="300" height="380" fill="#ffd6a5"/>
+    <circle cx="70" cy="70" r="24" fill="#ffe8a3"/>
+    <rect y="230" width="300" height="150" fill="#b5542b"/>
+    <path d="M0 260 Q40 250 80 260 T160 260 T240 260 T300 260" stroke="#e08a5b" stroke-width="4" fill="none"/>
+    <path d="M0 300 Q40 290 80 300 T160 300 T240 300 T300 300" stroke="#e08a5b" stroke-width="4" fill="none"/>
+    <rect x="30" y="200" width="240" height="8" fill="#6b6b6b"/>
+    <g fill="#6b6b6b">
+      <rect x="60" y="200" width="10" height="40"/>
+      <rect x="145" y="200" width="10" height="40"/>
+      <rect x="230" y="200" width="10" height="40"/>
+    </g>
+    <rect x="200" y="150" width="50" height="50" fill="#fff8ea" stroke="#c9a46b" stroke-width="2"/>
+    <path d="M195 150 L225 125 L255 150 Z" fill="#c8553d"/>
+    <rect x="20" y="160" width="40" height="40" fill="#fff8ea" stroke="#c9a46b" stroke-width="2"/>
+    <path d="M15 160 L40 138 L65 160 Z" fill="#c8553d"/>
+  </svg>
+
+  <!-- Personaje: Zamba -->
+  <svg class="personaje" viewBox="0 0 300 380" role="img" aria-label="Zamba, personaje de la página">
+    <ellipse cx="150" cy="364" rx="70" ry="9" fill="rgba(0,0,0,.18)"/>
 
     <g id="cuerpo">
-      <!-- Poncho -->
-      <path d="M78 230 Q150 200 222 230 L236 330 Q150 348 64 330 Z" fill="#e8612c"/>
-      <path d="M92 252 L208 252" stroke="#f6c343" stroke-width="7"/>
-      <path d="M86 286 L214 286" stroke="#f6c343" stroke-width="7"/>
-      <path d="M80 316 L220 316" stroke="#2f8f5b" stroke-width="7"/>
-      <!-- Brazos -->
-      <rect x="54" y="246" width="26" height="78" rx="13" fill="#c98a5a"/>
-      <rect x="220" y="246" width="26" height="78" rx="13" fill="#c98a5a"/>
-      <!-- Piernas -->
-      <rect x="112" y="322" width="28" height="36" rx="10" fill="#2b4f7a"/>
-      <rect x="160" y="322" width="28" height="36" rx="10" fill="#2b4f7a"/>
+      <!-- Chaleco de explorador -->
+      <path d="M96 200 Q150 190 204 200 L214 318 Q150 330 86 318 Z" fill="#1f7a8c"/>
+      <path d="M96 200 Q150 190 204 200 L200 214 Q150 204 100 214 Z" fill="#fff3c4"/>
+      <rect x="108" y="256" width="36" height="28" rx="4" fill="#165a67"/>
+      <rect x="156" y="256" width="36" height="28" rx="4" fill="#165a67"/>
+      <rect x="86" y="300" width="128" height="10" rx="4" fill="#8a5a2b"/>
+      <rect x="140" y="298" width="20" height="14" rx="3" fill="#e9c46a"/>
+      <!-- Pantalón y zapatos -->
+      <rect x="112" y="314" width="30" height="40" rx="10" fill="#3d405b"/>
+      <rect x="158" y="314" width="30" height="40" rx="10" fill="#3d405b"/>
+      <ellipse cx="127" cy="356" rx="20" ry="9" fill="#e76f51"/>
+      <ellipse cx="173" cy="356" rx="20" ry="9" fill="#e76f51"/>
+      <!-- Binoculares colgados del cuello -->
+      <path d="M118 196 L132 232" stroke="#8a5a2b" stroke-width="3"/>
+      <path d="M182 196 L168 232" stroke="#8a5a2b" stroke-width="3"/>
+      <rect x="126" y="230" width="20" height="14" rx="4" fill="#3b3b3b"/>
+      <rect x="154" y="230" width="20" height="14" rx="4" fill="#3b3b3b"/>
+      <circle cx="136" cy="244" r="6" fill="#7fd3e0"/>
+      <circle cx="164" cy="244" r="6" fill="#7fd3e0"/>
+    </g>
+
+    <!-- Brazo izquierdo -->
+    <g id="brazo-izq">
+      <rect x="66" y="208" width="26" height="80" rx="13" fill="#b97a4b"/>
+      <circle cx="79" cy="292" r="13" fill="#b97a4b"/>
+    </g>
+    <!-- Brazo derecho -->
+    <g id="brazo-der">
+      <rect x="208" y="208" width="26" height="80" rx="13" fill="#b97a4b"/>
+      <circle cx="221" cy="292" r="13" fill="#b97a4b"/>
     </g>
 
     <g id="cabeza">
-      <!-- Cabello -->
-      <path d="M92 118 Q96 52 150 48 Q206 52 210 118 Q196 88 150 86 Q104 88 92 118 Z" fill="#1d1d1d"/>
-      <circle cx="104" cy="98" r="18" fill="#1d1d1d"/>
-      <circle cx="196" cy="98" r="18" fill="#1d1d1d"/>
-      <circle cx="150" cy="66" r="20" fill="#1d1d1d"/>
+      <!-- Cabello con un mechón en forma de hoja -->
+      <path d="M84 118 Q82 58 150 52 Q218 58 216 118 Q200 96 150 94 Q100 96 84 118 Z" fill="#1e1e2a"/>
+      <path d="M140 54 Q128 22 158 14 Q150 36 152 54 Z" fill="#2f8f5b"/>
+      <!-- Orejas -->
+      <circle cx="84" cy="136" r="11" fill="#b97a4b"/>
+      <circle cx="216" cy="136" r="11" fill="#b97a4b"/>
       <!-- Cara -->
-      <ellipse cx="150" cy="150" rx="66" ry="70" fill="#c98a5a"/>
-      <!-- Sombrero de paja -->
-      <ellipse cx="150" cy="84" rx="92" ry="16" fill="#e9c46a"/>
-      <path d="M100 84 Q104 50 150 50 Q196 50 200 84 Z" fill="#f4d58d"/>
-      <path d="M100 74 L200 74" stroke="#e8612c" stroke-width="6"/>
+      <ellipse cx="150" cy="134" rx="68" ry="72" fill="#b97a4b"/>
+      <path d="M92 104 Q150 84 208 104 Q196 92 150 90 Q104 92 92 104 Z" fill="#1e1e2a" opacity=".9"/>
+      <!-- Cejas (se mueven según la escena) -->
+      <path id="ceja-izq" d="M112 102 Q124 96 136 102" stroke="#1e1e2a" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path id="ceja-der" d="M164 102 Q176 96 188 102" stroke="#1e1e2a" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <!-- Anteojos redondos -->
+      <circle cx="124" cy="130" r="18" fill="none" stroke="#1f7a8c" stroke-width="4"/>
+      <circle cx="176" cy="130" r="18" fill="none" stroke="#1f7a8c" stroke-width="4"/>
+      <path d="M142 128 Q150 124 158 128" stroke="#1f7a8c" stroke-width="3" fill="none"/>
       <!-- Ojos -->
       <g id="ojos">
-        <ellipse cx="124" cy="148" rx="9" ry="11" fill="#1d1d1d"/>
-        <ellipse cx="176" cy="148" rx="9" ry="11" fill="#1d1d1d"/>
-        <circle cx="127" cy="144" r="3" fill="#fff"/>
-        <circle cx="179" cy="144" r="3" fill="#fff"/>
+        <ellipse cx="124" cy="132" rx="8" ry="10" fill="#1e1e2a"/>
+        <ellipse cx="176" cy="132" rx="8" ry="10" fill="#1e1e2a"/>
+        <circle cx="127" cy="128" r="3" fill="#fff"/>
+        <circle cx="179" cy="128" r="3" fill="#fff"/>
       </g>
-      <rect id="parpado-izq" x="113" y="136" width="22" height="0" fill="#c98a5a"/>
-      <rect id="parpado-der" x="165" y="136" width="22" height="0" fill="#c98a5a"/>
       <!-- Mejillas -->
-      <ellipse cx="108" cy="176" rx="11" ry="7" fill="#e8612c" opacity=".35"/>
-      <ellipse cx="192" cy="176" rx="11" ry="7" fill="#e8612c" opacity=".35"/>
+      <ellipse cx="104" cy="154" rx="10" ry="6" fill="#e8612c" opacity=".3"/>
+      <ellipse cx="196" cy="154" rx="10" ry="6" fill="#e8612c" opacity=".3"/>
       <!-- Nariz -->
-      <path d="M147 164 Q150 170 153 164" stroke="#8a5a36" stroke-width="3" fill="none" stroke-linecap="round"/>
-      <!-- Boca -->
-      <g id="boca">
-        <path id="boca-forma" d="M130 192 Q150 198 170 192 Q150 194 130 192 Z" fill="#7a2e1a" stroke="#7a2e1a" stroke-width="3" stroke-linejoin="round"/>
-      </g>
+      <path d="M147 146 Q150 152 153 146" stroke="#7a4a26" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <!-- Boca: se abre al hablar -->
+      <path id="boca" d="M134 168 Q150 178 166 168 Q150 170 134 168 Z" fill="#7a2e1a" stroke="#7a2e1a" stroke-width="3" stroke-linejoin="round"/>
     </g>
   </svg>
 </div>
 
-<div id="estado">Tocá “Hablar con Zamba” para empezar.</div>
+<div id="subtitulo" aria-live="polite">Hola, soy Zamba. Tocá el botón para charlar.</div>
+<div id="estado">Listo para empezar.</div>
 
 <div class="controles">
   <button id="btnHablar">Hablar con Zamba</button>
@@ -106,33 +231,59 @@
   // Agente de Zamba. Se puede cambiar con ?agente=ID en la dirección de la página.
   const AGENT_ID = new URLSearchParams(location.search).get('agente') || 'agent_8501m4f231y3fwcayq781ekmy49z';
 
-  const estado = document.getElementById('estado');
-  const btnHablar = document.getElementById('btnHablar');
-  const btnCortar = document.getElementById('btnCortar');
-  const boca = document.getElementById('boca-forma');
-  const cabeza = document.getElementById('cabeza');
-  const cuerpo = document.getElementById('cuerpo');
-  const parpadoIzq = document.getElementById('parpado-izq');
-  const parpadoDer = document.getElementById('parpado-der');
+  const $ = (id) => document.getElementById(id);
+  const estado = $('estado'), subtitulo = $('subtitulo');
+  const btnHablar = $('btnHablar'), btnCortar = $('btnCortar');
+  const boca = $('boca'), ojos = $('ojos');
+  const cejaIzq = $('ceja-izq'), cejaDer = $('ceja-der');
+  const escena = $('escena');
 
   let conversacion = null;
   let modo = 'listening';
   let volumen = 0;
   let proximoParpadeo = performance.now() + 2500;
   let parpadeo = 0;
+  let escenaActual = 'llanura';
 
-  // Forma de la boca: cerrada -> abierta según el volumen de la voz.
+  // Temas que cambian el fondo según lo que se dice en la charla.
+  const temas = [
+    { id: 'selva',    re: /yacar|carpincho|aguar|tapir|mono|ave|p[áa]jaro|animal|flora|planta|quebracho|palmera|caranday|lapacho|pilcomayo|selva|humedal|esteros?/i },
+    { id: 'colorado', re: /colorado|bermejo|puente|localidad|mi pueblo|mi ciudad|pirané|pirane/i },
+    { id: 'historia', re: /historia|fundaci|1879|1955|fontana|gobernaci|escuela|pasado|provincia/i },
+  ];
+
+  function cambiarEscena(id) {
+    if (id === escenaActual) return;
+    escenaActual = id;
+    document.querySelectorAll('.fondo').forEach(f => f.classList.remove('activo'));
+    const destino = document.getElementById('fondo-' + id);
+    if (destino) destino.classList.add('activo');
+  }
+
+  function detectarTema(texto) {
+    for (const t of temas) {
+      if (t.re.test(texto)) { cambiarEscena(t.id); return; }
+    }
+  }
+
+  // Boca: cerrada cuando no habla, abierta según el volumen de la voz.
   function dibujarBoca(apertura) {
-    const alto = 2 + apertura * 26;
-    const ancho = 20 + apertura * 6;
-    const cx = 150, y = 192;
+    const alto = 2 + apertura * 22;
+    const ancho = 16 + apertura * 6;
+    const cx = 150, y = 168;
     boca.setAttribute('d',
-      `M${cx - ancho} ${y} Q${cx} ${y + alto * 0.2} ${cx + ancho} ${y} ` +
+      `M${cx - ancho} ${y} Q${cx} ${y + alto * 0.25} ${cx + ancho} ${y} ` +
       `Q${cx} ${y + alto} ${cx - ancho} ${y} Z`);
   }
 
+  // Cejas levemente levantadas cuando escucha, normales cuando habla.
+  function ajustarCejas() {
+    const sube = modo === 'listening' ? -4 : 0;
+    cejaIzq.setAttribute('transform', `translate(0 ${sube})`);
+    cejaDer.setAttribute('transform', `translate(0 ${sube})`);
+  }
+
   function animar(t) {
-    // Volumen de salida solo mientras Zamba habla.
     if (conversacion && modo === 'speaking') {
       const v = Math.min(1, conversacion.getOutputVolume() * 1.6);
       volumen = volumen * 0.6 + v * 0.4;
@@ -141,23 +292,25 @@
     }
     dibujarBoca(volumen);
 
-    // Respiración suave del cuerpo.
-    const suben = Math.sin(t / 700) * 2;
-    cabeza.setAttribute('transform', `translate(0 ${suben * 0.5})`);
-    cuerpo.setAttribute('transform', `translate(0 ${suben * 0.3})`);
-
     // Parpadeo cada 2.5 a 4.5 segundos.
     if (t > proximoParpadeo) {
       parpadeo = t;
       proximoParpadeo = t + 2500 + Math.random() * 2000;
     }
-    const cerrado = t - parpadeo < 120 ? 22 : 0;
-    parpadoIzq.setAttribute('height', cerrado);
-    parpadoDer.setAttribute('height', cerrado);
+    ojos.style.transform = (t - parpadeo < 120) ? 'scaleY(0.1)' : 'scaleY(1)';
+    ojos.style.transformBox = 'fill-box';
+    ojos.style.transformOrigin = 'center';
 
     requestAnimationFrame(animar);
   }
   requestAnimationFrame(animar);
+
+  function setEstadoClases() {
+    escena.classList.toggle('hablando', modo === 'speaking');
+    escena.classList.toggle('escuchando', modo !== 'speaking' && !!conversacion);
+    escena.classList.toggle('idle', !conversacion);
+    ajustarCejas();
+  }
 
   async function empezar() {
     btnHablar.disabled = true;
@@ -169,23 +322,32 @@
         onConnect: () => {
           estado.textContent = 'Zamba te escucha. Hablá cuando quieras.';
           btnCortar.disabled = false;
+          setEstadoClases();
         },
         onDisconnect: () => {
           conversacion = null;
           estado.textContent = 'Conversación terminada. Podés empezar otra.';
           btnHablar.disabled = false;
           btnCortar.disabled = true;
+          setEstadoClases();
         },
         onModeChange: ({ mode }) => {
           modo = mode;
           if (mode === 'speaking') estado.textContent = 'Zamba está hablando…';
           else if (conversacion) estado.textContent = 'Zamba te escucha.';
+          setEstadoClases();
+        },
+        onMessage: ({ message, source }) => {
+          // Subtítulos y cambio de fondo según el tema de la charla.
+          if (source === 'ai') subtitulo.textContent = message;
+          detectarTema(message);
         },
         onError: (mensaje) => {
           estado.textContent = 'Hubo un problema: ' + (mensaje?.message || mensaje || 'revisá tu conexión y el micrófono.');
           btnHablar.disabled = false;
           btnCortar.disabled = true;
           conversacion = null;
+          setEstadoClases();
         },
       });
     } catch (e) {
@@ -200,6 +362,7 @@
 
   btnHablar.addEventListener('click', empezar);
   btnCortar.addEventListener('click', terminar);
+  setEstadoClases();
 </script>
 </body>
 </html>
