@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Zamba explora Formosa</title>
+<style>
+  :root { --bg1:#fdf3d0; --bg2:#bfe6a0; --ink:#2b2b2b; --accent:#e8612c; --btn:#2f8f5b; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+    color: var(--ink);
+    background: linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
+    display: flex; flex-direction: column; align-items: center;
+    padding: env(safe-area-inset-top, 0px) 16px env(safe-area-inset-bottom, 0px);
+  }
+  header { text-align: center; padding-top: 16px; }
+  h1 { margin: 0; font-size: clamp(1.4rem, 4vw, 2rem); }
+  .aviso { font-size: .9rem; margin: 6px 0 0; max-width: 46ch; }
+  .escena { width: min(92vw, 380px); margin: 8px auto 0; }
+  .escena svg { width: 100%; height: auto; display: block; }
+  #estado { font-weight: 600; min-height: 1.4em; margin: 6px 0; text-align: center; }
+  .controles { display: flex; gap: 12px; margin-bottom: 20px; }
+  button {
+    font: inherit; font-weight: 700; color: #fff; background: var(--btn);
+    border: 0; border-radius: 999px; padding: 12px 22px; cursor: pointer; min-width: 150px;
+  }
+  button.secundario { background: #7a7a7a; }
+  button:disabled { opacity: .5; cursor: default; }
+  .pie { font-size: .8rem; opacity: .85; text-align: center; max-width: 48ch; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Zamba explora Formosa</h1>
+  <p class="aviso">Recreación educativa con IA. Sin vinculación oficial con Pakapaka.</p>
+</header>
+
+<div class="escena">
+  <svg viewBox="0 0 300 380" role="img" aria-label="Zamba, personaje de la página">
+    <!-- Sombra -->
+    <ellipse cx="150" cy="362" rx="82" ry="10" fill="rgba(0,0,0,.15)"/>
+
+    <g id="cuerpo">
+      <!-- Poncho -->
+      <path d="M78 230 Q150 200 222 230 L236 330 Q150 348 64 330 Z" fill="#e8612c"/>
+      <path d="M92 252 L208 252" stroke="#f6c343" stroke-width="7"/>
+      <path d="M86 286 L214 286" stroke="#f6c343" stroke-width="7"/>
+      <path d="M80 316 L220 316" stroke="#2f8f5b" stroke-width="7"/>
+      <!-- Brazos -->
+      <rect x="54" y="246" width="26" height="78" rx="13" fill="#c98a5a"/>
+      <rect x="220" y="246" width="26" height="78" rx="13" fill="#c98a5a"/>
+      <!-- Piernas -->
+      <rect x="112" y="322" width="28" height="36" rx="10" fill="#2b4f7a"/>
+      <rect x="160" y="322" width="28" height="36" rx="10" fill="#2b4f7a"/>
+    </g>
+
+    <g id="cabeza">
+      <!-- Cabello -->
+      <path d="M92 118 Q96 52 150 48 Q206 52 210 118 Q196 88 150 86 Q104 88 92 118 Z" fill="#1d1d1d"/>
+      <circle cx="104" cy="98" r="18" fill="#1d1d1d"/>
+      <circle cx="196" cy="98" r="18" fill="#1d1d1d"/>
+      <circle cx="150" cy="66" r="20" fill="#1d1d1d"/>
+      <!-- Cara -->
+      <ellipse cx="150" cy="150" rx="66" ry="70" fill="#c98a5a"/>
+      <!-- Sombrero de paja -->
+      <ellipse cx="150" cy="84" rx="92" ry="16" fill="#e9c46a"/>
+      <path d="M100 84 Q104 50 150 50 Q196 50 200 84 Z" fill="#f4d58d"/>
+      <path d="M100 74 L200 74" stroke="#e8612c" stroke-width="6"/>
+      <!-- Ojos -->
+      <g id="ojos">
+        <ellipse cx="124" cy="148" rx="9" ry="11" fill="#1d1d1d"/>
+        <ellipse cx="176" cy="148" rx="9" ry="11" fill="#1d1d1d"/>
+        <circle cx="127" cy="144" r="3" fill="#fff"/>
+        <circle cx="179" cy="144" r="3" fill="#fff"/>
+      </g>
+      <rect id="parpado-izq" x="113" y="136" width="22" height="0" fill="#c98a5a"/>
+      <rect id="parpado-der" x="165" y="136" width="22" height="0" fill="#c98a5a"/>
+      <!-- Mejillas -->
+      <ellipse cx="108" cy="176" rx="11" ry="7" fill="#e8612c" opacity=".35"/>
+      <ellipse cx="192" cy="176" rx="11" ry="7" fill="#e8612c" opacity=".35"/>
+      <!-- Nariz -->
+      <path d="M147 164 Q150 170 153 164" stroke="#8a5a36" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <!-- Boca -->
+      <g id="boca">
+        <path id="boca-forma" d="M130 192 Q150 198 170 192 Q150 194 130 192 Z" fill="#7a2e1a" stroke="#7a2e1a" stroke-width="3" stroke-linejoin="round"/>
+      </g>
+    </g>
+  </svg>
+</div>
+
+<div id="estado">Tocá “Hablar con Zamba” para empezar.</div>
+
+<div class="controles">
+  <button id="btnHablar">Hablar con Zamba</button>
+  <button id="btnCortar" class="secundario" disabled>Terminar</button>
+</div>
+
+<p class="pie">Zamba usa inteligencia artificial y puede equivocarse. Verificá los datos importantes en fuentes oficiales. Al hablar, tu voz se envía a los servidores de ElevenLabs.</p>
+
+<script type="module">
+  import { Conversation } from 'https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.26.0/+esm';
+
+  // Agente de Zamba. Se puede cambiar con ?agente=ID en la dirección de la página.
+  const AGENT_ID = new URLSearchParams(location.search).get('agente') || 'agent_8501m4f231y3fwcayq781ekmy49z';
+
+  const estado = document.getElementById('estado');
+  const btnHablar = document.getElementById('btnHablar');
+  const btnCortar = document.getElementById('btnCortar');
+  const boca = document.getElementById('boca-forma');
+  const cabeza = document.getElementById('cabeza');
+  const cuerpo = document.getElementById('cuerpo');
+  const parpadoIzq = document.getElementById('parpado-izq');
+  const parpadoDer = document.getElementById('parpado-der');
+
+  let conversacion = null;
+  let modo = 'listening';
+  let volumen = 0;
+  let proximoParpadeo = performance.now() + 2500;
+  let parpadeo = 0;
+
+  // Forma de la boca: cerrada -> abierta según el volumen de la voz.
+  function dibujarBoca(apertura) {
+    const alto = 2 + apertura * 26;
+    const ancho = 20 + apertura * 6;
+    const cx = 150, y = 192;
+    boca.setAttribute('d',
+      `M${cx - ancho} ${y} Q${cx} ${y + alto * 0.2} ${cx + ancho} ${y} ` +
+      `Q${cx} ${y + alto} ${cx - ancho} ${y} Z`);
+  }
+
+  function animar(t) {
+    // Volumen de salida solo mientras Zamba habla.
+    if (conversacion && modo === 'speaking') {
+      const v = Math.min(1, conversacion.getOutputVolume() * 1.6);
+      volumen = volumen * 0.6 + v * 0.4;
+    } else {
+      volumen *= 0.85;
+    }
+    dibujarBoca(volumen);
+
+    // Respiración suave del cuerpo.
+    const suben = Math.sin(t / 700) * 2;
+    cabeza.setAttribute('transform', `translate(0 ${suben * 0.5})`);
+    cuerpo.setAttribute('transform', `translate(0 ${suben * 0.3})`);
+
+    // Parpadeo cada 2.5 a 4.5 segundos.
+    if (t > proximoParpadeo) {
+      parpadeo = t;
+      proximoParpadeo = t + 2500 + Math.random() * 2000;
+    }
+    const cerrado = t - parpadeo < 120 ? 22 : 0;
+    parpadoIzq.setAttribute('height', cerrado);
+    parpadoDer.setAttribute('height', cerrado);
+
+    requestAnimationFrame(animar);
+  }
+  requestAnimationFrame(animar);
+
+  async function empezar() {
+    btnHablar.disabled = true;
+    estado.textContent = 'Conectando…';
+    try {
+      conversacion = await Conversation.startSession({
+        agentId: AGENT_ID,
+        connectionType: 'websocket',
+        onConnect: () => {
+          estado.textContent = 'Zamba te escucha. Hablá cuando quieras.';
+          btnCortar.disabled = false;
+        },
+        onDisconnect: () => {
+          conversacion = null;
+          estado.textContent = 'Conversación terminada. Podés empezar otra.';
+          btnHablar.disabled = false;
+          btnCortar.disabled = true;
+        },
+        onModeChange: ({ mode }) => {
+          modo = mode;
+          if (mode === 'speaking') estado.textContent = 'Zamba está hablando…';
+          else if (conversacion) estado.textContent = 'Zamba te escucha.';
+        },
+        onError: (mensaje) => {
+          estado.textContent = 'Hubo un problema: ' + (mensaje?.message || mensaje || 'revisá tu conexión y el micrófono.');
+          btnHablar.disabled = false;
+          btnCortar.disabled = true;
+          conversacion = null;
+        },
+      });
+    } catch (e) {
+      estado.textContent = 'No se pudo conectar. Revisá el micrófono y tu conexión.';
+      btnHablar.disabled = false;
+    }
+  }
+
+  async function terminar() {
+    if (conversacion) await conversacion.endSession();
+  }
+
+  btnHablar.addEventListener('click', empezar);
+  btnCortar.addEventListener('click', terminar);
+</script>
+</body>
+</html>
