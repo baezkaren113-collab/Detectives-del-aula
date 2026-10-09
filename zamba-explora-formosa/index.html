@@ -56,6 +56,9 @@
   }
   button.secundario { background: #7a7a7a; }
   button:disabled { opacity: .5; cursor: default; }
+  .temas { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 8px 0 10px; }
+  .temas button { min-width: 0; padding: 8px 14px; font-size: .9rem; background: #1f7a8c; }
+  .temas button.activo { background: #24303a; }
   .pie { font-size: .8rem; color: var(--gris); text-align: center; max-width: 48ch; margin-bottom: 16px; }
 
   @media (prefers-reduced-motion: reduce) {
@@ -218,6 +221,13 @@
 <div id="subtitulo" aria-live="polite">Hola, soy Zamba. Tocá el botón para charlar.</div>
 <div id="estado">Listo para empezar.</div>
 
+<div class="temas" aria-label="Cambiar escenario">
+  <button data-escena="historia">Historia</button>
+  <button data-escena="selva">Fauna</button>
+  <button data-escena="selva">Flora</button>
+  <button data-escena="colorado">El Colorado</button>
+</div>
+
 <div class="controles">
   <button id="btnHablar">Hablar con Zamba</button>
   <button id="btnCortar" class="secundario" disabled>Terminar</button>
@@ -359,6 +369,15 @@
   async function terminar() {
     if (conversacion) await conversacion.endSession();
   }
+
+  // Botones manuales de escenario.
+  document.querySelectorAll('[data-escena]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      escenaActual = null; // fuerza el cambio aunque ya sea ese escenario
+      cambiarEscena(btn.dataset.escena);
+      document.querySelectorAll('[data-escena]').forEach(b => b.classList.toggle('activo', b === btn));
+    });
+  });
 
   btnHablar.addEventListener('click', empezar);
   btnCortar.addEventListener('click', terminar);
