@@ -237,6 +237,8 @@ body[data-theme="discapacidades"]{--scene-art:url("data:image/svg+xml,%3Csvg%20x
 .avatar{background:transparent;border:0;border-radius:0;box-shadow:none;}
 .figure{background:transparent;border:0;box-shadow:none;mix-blend-mode:multiply;}
 .figure img{mix-blend-mode:normal;background:transparent;border:0;}
+
+.house-map{max-width:1100px;width:calc(100% - 36px);margin:10px auto 22px;padding:24px;background:#fffaf1;border:1px solid #decfbb;border-radius:22px;color:#293b38}.house-heading h2{font-size:clamp(1.5rem,4vw,2.1rem);margin:5px 0}.house-heading p{margin:8px 0 18px}.house-kicker{font-size:.75rem;letter-spacing:.15em;color:#667970;font-weight:800}.house-doors{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.house-door{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:8px;min-height:150px;padding:18px 12px;border:1px solid #cebb9f;border-radius:48px 48px 12px 12px;background:linear-gradient(135deg,#f4e6cf,#e5cfaf);color:#34423e;box-shadow:inset 5px 0 #ffffff44;transition:transform .2s,background .2s}.house-door strong{font-size:.95rem}.house-door>span:last-child{font-size:.78rem;font-weight:400}.house-door[aria-pressed=true]{background:linear-gradient(135deg,#cce2d4,#9dc7b0);border-color:#537e68;transform:translateY(-4px)}.door-icon{font-size:1.8rem}.room-arrival{position:absolute;inset:55px 0 0;pointer-events:none;z-index:4;opacity:0;display:grid;place-items:center;background:linear-gradient(90deg,#b58d63 0 49%,#9d7751 50%);color:white}.room-arrival span{padding:10px 18px;background:#314b3fe6;border-radius:12px;font-weight:700}.stage.house-enter .room-arrival{animation:door-open .75s ease forwards}.stage.house-enter .figure{animation:alia-arrive .75s ease forwards}.room-object{margin:12px 0 0;padding:14px;background:#ffffffed;border-radius:14px;width:100%;text-align:left}.room-object button{min-height:44px;font-size:.9rem;padding:8px 14px;border-width:1px}.room-object p{margin:10px 0 0;line-height:1.5;font-size:.95rem}@keyframes door-open{0%{opacity:1;clip-path:inset(0)}100%{opacity:0;clip-path:inset(0 50%)}}@keyframes alia-arrive{0%{opacity:0;transform:translateX(-35px)}100%{opacity:1;transform:translateX(0)}}@media(max-width:760px){.house-doors{grid-template-columns:repeat(2,1fr)}.house-door{min-height:130px}.house-door:last-child{grid-column:1/-1}.house-map{padding:18px}}@media(prefers-reduced-motion:reduce){.stage.house-enter .figure,.stage.house-enter .room-arrival{animation:none}.house-door{transition:none}}body.reduce-motion .stage.house-enter .figure,body.reduce-motion .stage.house-enter .room-arrival{animation:none}
 </style>
 </head>
 <body data-theme="historia">
@@ -249,10 +251,11 @@ body[data-theme="discapacidades"]{--scene-art:url("data:image/svg+xml,%3Csvg%20x
 
   <p class="ai-notice">Personaje educativo creado con inteligencia artificial. No es una docente real.</p>
 
-  <main>
+  <section class="house-map" aria-labelledby="house-title"><div class="house-heading"><span class="house-kicker">EXPLORÁ CON ALIA</span><h2 id="house-title">Casa de las oportunidades</h2><p>Elegí una puerta. Cada espacio abre una conversación.</p></div><nav class="house-doors" aria-label="Espacios de la casa"><button class="house-door" type="button" data-room="historia" aria-pressed="false"><span aria-hidden="true" class="door-icon">📚</span><strong>Biblioteca de la memoria</strong><span>Historia de la educación especial</span></button><button class="house-door" type="button" data-room="inclusion" aria-pressed="false"><span aria-hidden="true" class="door-icon">🏫</span><strong>Aula de las mil maneras</strong><span>Inclusión e integración</span></button><button class="house-door" type="button" data-room="barreras" aria-pressed="false"><span aria-hidden="true" class="door-icon">🚪</span><strong>Puerta de las barreras</strong><span>Barreras y accesibilidad</span></button><button class="house-door" type="button" data-room="apoyos" aria-pressed="false"><span aria-hidden="true" class="door-icon">🛠️</span><strong>Taller de apoyos</strong><span>Recursos y estrategias</span></button><button class="house-door" type="button" data-room="discapacidades" aria-pressed="false"><span aria-hidden="true" class="door-icon">🌿</span><strong>Patio de los encuentros</strong><span>Diversidad y participación</span></button></nav></section>
+<main>
     <section class="stage" aria-labelledby="stage-title">
       <h2 id="stage-title" class="sr-only">ALIA</h2>
-      <p class="scene-label" id="scene-label">Escenario: Historia</p>
+      <p class="scene-label" id="scene-label">Biblioteca de la memoria</p><div class="room-arrival" aria-hidden="true"><span>Abriendo oportunidades…</span></div>
 
       <div class="view-controls" role="group" aria-label="Vista del personaje">
       <button type="button" id="view-original" aria-pressed="true">Imagen original</button>
@@ -685,6 +688,13 @@ window.ALIA_CONTENT = {
     });
   }
 
+  window.ALIA_ROOMS={"historia": "Biblioteca de la memoria", "inclusion": "Aula de las mil maneras", "barreras": "Puerta de las barreras", "apoyos": "Taller de apoyos", "discapacidades": "Patio de los encuentros"};
+Object.assign(window.ALIA_CONTENT.themes.historia,{intro:"Vení, entremos a la Biblioteca de la memoria. Entre estos libros vamos a descubrir cómo cambiaron las miradas sobre la educación especial."});
+window.ALIA_CONTENT.themes.inclusion.intro="Vení al Aula de las mil maneras. Acá exploramos qué cambia cuando la escuela ofrece distintas formas de aprender y participar.";
+window.ALIA_CONTENT.themes.barreras.intro="Abramos la Puerta de las barreras. Vamos a observar qué dificulta participar y qué podemos transformar.";
+window.ALIA_CONTENT.themes.apoyos.intro="Pasemos al Taller de apoyos. Podemos explorar recursos para comunicarnos, aprender y participar con autonomía.";
+window.ALIA_CONTENT.themes.discapacidades.intro="Vení al Patio de los encuentros. Cada persona tiene intereses y necesidades propias: descubramos cómo acompañar sin poner etiquetas.";
+
   function setTheme(id, opts) {
     var theme = CONTENT.themes[id];
     if (!theme) return;
@@ -697,7 +707,7 @@ window.ALIA_CONTENT = {
     document.querySelectorAll("[data-theme-btn]").forEach(function (b) {
       b.setAttribute("aria-pressed", String(b.dataset.themeBtn === id));
     });
-    $("scene-label").textContent = "Escenario: " + theme.label;
+    $("scene-label").textContent = (window.ALIA_ROOMS && window.ALIA_ROOMS[id]) || theme.label;
     renderChips(theme);
 
     // No interrumpir una respuesta en curso: solo cambia el escenario y las sugerencias.
@@ -935,5 +945,13 @@ $('view-3d').onclick=()=>{box.hidden=false;$('original-avatar').hidden=true;$('o
 $('view-original').onclick=()=>{box.hidden=true;$('original-avatar').hidden=false;$('original-avatar').style.display='flex';$('orbit-buttons').hidden=true;$('view-original').setAttribute('aria-pressed','true');$('view-3d').setAttribute('aria-pressed','false');$('view-note').textContent='Tu diseño original de ALIA.';};
 $('turn-left').onclick=()=>angle+=Math.PI/6;$('turn-right').onclick=()=>angle-=Math.PI/6;$('reset-view').onclick=reset;
 </script>
-</body>
+<script>
+(function(){
+var stage=document.querySelector('.stage');var box=document.createElement('div');box.className='room-object';box.innerHTML='<button type="button" id="room-explore">Explorar un objeto</button><p id="room-clue" hidden aria-live="polite"></p>';stage.appendChild(box);
+var clues={historia:['Explorar un libro','Estos libros representan la memoria de la educación especial. Las miradas de exclusión, segregación, integración e inclusión pueden convivir: la historia invita a revisar nuestras prácticas.'],inclusion:['Explorar la mesa compartida','Compartir una mesa permite encontrarse. Para que haya inclusión, también necesitamos actividades accesibles, roles significativos y oportunidades de aprender.'],barreras:['Explorar el recorrido accesible','Una rampa puede reducir una barrera física. Hay que revisar todo el recorrido, las puertas y los espacios; la accesibilidad no termina en la entrada.'],apoyos:['Explorar el tablero de comunicación','Un tablero puede facilitar expresar ideas y preferencias. Es importante que esté disponible y que las demás personas respeten los tiempos de respuesta.'],discapacidades:['Explorar el lugar de encuentro','Cada persona puede participar de distintas maneras. Preguntar qué necesita y qué le interesa ayuda a elegir apoyos sin decidir solo por su diagnóstico.']};
+function room(id,animate){document.querySelectorAll('[data-room]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.room===id));});document.getElementById('scene-label').textContent=window.ALIA_ROOMS[id];var clue=clues[id];document.getElementById('room-explore').textContent=clue[0];document.getElementById('room-clue').textContent=clue[1];document.getElementById('room-clue').hidden=true;if(animate){stage.classList.remove('house-enter');void stage.offsetWidth;stage.classList.add('house-enter');}}
+document.querySelectorAll('[data-room]').forEach(function(b){b.addEventListener('click',function(){document.querySelector('[data-theme-btn="'+b.dataset.room+'"]').click();});});
+window.addEventListener('alia-theme',function(e){room(e.detail,true);});document.getElementById('room-explore').addEventListener('click',function(){var p=document.getElementById('room-clue');p.hidden=!p.hidden;});room(document.body.dataset.theme||'historia',false);
+})();
+</script></body>
 </html>
