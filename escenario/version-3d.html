@@ -178,7 +178,7 @@ figura.position.y = 0;
 for(const x of [-.15,.15]){const shine=new THREE.Mesh(new THREE.SphereGeometry(.011,12,8),mat(0xffffff));shine.position.set(x-.008,.11,.423);cabeza.add(shine);}
 for(const y of [1.1,1.35,1.58]){const button=new THREE.Mesh(new THREE.SphereGeometry(.025,12,8),mat(0xb69c79));button.position.set(0,y,.36);figura.add(button);}
 const collar=new THREE.Mesh(new THREE.BoxGeometry(.19,.13,.06),camisa);collar.position.set(-.12,1.86,.32);collar.rotation.z=-.3;figura.add(collar);const collar2=collar.clone();collar2.position.x=.12;collar2.rotation.z=.3;figura.add(collar2);
-return {group:figura,animate(t,v,speaking){boca.scale.y=.15+Math.min(1,v*4.5);cabeza.rotation.z=speaking?Math.sin(t*.003)*.035:0;brazoDer.rotation.z=-.9+(speaking?Math.sin(t*.004)*.12:0);}};}
+return {group:figura,animate(t,v,speaking){boca.scale.y=.15+Math.min(1,v*4.5);cabeza.rotation.z=Math.sin(t*.0013)*.025+(speaking?Math.sin(t*.004)*.055:0);brazoDer.rotation.z=-.9+Math.sin(t*.0014)*.04+(speaking?Math.sin(t*.004)*.22:0);}};}
 function makeMeli(){
 // ---------- Personaje: Meli, osa melera estilizada ----------
 const mat=(color)=>new THREE.MeshStandardMaterial({color,roughness:0.65});
@@ -204,7 +204,7 @@ const cola=new THREE.Mesh(new THREE.TubeGeometry(curva,32,.10,12,false),dorado);
 // Expresión amable, interior de orejas y garras
 const rosado=mat(0xc99782);for(const x of [-.30,.30]){esfera(cabeza,rosado,x,.29,.085,.06,.09,.012);esfera(cabeza,blanco,x*.55-.013,.108,.319,.013,.017,.008);}
 for(const arm of [brazoDer,brazoIzq])for(const x of [-.06,0,.06]){const claw=new THREE.Mesh(new THREE.ConeGeometry(.022,.14,12),mat(0x847469));claw.position.set(x,-.69,.14);claw.rotation.x=.5;claw.rotation.z=Math.PI;arm.add(claw);}
-return {group:figura,animate(t,v,speaking){boca.scale.y=.02+Math.min(1,v*4.5)*.08;cabeza.rotation.z=Math.sin(t*.0012)*.025;brazoDer.rotation.z=-.4+(speaking?Math.sin(t*.004)*.12:0);}};}
+return {group:figura,animate(t,v,speaking){boca.scale.y=.02+Math.min(1,v*4.5)*.08;cabeza.rotation.z=Math.sin(t*.0012)*.025;brazoDer.rotation.z=-.4+Math.sin(t*.0017)*.055+(speaking?Math.sin(t*.004)*.22:0);}};}
 function makeZamba(){
 const figura=new THREE.Group();scene.add(figura);const skin=new THREE.MeshStandardMaterial({color:0xaf7148}),white=new THREE.MeshStandardMaterial({color:0xf5f3eb}),dark=new THREE.MeshStandardMaterial({color:0x292027}),blue=new THREE.MeshStandardMaterial({color:0x455a76});
 function ball(parent,mat,x,y,z,sx,sy,sz){const o=new THREE.Mesh(new THREE.SphereGeometry(1,24,16),mat);o.position.set(x,y,z);o.scale.set(sx,sy,sz);parent.add(o);return o;}
@@ -216,7 +216,7 @@ for(const y of [.88,1.07,1.22])ball(figura,white,0,y,.219,.022,.022,.015);
 const pocket=new THREE.Mesh(new THREE.BoxGeometry(.14,.16,.025),white);pocket.position.set(.16,.93,.208);figura.add(pocket);
 for(const x of [-.22,-.10,.04,.17]){const tuft=ball(head,dark,x,.24,.18,.13,.15,.10);tuft.rotation.z=-.4;}
 for(const x of [-.11,.11]){const brow=ball(head,dark,x,.15,.26,.065,.017,.018);brow.rotation.z=x<0?.12:-.12;}
-return {group:figura,animate(t,v,speaking){mouth.scale.y=.013+Math.min(1,v*4.5)*.07;head.rotation.z=speaking?Math.sin(t*.003)*.035:0;}};}
+return {group:figura,animate(t,v,speaking){mouth.scale.y=.013+Math.min(1,v*4.5)*.07;head.rotation.z=Math.sin(t*.0018)*.035+(speaking?Math.sin(t*.004)*.055:0);}};}
 const figures={julian:makeJulian(),zamba:makeZamba(),meli:makeMeli()};figures.julian.group.position.x=-1.8;figures.meli.group.position.x=1.7;figures.julian.group.scale.setScalar(.87);figures.meli.group.scale.setScalar(.85);figures.zamba.group.scale.setScalar(1.08);
 const names={zamba:'Zamba',julian:'Don Julián',meli:'Meli'};const ids={zamba:'agent_9801m4vexm3sf4xrhdcap731h1nr',julian:'agent_5801m4vd61v1fgzsd5q0ce3ze2nn',meli:'agent_8101m4vd5xrefmctryhjpyzpayt8'};
 let session=null,current=null,speaking=false,epoch=0,automatic=false,turns=0,last='',pending=false,greeted=false,seed='';
@@ -232,5 +232,5 @@ document.querySelector('#zamba').onclick=()=>connect('zamba');document.querySele
 document.querySelector('#story').onclick=()=>{turns=0;connect('julian',true,'Comenzá una charla imaginaria con Meli junto al río Bermejo. Explicá en dos frases por qué vale la pena cuidar este lugar y preguntale qué podemos hacer. No inventes hechos históricos.');};
 document.querySelector('#form').onsubmit=e=>{e.preventDefault();const q=document.querySelector('#question');if(!session||automatic){status.textContent='Primero elegí HABLAR CON un personaje';return;}if(q.value.trim()){session.sendUserMessage(q.value.trim());q.value='';}};
 function resize(){renderer.setSize(el.clientWidth,el.clientHeight);camera.aspect=el.clientWidth/el.clientHeight;camera.updateProjectionMatrix();}addEventListener('resize',resize);resize();
-function animate(t){requestAnimationFrame(animate);const v=session?.getOutputVolume?.()||0;for(const [key,f] of Object.entries(figures)){const active=key===current&&speaking;f.animate(active?t:0,active?v:0,active);}controls.update();renderer.render(scene,camera);}requestAnimationFrame(animate);addEventListener('pagehide',()=>session?.endSession());
+function animate(t){requestAnimationFrame(animate);const v=session?.getOutputVolume?.()||0;let i=0;for(const [key,f] of Object.entries(figures)){const active=key===current&&speaking;const localTime=t*(1+i*.19)+i*2300;f.animate(localTime,active?v:0,active);f.group.position.y=Math.sin(localTime*.0014)*.025;f.group.rotation.y=Math.sin(localTime*.0008)*.045;i++;}controls.update();renderer.render(scene,camera);}requestAnimationFrame(animate);addEventListener('pagehide',()=>session?.endSession());
 </script></html>
