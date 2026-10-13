@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Don Julián · El Colorado</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧉</text></svg>">
+<style>
+  :root { --bg:#1d2a22; --ink:#f4efe3; --gold:#d9a441; --card:rgba(20,28,23,.82); }
+  * { box-sizing: border-box; }
+  html, body { margin:0; height:100%; background:radial-gradient(circle at 50% 30%, #35513f, var(--bg) 70%); color:var(--ink); font-family: system-ui, "Segoe UI", Roboto, sans-serif; overflow:hidden; }
+  #scene { position:fixed; inset:0; }
+  #panel { position:fixed; left:0; right:0; bottom:0; padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px)); background:var(--card); backdrop-filter: blur(6px); border-top:2px solid var(--gold); }
+  h1 { margin:0 0 4px; font-size:1.25rem; color:var(--gold); }
+  p.sub { margin:0 0 10px; font-size:.9rem; opacity:.9; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  button { background:var(--gold); color:#1d2a22; border:0; border-radius:999px; padding:10px 18px; font-weight:700; cursor:pointer; font-size:.95rem; }
+  button.ghost { background:transparent; color:var(--ink); border:1px solid var(--ink); }
+  button:disabled { opacity:.5; cursor:default; }
+  #estado { font-size:.85rem; opacity:.85; }
+  #aviso { font-size:.78rem; opacity:.75; margin-top:8px; }
+  #error { color:#ffb4a2; font-size:.85rem; margin-top:8px; display:none; }
+  @media (min-width: 720px) {
+    #panel { left:auto; right:24px; bottom:24px; width:380px; border:2px solid var(--gold); border-radius:14px; }
+  }
+</style>
+</head>
+<body>
+<div id="scene"></div>
+
+<div id="panel">
+  <h1>Don Julián</h1>
+  <p class="sub">Abuelo de El Colorado, Formosa. Un personaje creado con IA para conversar sobre el pueblo.</p>
+  <div class="row">
+    <button id="btnHablar">Hablar</button>
+    <button id="btnCortar" class="ghost" disabled>Cortar</button>
+    <span id="estado">Desconectado</span>
+  </div>
+  <div id="error"></div>
+  <p id="aviso">Soy una recreación con IA: no soy una persona real. Las historias marcadas como ficción no son datos históricos. Tu voz se envía a ElevenLabs para la conversación.</p>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { Conversation } from "https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.26.0/+esm";
+
+// ---------- Configuración ----------
+// ID del agente: se toma de ?agente=ID en la dirección, o del valor por defecto de abajo.
+const AGENT_ID = new URLSearchParams(location.search).get("agente") || "agent_3701m4vbwf2kej89t9twry161zs5";
+
+// ---------- Escena ----------
+const container = document.getElementById("scene");
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+container.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 0.1, 100);
+camera.position.set(0, 1.35, 5.2);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 1.25, 0);
+controls.enableDamping = true;
+controls.minDistance = 3;
+controls.maxDistance = 8;
+controls.update();
+
+scene.add(new THREE.HemisphereLight(0xfff3d6, 0x2a3b2e, 1.1));
+const sun = new THREE.DirectionalLight(0xffe2b0, 1.4);
+sun.position.set(-3, 5, 4);
+sun.castShadow = true;
+scene.add(sun);
+
+// Piso
+const piso = new THREE.Mesh(new THREE.CircleGeometry(3, 64), new THREE.MeshStandardMaterial({ color: 0x3e5a45, roughness: 1 }));
+piso.rotation.x = -Math.PI / 2;
+piso.receiveShadow = true;
+scene.add(piso);
+
+// ---------- Personaje ----------
+const mat = (color, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.75, ...extra });
+const piel = mat(0xc08a5e);
+const camisa = mat(0xefe4cc);
+const bombachas = mat(0x5a3d26);
+const pañuelo = mat(0x8a2e26);
+const cuero = mat(0x6b4a2b);
+const paja = mat(0xc9a25a);
+const cinta = mat(0x4a2f1c);
+const plata = mat(0xbfc4c8, { metalness: 0.8, roughness: 0.35 });
+const pelo = mat(0xb9b9b4);
+const bigote = mat(0x9a9a95);
+const ojo = mat(0x2a1a10);
+const blanco = mat(0xf6f1e6);
+const bocaMat = mat(0x3a1414);
+
+const parpados = [];
+const figura = new THREE.Group();
+scene.add(figura);
+
+// Cabeza
+const cabeza = new THREE.Group();
+cabeza.position.set(0, 2.25, 0);
+figura.add(cabeza);
+
+const craneo = new THREE.Mesh(new THREE.SphereGeometry(0.42, 32, 24), piel);
+craneo.scale.set(0.92, 1.05, 0.95);
+craneo.castShadow = true;
+cabeza.add(craneo);
+
+// Cabello canoso alrededor
+const cabello = new THREE.Mesh(new THREE.TorusGeometry(0.36, 0.1, 12, 32, Math.PI * 1.5), pelo);
+cabello.position.set(0, 0.12, -0.02);
+cabello.rotation.set(Math.PI / 2, 0, Math.PI * 0.75);
+cabeza.add(cabello);
+
+// Nariz
+const nariz = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.18, 16), piel);
+nariz.position.set(0, -0.02, 0.4);
+nariz.rotation.x = Math.PI / 2 + 0.2;
+cabeza.add(nariz);
+
+// Ojos
+for (const x of [-0.15, 0.15]) {
+  const globo = new THREE.Mesh(new THREE.SphereGeometry(0.045, 16, 12), blanco);
+  globo.position.set(x, 0.1, 0.36);
+  cabeza.add(globo);
+  const iris = new THREE.Mesh(new THREE.SphereGeometry(0.025, 12, 10), ojo);
+  iris.position.set(x, 0.1, 0.4);
+  cabeza.add(iris);
+  const parpado = new THREE.Mesh(new THREE.SphereGeometry(0.05, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2), piel);
+  parpado.position.set(x, 0.1, 0.36);
+  parpado.scale.set(1, 0.1, 1);
+  parpado.rotation.x = Math.PI;
+  cabeza.add(parpado);
+  parpados.push(parpado);
+}
+
+// Cejas canosas
+for (const x of [-0.16, 0.16]) {
+  const ceja = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.035, 0.05), bigote);
+  ceja.position.set(x, 0.22, 0.37);
+  ceja.rotation.z = x < 0 ? 0.2 : -0.2;
+  cabeza.add(ceja);
+}
+
+// Bigote
+const bigoteMesh = new THREE.Mesh(new THREE.CapsuleGeometry(0.035, 0.26, 6, 12), bigote);
+bigoteMesh.rotation.z = Math.PI / 2;
+bigoteMesh.position.set(0, -0.12, 0.4);
+cabeza.add(bigoteMesh);
+
+// Boca (se escala según la voz)
+const boca = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 12), bocaMat);
+boca.scale.set(1.4, 0.15, 0.6);
+boca.position.set(0, -0.23, 0.37);
+cabeza.add(boca);
+
+// Sombrero de paja
+const ala = new THREE.Mesh(new THREE.CylinderGeometry(0.72, 0.72, 0.05, 40), paja);
+ala.position.set(0, 0.48, 0);
+ala.castShadow = true;
+cabeza.add(ala);
+const copa = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.45, 0.32, 32), paja);
+copa.position.set(0, 0.64, 0);
+cabeza.add(copa);
+const cintaSombrero = new THREE.Mesh(new THREE.CylinderGeometry(0.455, 0.455, 0.07, 32), cinta);
+cintaSombrero.position.set(0, 0.54, 0);
+cabeza.add(cintaSombrero);
+
+// Torso
+const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.56, 1.05, 32), camisa);
+torso.position.set(0, 1.35, 0);
+torso.scale.set(1, 1, 0.7);
+torso.castShadow = true;
+figura.add(torso);
+
+// Pañuelo rojo
+const pañueloMesh = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.32, 4), pañuelo);
+pañueloMesh.position.set(0, 1.92, 0.36);
+pañueloMesh.rotation.x = Math.PI;
+pañueloMesh.rotation.y = Math.PI / 4;
+figura.add(pañueloMesh);
+
+// Cinturón con hebilla
+const cinturon = new THREE.Mesh(new THREE.TorusGeometry(0.54, 0.05, 12, 40), cuero);
+cinturon.rotation.x = Math.PI / 2;
+cinturon.position.set(0, 0.82, 0);
+cinturon.scale.set(1, 1, 0.7);
+figura.add(cinturon);
+const hebilla = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.04, 24), plata);
+hebilla.rotation.x = Math.PI / 2;
+hebilla.position.set(0, 0.82, 0.4);
+figura.add(hebilla);
+
+// Bombachas (dos piernas)
+for (const x of [-0.2, 0.2]) {
+  const pierna = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.27, 1.1, 24), bombachas);
+  pierna.position.set(x, 0.25, 0);
+  pierna.castShadow = true;
+  figura.add(pierna);
+  const bota = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.22, 0.45, 24), cuero);
+  bota.position.set(x, -0.5, 0.02);
+  figura.add(bota);
+}
+
+// Brazo izquierdo (sostiene el mate) y derecho (gesto abierto)
+const brazoIzq = new THREE.Group();
+brazoIzq.position.set(-0.6, 1.7, 0);
+figura.add(brazoIzq);
+const brazoIzqMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.09, 0.9, 16), camisa);
+brazoIzqMesh.position.set(0, -0.45, 0.1);
+brazoIzqMesh.rotation.x = -0.9;
+brazoIzq.add(brazoIzqMesh);
+const manoIzq = new THREE.Mesh(new THREE.SphereGeometry(0.1, 16, 12), piel);
+manoIzq.position.set(0.05, -0.2, 0.7);
+brazoIzq.add(manoIzq);
+
+// Mate
+const mate = new THREE.Mesh(new THREE.SphereGeometry(0.13, 24, 18), cuero);
+mate.scale.set(1, 1.2, 1);
+mate.position.set(0.05, -0.1, 0.8);
+brazoIzq.add(mate);
+const bombilla = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.35, 8), plata);
+bombilla.position.set(0.12, 0.1, 0.8);
+bombilla.rotation.z = -0.5;
+brazoIzq.add(bombilla);
+
+const brazoDer = new THREE.Group();
+brazoDer.position.set(0.6, 1.7, 0);
+figura.add(brazoDer);
+const brazoDerMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.09, 0.9, 16), camisa);
+brazoDerMesh.position.set(0, -0.45, 0);
+brazoDer.add(brazoDerMesh);
+const manoDer = new THREE.Mesh(new THREE.SphereGeometry(0.1, 16, 12), piel);
+manoDer.position.set(0, -0.95, 0);
+brazoDer.add(manoDer);
+brazoDer.rotation.z = -0.9;
+
+// Pelo y sombra
+figura.position.y = 0;
+
+// ---------- Estado de la boca y gestos ----------
+let volumen = 0;
+let tiempoBlink = 2 + Math.random() * 2;
+let parpadeando = 0;
+
+function animar(t) {
+  requestAnimationFrame(animar);
+  const dt = 1 / 60;
+
+  // Boca: abre según el volumen de la voz del agente
+  const abierta = Math.min(1, volumen * 4.5);
+  boca.scale.y = 0.15 + abierta * 1.1;
+  boca.scale.x = 1.4 - abierta * 0.3;
+
+  // Respiración y balanceo
+  figura.position.y = Math.sin(t * 0.0015) * 0.02;
+  cabeza.rotation.z = Math.sin(t * 0.0012) * 0.03 + (hablando ? Math.sin(t * 0.01) * 0.04 : 0);
+
+  // Gesto del brazo derecho al hablar
+  brazoDer.rotation.z = -0.9 + (hablando ? Math.sin(t * 0.006) * 0.2 : Math.sin(t * 0.0015) * 0.03);
+
+  // Parpadeo
+  tiempoBlink -= dt;
+  if (tiempoBlink <= 0) { parpadeando = 0.12; tiempoBlink = 2 + Math.random() * 3; }
+  parpadeando = Math.max(0, parpadeando - dt);
+  for (const p of parpados) p.scale.y = parpadeando > 0 ? 1 : 0.1;
+
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+let hablando = false;
+animar(0);
+
+addEventListener("resize", () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+// ---------- Conexión con ElevenLabs ----------
+const btnHablar = document.getElementById("btnHablar");
+const btnCortar = document.getElementById("btnCortar");
+const estado = document.getElementById("estado");
+const errorBox = document.getElementById("error");
+let conversacion = null;
+
+function mostrarError(msg) {
+  errorBox.textContent = msg;
+  errorBox.style.display = "block";
+}
+
+btnHablar.addEventListener("click", async () => {
+  errorBox.style.display = "none";
+  if (!AGENT_ID || AGENT_ID.startsWith("PEGAR_AQUI")) {
+    mostrarError("Falta el ID del agente. Agregalo en la dirección como ?agente=TU_ID o en el código.");
+    return;
+  }
+  btnHablar.disabled = true;
+  estado.textContent = "Conectando…";
+  try {
+    conversacion = await Conversation.startSession({
+      agentId: AGENT_ID,
+      connectionType: "websocket",
+      onConnect: () => { estado.textContent = "Conectado: hablá con Don Julián"; btnCortar.disabled = false; },
+      onDisconnect: () => { estado.textContent = "Desconectado"; btnHablar.disabled = false; btnCortar.disabled = true; hablando = false; conversacion = null; },
+      onModeChange: ({ mode }) => { hablando = mode === "speaking"; estado.textContent = mode === "speaking" ? "Don Julián habla…" : "Escuchando…"; },
+      onError: (e) => { mostrarError("Error: " + (e?.message || e)); },
+    });
+  } catch (e) {
+    mostrarError("No se pudo conectar. Revisá que el agente sea público y que la página esté en https. Detalle: " + (e?.message || e));
+    btnHablar.disabled = false;
+    estado.textContent = "Desconectado";
+  }
+});
+
+btnCortar.addEventListener("click", async () => {
+  if (conversacion) await conversacion.endSession();
+});
+
+// Volumen de salida del agente (para mover la boca)
+setInterval(() => {
+  if (conversacion && typeof conversacion.getOutputVolume === "function") {
+    volumen = conversacion.getOutputVolume() || 0;
+  } else {
+    volumen = 0;
+  }
+}, 50);
+</script>
+</body>
+</html>
