@@ -7,7 +7,7 @@ import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {Conversation} from 'https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.26.0/+esm';
 const el=document.querySelector('#scene');const scene=new THREE.Scene();scene.background=null;scene.fog=new THREE.Fog(0xc9e4e9,12,30);
 const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});el.append(renderer.domElement);renderer.shadowMap.enabled=true;
-const camera=new THREE.PerspectiveCamera(42,1,.1,60);camera.position.set(0,2.9,8.5);const controls=new OrbitControls(camera,renderer.domElement);controls.target.set(0,1.25,0);controls.enableDamping=true;controls.maxPolarAngle=Math.PI/2;controls.minDistance=5;controls.maxDistance=12;
+const camera=new THREE.PerspectiveCamera(42,1,.1,60);camera.position.set(0,2.9,8.5);const controls=new OrbitControls(camera,renderer.domElement);controls.target.set(0,1.25,0);controls.enableDamping=false;controls.enableRotate=false;controls.enablePan=false;controls.enableZoom=false;controls.maxPolarAngle=Math.PI/2;controls.minDistance=5;controls.maxDistance=12;
 scene.add(new THREE.HemisphereLight(0xfff4e5,0x667a69,2.3));const sun=new THREE.DirectionalLight(0xffead1,2);sun.position.set(-4,8,5);scene.add(sun);const fill=new THREE.DirectionalLight(0xd9edff,1.2);fill.position.set(4,3,2);scene.add(fill);renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;
 function plane(color,w,h,x,y,z){const p=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshStandardMaterial({color}));p.rotation.x=-Math.PI/2;p.position.set(x,y,z);scene.add(p);return p;}
 function makeJulian(){
@@ -178,7 +178,7 @@ figura.position.y = 0;
 for(const x of [-.15,.15]){const shine=new THREE.Mesh(new THREE.SphereGeometry(.011,12,8),mat(0xffffff));shine.position.set(x-.008,.11,.423);cabeza.add(shine);}
 for(const y of [1.1,1.35,1.58]){const button=new THREE.Mesh(new THREE.SphereGeometry(.025,12,8),mat(0xb69c79));button.position.set(0,y,.36);figura.add(button);}
 const collar=new THREE.Mesh(new THREE.BoxGeometry(.19,.13,.06),camisa);collar.position.set(-.12,1.86,.32);collar.rotation.z=-.3;figura.add(collar);const collar2=collar.clone();collar2.position.x=.12;collar2.rotation.z=.3;figura.add(collar2);
-return {group:figura,animate(t,v,speaking){boca.scale.y=.15+Math.min(1,v*4.5);cabeza.rotation.z=Math.sin(t*.0012)*.025;brazoDer.rotation.z=-.9+(speaking?Math.sin(t*.006)*.18:0);}};}
+return {group:figura,animate(t,v,speaking){boca.scale.y=.15+Math.min(1,v*4.5);cabeza.rotation.z=0;brazoDer.rotation.z=-.9;}};}
 function makeMeli(){
 // ---------- Personaje: Meli, osa melera estilizada ----------
 const mat=(color)=>new THREE.MeshStandardMaterial({color,roughness:0.65});
@@ -204,7 +204,7 @@ const cola=new THREE.Mesh(new THREE.TubeGeometry(curva,32,.10,12,false),dorado);
 // Expresión amable, interior de orejas y garras
 const rosado=mat(0xc99782);for(const x of [-.30,.30]){esfera(cabeza,rosado,x,.29,.085,.06,.09,.012);esfera(cabeza,blanco,x*.55-.013,.108,.319,.013,.017,.008);}
 for(const arm of [brazoDer,brazoIzq])for(const x of [-.06,0,.06]){const claw=new THREE.Mesh(new THREE.ConeGeometry(.022,.14,12),mat(0x847469));claw.position.set(x,-.69,.14);claw.rotation.x=.5;claw.rotation.z=Math.PI;arm.add(claw);}
-return {group:figura,animate(t,v,speaking){boca.scale.y=.02+Math.min(1,v*4.5)*.08;cabeza.rotation.z=Math.sin(t*.0012)*.025;brazoDer.rotation.z=-.4+(speaking?Math.sin(t*.006)*.18:0);}};}
+return {group:figura,animate(t,v,speaking){boca.scale.y=.02+Math.min(1,v*4.5)*.08;cabeza.rotation.z=Math.sin(t*.0012)*.025;brazoDer.rotation.z=-.4;}};}
 function makeZamba(){
 const figura=new THREE.Group();scene.add(figura);const skin=new THREE.MeshStandardMaterial({color:0xaf7148}),white=new THREE.MeshStandardMaterial({color:0xf5f3eb}),dark=new THREE.MeshStandardMaterial({color:0x292027}),blue=new THREE.MeshStandardMaterial({color:0x455a76});
 function ball(parent,mat,x,y,z,sx,sy,sz){const o=new THREE.Mesh(new THREE.SphereGeometry(1,24,16),mat);o.position.set(x,y,z);o.scale.set(sx,sy,sz);parent.add(o);return o;}
@@ -216,7 +216,7 @@ for(const y of [.88,1.07,1.22])ball(figura,white,0,y,.219,.022,.022,.015);
 const pocket=new THREE.Mesh(new THREE.BoxGeometry(.14,.16,.025),white);pocket.position.set(.16,.93,.208);figura.add(pocket);
 for(const x of [-.22,-.10,.04,.17]){const tuft=ball(head,dark,x,.24,.18,.13,.15,.10);tuft.rotation.z=-.4;}
 for(const x of [-.11,.11]){const brow=ball(head,dark,x,.15,.26,.065,.017,.018);brow.rotation.z=x<0?.12:-.12;}
-return {group:figura,animate(t,v){mouth.scale.y=.013+Math.min(1,v*4.5)*.07;head.rotation.z=Math.sin(t*.0013)*.025;}};}
+return {group:figura,animate(t,v){mouth.scale.y=.013+Math.min(1,v*4.5)*.07;head.rotation.z=0;}};}
 const figures={julian:makeJulian(),zamba:makeZamba(),meli:makeMeli()};figures.julian.group.position.x=-1.8;figures.meli.group.position.x=1.7;figures.julian.group.scale.setScalar(.87);figures.meli.group.scale.setScalar(.85);figures.zamba.group.scale.setScalar(1.08);
 const names={zamba:'Zamba',julian:'Don Julián',meli:'Meli'};const ids={zamba:'agent_9801m4vexm3sf4xrhdcap731h1nr',julian:'agent_5801m4vd61v1fgzsd5q0ce3ze2nn',meli:'agent_8101m4vd5xrefmctryhjpyzpayt8'};
 let session=null,current=null,speaking=false,epoch=0,automatic=false,turns=0,last='',pending=false,greeted=false,seed='';
