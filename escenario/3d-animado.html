@@ -1,0 +1,236 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Una aventura en El Colorado · 3D</title><style>
+*{box-sizing:border-box}body{margin:0;background:#f6f2e9;color:#163d32;font-family:system-ui}header{position:absolute;top:18px;left:20px;z-index:2}h1{margin:0;font-size:clamp(21px,4vw,36px)}header p{margin:6px 0}#scene{height:65vh;min-height:330px;background:linear-gradient(#ffffff44,#ffffff11),url("https://upload.wikimedia.org/wikipedia/commons/4/44/Costanera_El_Colorado%2C_Formosa.jpg") center/cover}header{background:#fffef6df;padding:10px;border-radius:12px}main{padding:16px;max-width:960px;margin:auto;background:#fffef6;border-radius:22px;box-shadow:0 8px 30px #173b3315}button,select,input{font:inherit;padding:12px;border-radius:12px;border:1px solid #426b53}button{font-weight:700;background:#245b46;color:white;cursor:pointer}button:disabled{opacity:.5}.row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}input{flex:1;min-width:170px}#log{max-height:150px;overflow:auto}#status{font-weight:bold}small{display:block;margin:12px 0}@media(max-width:600px){#scene{height:55vh}header p{max-width:270px;font-size:13px}} </style>
+<header><h1>UNA AVENTURA EN EL COLORADO · 3D</h1><p>Zamba, Don Julián y Meli · Un encuentro imaginario junto al Bermejo</p></header><div id="scene"></div><main><div id="status" role="status">Los personajes se animan automáticamente · Elegí cómo participar</div><div class="row"><button id="zamba">HABLAR CON ZAMBA</button><button id="julian">HABLAR CON DON JULIÁN</button><button id="meli">HABLAR CON MELI</button><button id="story">CHARLA ENTRE LOS TRES</button><button id="stop">DETENER</button></div><form id="form" class="row"><input id="question" aria-label="Tu pregunta" placeholder="También podés escribir tu pregunta"><button>ENVIAR</button></form><div id="log" aria-live="polite"></div><small>Personajes ficticios creados con IA. Al conversar, tu voz se envía a ElevenLabs y se consumen créditos. La charla entre personajes tiene seis intervenciones.</small><small>Foto de la costanera de El Colorado: <a href="https://commons.wikimedia.org/wiki/File:Costanera_El_Colorado,_Formosa.jpg" target="_blank" rel="noopener">Claudiooooooooooooo / Wikimedia Commons</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>. Encuadre adaptado al tamaño de pantalla.</small></main>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script><script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {Conversation} from 'https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.26.0/+esm';
+const el=document.querySelector('#scene');const scene=new THREE.Scene();scene.background=null;scene.fog=new THREE.Fog(0xc9e4e9,12,30);
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});el.append(renderer.domElement);renderer.shadowMap.enabled=true;
+const camera=new THREE.PerspectiveCamera(42,1,.1,60);camera.position.set(0,2.9,8.5);const controls=new OrbitControls(camera,renderer.domElement);controls.target.set(0,1.25,0);controls.enableDamping=false;controls.enableRotate=false;controls.enablePan=false;controls.enableZoom=false;controls.maxPolarAngle=Math.PI/2;controls.minDistance=5;controls.maxDistance=12;
+scene.add(new THREE.HemisphereLight(0xfff4e5,0x667a69,2.3));const sun=new THREE.DirectionalLight(0xffead1,2);sun.position.set(-4,8,5);scene.add(sun);const fill=new THREE.DirectionalLight(0xd9edff,1.2);fill.position.set(4,3,2);scene.add(fill);renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;
+function plane(color,w,h,x,y,z){const p=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshStandardMaterial({color}));p.rotation.x=-Math.PI/2;p.position.set(x,y,z);scene.add(p);return p;}
+function makeJulian(){
+// ---------- Personaje ----------
+const mat = (color, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.55, ...extra });
+const piel = mat(0xc08a5e);
+const camisa = mat(0xefe4cc);
+const bombachas = mat(0x5a3d26);
+const pañuelo = mat(0x8a2e26);
+const cuero = mat(0x6b4a2b);
+const paja = mat(0xc9a25a);
+const cinta = mat(0x4a2f1c);
+const plata = mat(0xbfc4c8, { metalness: 0.8, roughness: 0.35 });
+const pelo = mat(0xb9b9b4);
+const bigote = mat(0x9a9a95);
+const ojo = mat(0x2a1a10);
+const blanco = mat(0xf6f1e6);
+const bocaMat = mat(0x3a1414);
+
+const parpados = [];
+const figura = new THREE.Group();
+scene.add(figura);
+
+// Cabeza
+const cabeza = new THREE.Group();
+cabeza.position.set(0, 2.25, 0);
+figura.add(cabeza);
+
+const craneo = new THREE.Mesh(new THREE.SphereGeometry(0.42, 32, 24), piel);
+craneo.scale.set(0.92, 1.05, 0.95);
+craneo.castShadow = true;
+cabeza.add(craneo);
+
+// Cabello canoso alrededor
+const cabello = new THREE.Mesh(new THREE.TorusGeometry(0.36, 0.1, 12, 32, Math.PI * 1.5), pelo);
+cabello.position.set(0, 0.12, -0.02);
+cabello.rotation.set(Math.PI / 2, 0, Math.PI * 0.75);
+cabeza.add(cabello);
+
+// Nariz
+const nariz = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.18, 16), piel);
+nariz.position.set(0, -0.02, 0.4);
+nariz.rotation.x = Math.PI / 2 + 0.2;
+cabeza.add(nariz);
+
+// Ojos
+for (const x of [-0.15, 0.15]) {
+  const globo = new THREE.Mesh(new THREE.SphereGeometry(0.045, 16, 12), blanco);
+  globo.position.set(x, 0.1, 0.36);
+  cabeza.add(globo);
+  const iris = new THREE.Mesh(new THREE.SphereGeometry(0.025, 12, 10), ojo);
+  iris.position.set(x, 0.1, 0.4);
+  cabeza.add(iris);
+  const parpado = new THREE.Mesh(new THREE.SphereGeometry(0.05, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2), piel);
+  parpado.position.set(x, 0.1, 0.36);
+  parpado.scale.set(1, 0.1, 1);
+  parpado.rotation.x = Math.PI;
+  cabeza.add(parpado);
+  parpados.push(parpado);
+}
+
+// Cejas canosas
+for (const x of [-0.16, 0.16]) {
+  const ceja = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.035, 0.05), bigote);
+  ceja.position.set(x, 0.22, 0.37);
+  ceja.rotation.z = x < 0 ? 0.2 : -0.2;
+  cabeza.add(ceja);
+}
+
+// Bigote
+const bigoteMesh = new THREE.Mesh(new THREE.CapsuleGeometry(0.035, 0.26, 6, 12), bigote);
+bigoteMesh.rotation.z = Math.PI / 2;
+bigoteMesh.position.set(0, -0.12, 0.4);
+cabeza.add(bigoteMesh);
+
+// Boca (se escala según la voz)
+const boca = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 12), bocaMat);
+boca.scale.set(1.4, 0.15, 0.6);
+boca.position.set(0, -0.23, 0.37);
+cabeza.add(boca);
+
+// Sombrero de paja
+const ala = new THREE.Mesh(new THREE.CylinderGeometry(0.72, 0.72, 0.05, 40), paja);
+ala.position.set(0, 0.48, 0);
+ala.castShadow = true;
+cabeza.add(ala);
+const copa = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.45, 0.32, 32), paja);
+copa.position.set(0, 0.64, 0);
+cabeza.add(copa);
+const cintaSombrero = new THREE.Mesh(new THREE.CylinderGeometry(0.455, 0.455, 0.07, 32), cinta);
+cintaSombrero.position.set(0, 0.54, 0);
+cabeza.add(cintaSombrero);
+
+// Torso
+const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.56, 1.05, 32), camisa);
+torso.position.set(0, 1.35, 0);
+torso.scale.set(1, 1, 0.7);
+torso.castShadow = true;
+figura.add(torso);
+
+// Pañuelo rojo
+const pañueloMesh = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.32, 4), pañuelo);
+pañueloMesh.position.set(0, 1.92, 0.36);
+pañueloMesh.rotation.x = Math.PI;
+pañueloMesh.rotation.y = Math.PI / 4;
+figura.add(pañueloMesh);
+
+// Cinturón con hebilla
+const cinturon = new THREE.Mesh(new THREE.TorusGeometry(0.54, 0.05, 12, 40), cuero);
+cinturon.rotation.x = Math.PI / 2;
+cinturon.position.set(0, 0.82, 0);
+cinturon.scale.set(1, 1, 0.7);
+figura.add(cinturon);
+const hebilla = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.04, 24), plata);
+hebilla.rotation.x = Math.PI / 2;
+hebilla.position.set(0, 0.82, 0.4);
+figura.add(hebilla);
+
+// Bombachas (dos piernas)
+for (const x of [-0.2, 0.2]) {
+  const pierna = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.27, 1.1, 24), bombachas);
+  pierna.position.set(x, 0.25, 0);
+  pierna.castShadow = true;
+  figura.add(pierna);
+  const bota = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.22, 0.45, 24), cuero);
+  bota.position.set(x, -0.5, 0.02);
+  figura.add(bota);
+}
+
+// Brazo izquierdo (sostiene el mate) y derecho (gesto abierto)
+const brazoIzq = new THREE.Group();
+brazoIzq.position.set(-0.6, 1.7, 0);
+figura.add(brazoIzq);
+const brazoIzqMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.09, 0.9, 16), camisa);
+brazoIzqMesh.position.set(0, -0.45, 0.1);
+brazoIzqMesh.rotation.x = -0.9;
+brazoIzq.add(brazoIzqMesh);
+const manoIzq = new THREE.Mesh(new THREE.SphereGeometry(0.1, 16, 12), piel);
+manoIzq.position.set(0.05, -0.2, 0.7);
+brazoIzq.add(manoIzq);
+
+// Mate
+const mate = new THREE.Mesh(new THREE.SphereGeometry(0.13, 24, 18), cuero);
+mate.scale.set(1, 1.2, 1);
+mate.position.set(0.05, -0.1, 0.8);
+brazoIzq.add(mate);
+const bombilla = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.35, 8), plata);
+bombilla.position.set(0.12, 0.1, 0.8);
+bombilla.rotation.z = -0.5;
+brazoIzq.add(bombilla);
+
+const brazoDer = new THREE.Group();
+brazoDer.position.set(0.6, 1.7, 0);
+figura.add(brazoDer);
+const brazoDerMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.09, 0.9, 16), camisa);
+brazoDerMesh.position.set(0, -0.45, 0);
+brazoDer.add(brazoDerMesh);
+const manoDer = new THREE.Mesh(new THREE.SphereGeometry(0.1, 16, 12), piel);
+manoDer.position.set(0, -0.95, 0);
+brazoDer.add(manoDer);
+brazoDer.rotation.z = -0.9;
+
+// Pelo y sombra
+figura.position.y = 0;
+
+
+// Brillos en los ojos y botones de camisa
+for(const x of [-.15,.15]){const shine=new THREE.Mesh(new THREE.SphereGeometry(.011,12,8),mat(0xffffff));shine.position.set(x-.008,.11,.423);cabeza.add(shine);}
+for(const y of [1.1,1.35,1.58]){const button=new THREE.Mesh(new THREE.SphereGeometry(.025,12,8),mat(0xb69c79));button.position.set(0,y,.36);figura.add(button);}
+const collar=new THREE.Mesh(new THREE.BoxGeometry(.19,.13,.06),camisa);collar.position.set(-.12,1.86,.32);collar.rotation.z=-.3;figura.add(collar);const collar2=collar.clone();collar2.position.x=.12;collar2.rotation.z=.3;figura.add(collar2);
+return {group:figura,animate(t,v,speaking){boca.scale.y=.15+Math.min(1,v*4.5);cabeza.rotation.z=Math.sin(t*.0022)*.13+(speaking?Math.sin(t*.004)*.055:0);brazoDer.rotation.z=-.9+Math.sin(t*.0024)*.25+(speaking?Math.sin(t*.004)*.22:0);}};}
+function makeMeli(){
+// ---------- Personaje: Meli, osa melera estilizada ----------
+const mat=(color)=>new THREE.MeshStandardMaterial({color,roughness:0.65});
+const dorado=mat(0xe5c387), negro=mat(0x242020), blanco=mat(0xffffff);
+const figura=new THREE.Group(); scene.add(figura);
+function esfera(parent,m,x,y,z,sx,sy,sz){const o=new THREE.Mesh(new THREE.SphereGeometry(1,24,16),m);o.position.set(x,y,z);o.scale.set(sx,sy,sz);o.castShadow=true;parent.add(o);return o;}
+esfera(figura,dorado,0,1.2,0,.48,.68,.35);
+esfera(figura,negro,0,1.35,.25,.34,.48,.15);
+for(const x of [-.27,.27]){esfera(figura,dorado,x,.42,0,.20,.43,.20);esfera(figura,negro,x,.12,.15,.19,.09,.26);}
+const cabeza=new THREE.Group();cabeza.position.set(0,2.05,0);figura.add(cabeza);
+esfera(cabeza,dorado,0,0,0,.34,.38,.31);
+for(const x of [-.30,.30]){esfera(cabeza,dorado,x,.29,0,.12,.16,.08);esfera(cabeza,negro,x,.29,.065,.075,.10,.02);esfera(cabeza,blanco,x*.55,.09,.26,.065,.075,.04);esfera(cabeza,negro,x*.55,.09,.30,.032,.045,.015);}
+esfera(cabeza,dorado,0,-.07,.42,.17,.15,.43);
+esfera(cabeza,negro,0,-.07,.82,.08,.065,.06);
+const boca=esfera(cabeza,negro,0,-.16,.72,.055,.02,.09);
+const parpados=[];
+const brazoDer=new THREE.Group();brazoDer.position.set(.43,1.65,0);figura.add(brazoDer);
+esfera(brazoDer,dorado,0,-.25,0,.13,.38,.14);esfera(brazoDer,negro,0,-.58,.08,.12,.13,.12);
+const brazoIzq=new THREE.Group();brazoIzq.position.set(-.43,1.65,0);figura.add(brazoIzq);esfera(brazoIzq,dorado,0,-.25,0,.13,.38,.14);esfera(brazoIzq,negro,0,-.58,.08,.12,.13,.12);brazoIzq.rotation.z=-.25;
+const curva=new THREE.CatmullRomCurve3([new THREE.Vector3(0,.8,-.2),new THREE.Vector3(-.45,.45,-.45),new THREE.Vector3(-.9,.35,-.2),new THREE.Vector3(-1.15,.7,0),new THREE.Vector3(-1,.95,.05)]);
+const cola=new THREE.Mesh(new THREE.TubeGeometry(curva,32,.10,12,false),dorado);figura.add(cola);
+
+// Expresión amable, interior de orejas y garras
+const rosado=mat(0xc99782);for(const x of [-.30,.30]){esfera(cabeza,rosado,x,.29,.085,.06,.09,.012);esfera(cabeza,blanco,x*.55-.013,.108,.319,.013,.017,.008);}
+for(const arm of [brazoDer,brazoIzq])for(const x of [-.06,0,.06]){const claw=new THREE.Mesh(new THREE.ConeGeometry(.022,.14,12),mat(0x847469));claw.position.set(x,-.69,.14);claw.rotation.x=.5;claw.rotation.z=Math.PI;arm.add(claw);}
+return {group:figura,animate(t,v,speaking){boca.scale.y=.02+Math.min(1,v*4.5)*.08;cabeza.rotation.z=Math.sin(t*.0027)*.14;brazoDer.rotation.z=-.4+Math.sin(t*.0021)*.30+(speaking?Math.sin(t*.004)*.22:0);}};}
+function makeZamba(){
+const figura=new THREE.Group();scene.add(figura);const skin=new THREE.MeshStandardMaterial({color:0xaf7148}),white=new THREE.MeshStandardMaterial({color:0xf5f3eb}),dark=new THREE.MeshStandardMaterial({color:0x292027}),blue=new THREE.MeshStandardMaterial({color:0x455a76});
+function ball(parent,mat,x,y,z,sx,sy,sz){const o=new THREE.Mesh(new THREE.SphereGeometry(1,24,16),mat);o.position.set(x,y,z);o.scale.set(sx,sy,sz);parent.add(o);return o;}
+ball(figura,white,0,1,0,.31,.44,.21);for(const x of [-.16,.16]){ball(figura,blue,x,.5,0,.12,.25,.13);ball(figura,skin,x,.24,0,.09,.17,.09);ball(figura,dark,x,.08,.07,.12,.07,.19);ball(figura,white,x*2.2,1.03,0,.09,.32,.09);ball(figura,skin,x*2.2,.72,0,.09,.10,.09);}
+const head=new THREE.Group();head.position.y=1.66;figura.add(head);ball(head,skin,0,0,0,.30,.34,.27);ball(head,dark,0,.23,-.02,.32,.19,.29);for(const x of [-.11,.11]){ball(head,white,x,.035,.25,.06,.075,.025);ball(head,dark,x,.035,.275,.029,.04,.01);}ball(head,skin,0,-.045,.29,.05,.05,.07);const mouth=ball(head,dark,0,-.16,.245,.07,.013,.02);ball(figura,blue,0,1.33,.19,.10,.10,.02);
+// Guardapolvo con cuello, bolsillo, botones y mechones
+for(const x of [-.11,.11]){ball(head,white,x-.013,.057,.291,.013,.017,.008);const collar=new THREE.Mesh(new THREE.BoxGeometry(.14,.10,.025),white);collar.position.set(x,1.35,.205);collar.rotation.z=x<0?-.32:.32;figura.add(collar);}
+for(const y of [.88,1.07,1.22])ball(figura,white,0,y,.219,.022,.022,.015);
+const pocket=new THREE.Mesh(new THREE.BoxGeometry(.14,.16,.025),white);pocket.position.set(.16,.93,.208);figura.add(pocket);
+for(const x of [-.22,-.10,.04,.17]){const tuft=ball(head,dark,x,.24,.18,.13,.15,.10);tuft.rotation.z=-.4;}
+for(const x of [-.11,.11]){const brow=ball(head,dark,x,.15,.26,.065,.017,.018);brow.rotation.z=x<0?.12:-.12;}
+return {group:figura,animate(t,v,speaking){mouth.scale.y=.013+Math.min(1,v*4.5)*.07;head.rotation.z=Math.sin(t*.0025)*.16+(speaking?Math.sin(t*.004)*.055:0);}};}
+const figures={julian:makeJulian(),zamba:makeZamba(),meli:makeMeli()};figures.julian.group.position.x=-1.8;figures.meli.group.position.x=1.7;figures.julian.group.scale.setScalar(.87);figures.meli.group.scale.setScalar(.85);figures.zamba.group.scale.setScalar(1.08);
+const names={zamba:'Zamba',julian:'Don Julián',meli:'Meli'};const ids={zamba:'agent_9801m4vexm3sf4xrhdcap731h1nr',julian:'agent_5801m4vd61v1fgzsd5q0ce3ze2nn',meli:'agent_8101m4vd5xrefmctryhjpyzpayt8'};
+let session=null,current=null,speaking=false,epoch=0,automatic=false,turns=0,last='',pending=false,greeted=false,seed='';
+const status=document.querySelector('#status'),log=document.querySelector('#log');
+function entry(name,text){const p=document.createElement('p');const b=document.createElement('strong');b.textContent=name+': ';p.append(b,document.createTextNode(text.replace(/\[[^\]]*\]/g,'')));log.append(p);log.scrollTop=log.scrollHeight;}
+async function stop(){epoch++;automatic=false;pending=false;const old=session;session=null;current=null;speaking=false;if(old)await old.endSession();status.textContent='Conversación detenida';}
+async function connect(who,isAuto=false,message=''){
+ const token=++epoch;const old=session;session=null;if(old)await old.endSession();if(token!==epoch)return;
+ current=who;automatic=isAuto;pending=false;greeted=false;seed=message;last='';status.textContent='Conectando con '+names[who]+'…';
+ try{const s=await Conversation.startSession({agentId:ids[who],connectionType:'websocket',onMessage:msg=>{if(token!==epoch)return;if(msg.source==='ai'){last=msg.message;entry(names[who],msg.message);}else if(msg.source==='user')entry('Vos',msg.message);},onModeChange:({mode})=>{if(token!==epoch)return;speaking=mode==='speaking';status.textContent=speaking?names[who]+' está hablando…':(isAuto?'Preparando el siguiente turno…':'Te escucha '+names[who]);if(mode==='listening'&&isAuto){if(!greeted){greeted=true;setTimeout(()=>{if(token!==epoch||!session)return;pending=true;last='';session.sendUserMessage(seed);},250);}else if(pending&&last){pending=false;const reply=last;turns++;if(turns>=6){setTimeout(()=>{if(token===epoch)stop();},600);}else{setTimeout(()=>{if(token===epoch)connect(({julian:'meli',meli:'zamba',zamba:'julian'})[who],true,'Tu compañero '+names[who]+' dijo: '+reply+'. Respondé a su idea en dos frases sobre cuidar el río Bermejo. Es una charla entre personajes ficticios; no saludes de nuevo.');},600);}}}},onError:error=>{if(token===epoch){automatic=false;status.textContent='No se pudo conversar: '+String(error?.message||error);}},onDisconnect:()=>{if(token===epoch){session=null;speaking=false;status.textContent='Desconectado';}}});if(token!==epoch){await s.endSession();return;}session=s;s.setMicMuted(isAuto);if(isAuto&&greeted&&!pending){pending=true;s.sendUserMessage(seed);} }catch(e){if(token===epoch)status.textContent='Error: '+e.message;}
+}
+document.querySelector('#zamba').onclick=()=>connect('zamba');document.querySelector('#julian').onclick=()=>connect('julian');document.querySelector('#meli').onclick=()=>connect('meli');document.querySelector('#stop').onclick=stop;
+document.querySelector('#story').onclick=()=>{turns=0;connect('julian',true,'Comenzá una charla imaginaria con Meli junto al río Bermejo. Explicá en dos frases por qué vale la pena cuidar este lugar y preguntale qué podemos hacer. No inventes hechos históricos.');};
+document.querySelector('#form').onsubmit=e=>{e.preventDefault();const q=document.querySelector('#question');if(!session||automatic){status.textContent='Primero elegí HABLAR CON un personaje';return;}if(q.value.trim()){session.sendUserMessage(q.value.trim());q.value='';}};
+function resize(){renderer.setSize(el.clientWidth,el.clientHeight);camera.aspect=el.clientWidth/el.clientHeight;camera.updateProjectionMatrix();}addEventListener('resize',resize);resize();
+function animate(t){requestAnimationFrame(animate);const v=session?.getOutputVolume?.()||0;let i=0;for(const [key,f] of Object.entries(figures)){const active=key===current&&speaking;const localTime=t*(1+i*.19)+i*2300;f.animate(localTime,active?v:0,active);f.group.position.y=Math.sin(localTime*.002)*.09;f.group.rotation.y=Math.sin(localTime*.0013)*.20;i++;}controls.update();renderer.render(scene,camera);}requestAnimationFrame(animate);addEventListener('pagehide',()=>session?.endSession());
+</script></html>
