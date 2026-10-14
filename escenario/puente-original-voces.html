@@ -66,7 +66,7 @@ h1{margin:0;font-size:clamp(15px,3vw,22px);text-shadow:0 2px 10px #000;letter-sp
   </div>
 </div>
 <div class="panel p-talk">
-  <div class="lbl">Charlar</div>
+  <div class="lbl">Charlar</div><div id="voiceStatus" role="status" style="font-size:12px;max-width:220px;text-align:center">Listo para conversar</div>
   <div class="row">
     <button class="btn go" id="talk">HABLAR CON EL SELECCIONADO</button>
     <button class="btn" id="group">CHARLA ENTRE LOS TRES</button>
@@ -411,13 +411,42 @@ const sdk=import('https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.26.0/+esm');
 let voiceSession=null,voiceKey=null,isSpeaking=false,voiceEpoch=0,groupMode=false,groupTurn=0;
 async function stopGroup(){voiceEpoch++;groupMode=false;isSpeaking=false;voiceKey=null;clearTimeout(bubbleTimer);bubble.classList.remove('show');const old=voiceSession;voiceSession=null;if(old)await old.endSession();}
 async function connectVoice(key,automatic=false,prompt=''){
-const token=++voiceEpoch;const old=voiceSession;voiceSession=null;if(old)await old.endSession();if(token!==voiceEpoch)return;
-voiceKey=key;isSpeaking=false;let greetingSpoke=false,sent=false,response='',responseSpoke=false;
-say(key,'Conectando la voz…',60000);
-try{const {Conversation}=await sdk;if(token!==voiceEpoch)return;
-const session=await Conversation.startSession({agentId:AGENTS[key],connectionType:'websocket',onMessage:msg=>{if(token!==voiceEpoch)return;if(msg.source==='ai'){say(key,msg.message.replace(/\[[^\]]*\]/g,''),60000);if(sent)response=msg.message;}},onModeChange:({mode})=>{if(token!==voiceEpoch)return;isSpeaking=mode==='speaking';if(isSpeaking){if(sent)responseSpoke=true;else greetingSpoke=true;}if(mode==='listening'&&automatic){if(!sent&&greetingSpoke){setTimeout(()=>{if(token!==voiceEpoch||!voiceSession)return;sent=true;voiceSession.sendUserMessage(prompt);},300);}else if(sent&&responseSpoke&&response){responseSpoke=false;groupTurn++;if(groupTurn>=6){setTimeout(()=>{if(token===voiceEpoch)stopGroup();},500);}else{const next={zamba:'julian',julian:'meli',meli:'zamba'}[key];setTimeout(()=>{if(token===voiceEpoch)connectVoice(next,true,'Tu compañero '+CH[key].name+' acaba de decir: '+response+'. Respondé a su idea, sin repetir el saludo. '+TOPICS[next]+' Máximo tres frases.');},500);}}}},onError:e=>{if(token===voiceEpoch){isSpeaking=false;say(key,'No se pudo conectar: '+String(e?.message||e),30000);}},onDisconnect:()=>{if(token===voiceEpoch){isSpeaking=false;voiceSession=null;}}});
-if(token!==voiceEpoch){await session.endSession();return;}voiceSession=session;session.setMicMuted(automatic);
-}catch(e){if(token===voiceEpoch){isSpeaking=false;say(key,'Error de voz: '+e.message,30000);}}}
+ const token=++voiceEpoch;const old=voiceSession;voiceSession=null;if(old)await old.endSession();if(token!==voiceEpoch)return;
+ voiceKey=key;isSpeaking=false;
+ let localSession=null,greetingDone=false,greetingStarted=false,sent=false,response='',responseStarted=false,listening=false,finished=false,timer=null;
+ const status=document.getElementById('voiceStatus');
+ if(status)status.textContent='Conectando con '+CH[key].name+'…';
+ function progress(){
+  if(token!==voiceEpoch||!automatic||!localSession||finished)return;
+  if(!sent&&greetingDone){sent=true;response='';responseStarted=false;listening=false;localSession.sendUserMessage(prompt);return;}
+  if(sent&&responseStarted&&listening&&response){
+   clearTimeout(timer);timer=setTimeout(()=>{
+    if(token!==voiceEpoch||finished||!listening)return;finished=true;groupTurn++;
+    if(groupTurn>=6){stopGroup();if(status)status.textContent='Charla finalizada: participaron los tres';return;}
+    const next={zamba:'julian',julian:'meli',meli:'zamba'}[key];
+    connectVoice(next,true,'Estás conversando con Zamba, Don Julián y Meli. '+CH[key].name+' te dijo: '+response+'. Respondé directamente a esa idea sin presentarte ni saludar otra vez. '+TOPICS[next]+' Respondé en un máximo de tres frases.');
+   },700);
+  }
+ }
+ try{
+  const {Conversation}=await sdk;if(token!==voiceEpoch)return;
+  const session=await Conversation.startSession({
+   agentId:AGENTS[key],connectionType:'websocket',
+   onMessage:msg=>{if(token!==voiceEpoch)return;if(msg.source==='ai'){if(sent)response=msg.message;progress();}},
+   onModeChange:({mode})=>{
+    if(token!==voiceEpoch)return;isSpeaking=mode==='speaking';listening=mode==='listening';
+    if(isSpeaking){if(sent)responseStarted=true;else greetingStarted=true;}
+    if(listening&&!sent&&greetingStarted)greetingDone=true;
+    if(status)status.textContent=isSpeaking?CH[key].name+' habla · turno '+(groupTurn+1):'Preparando el siguiente turno…';
+    progress();
+   },
+   onError:e=>{if(token!==voiceEpoch)return;isSpeaking=false;finished=true;if(status)status.textContent='Error de voz: '+String(e?.message||e);},
+   onDisconnect:()=>{if(token===voiceEpoch){isSpeaking=false;voiceSession=null;if(status&&!finished)status.textContent='Se cortó la conexión. Tocá CHARLA ENTRE LOS TRES para reiniciar.';}}
+  });
+  if(token!==voiceEpoch){await session.endSession();return;}
+  localSession=session;voiceSession=session;session.setMicMuted(automatic);progress();
+ }catch(e){if(token===voiceEpoch){isSpeaking=false;if(status)status.textContent='No se pudo iniciar: '+e.message;}}
+}
 function talk(){groupMode=false;connectVoice(sel,false);}
 function groupTalk(){groupMode=true;groupTurn=0;connectVoice('zamba',true,'Iniciá una charla entre Zamba, Don Julián y Meli junto al Puente Libertad. '+TOPICS.zamba+' Máximo tres frases.');}
 addEventListener('pagehide',()=>voiceSession?.endSession());
