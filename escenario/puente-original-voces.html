@@ -45,7 +45,7 @@ h1{margin:0;font-size:clamp(15px,3vw,22px);text-shadow:0 2px 10px #000;letter-sp
   <div class="chip" id="sceneName">Atardecer dorado</div>
 </div>
 
-<div id="bubble"><b id="bName"></b><span id="bText"></span></div>
+
 
 <div class="panel p-chars">
   <div class="lbl">Elegí un personaje</div>
@@ -393,23 +393,12 @@ function home(){
 }
 
 /* ---------- Diálogos ---------- */
-const bubble = document.getElementById('bubble');
-const bName = document.getElementById('bName');
-const bText = document.getElementById('bText');
-let bubbleKey = null, bubbleTimer = null, groupTimers = [];
-function say(key, text, ms=4000){
-  bubbleKey = key;
-  bName.textContent = CH[key].name;
-  bText.textContent = text;
-  bubble.classList.add('show');
-  clearTimeout(bubbleTimer);
-  bubbleTimer = setTimeout(() => bubble.classList.remove('show'), ms);
-}
+const bubbleTimer=null;
 const AGENTS={zamba:'agent_9801m4vexm3sf4xrhdcap731h1nr',julian:'agent_5801m4vd61v1fgzsd5q0ce3ze2nn',meli:'agent_8101m4vd5xrefmctryhjpyzpayt8'};
 const TOPICS={zamba:'Presentá Formosa y el río Bermejo con lenguaje sencillo. Invitá a Don Julián a contar algo documentado sobre El Colorado.',julian:'Hablá de las costumbres de El Colorado y diferenciá hechos documentados de recuerdos ficticios. Invitá a Meli a pensar cómo cuidar el ambiente.',meli:'Explicá cómo cuidar plantas, animales y el río, sin acercarse a fauna ni entrar al agua. Invitá a Zamba a proponer una acción para la escuela.'};
 const sdk=import('https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.26.0/+esm');
 let voiceSession=null,voiceKey=null,isSpeaking=false,voiceEpoch=0,groupMode=false,groupTurn=0;
-async function stopGroup(){voiceEpoch++;groupMode=false;isSpeaking=false;voiceKey=null;clearTimeout(bubbleTimer);bubble.classList.remove('show');const old=voiceSession;voiceSession=null;if(old)await old.endSession();}
+async function stopGroup(){voiceEpoch++;groupMode=false;isSpeaking=false;voiceKey=null;clearTimeout(bubbleTimer);const old=voiceSession;voiceSession=null;if(old)await old.endSession();}
 async function connectVoice(key,automatic=false,prompt=''){
  const token=++voiceEpoch;const old=voiceSession;voiceSession=null;if(old)await old.endSession();if(token!==voiceEpoch)return;
  voiceKey=key;isSpeaking=false;
@@ -546,15 +535,6 @@ function animate(){
     const vol=active?(voiceSession?.getOutputVolume?.()||0):0;
     if(c.mouth)c.mouth.scale.y=.15+Math.min(1,vol*5);
     c.ring.visible=active||key===sel;
-  }
-
-  // Globo de diálogo sobre el personaje
-  if (bubble.classList.contains('show') && bubbleKey){
-    bubblePos.copy(chars[bubbleKey].group.position).add(new T.Vector3(0,2.9,0));
-    const p = bubblePos.clone().project(camera);
-    const x = (p.x+1)/2*innerWidth, y = (-p.y+1)/2*innerHeight;
-    bubble.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px) translate(-50%, -100%)`;
-    bubble.style.opacity = p.z > 1 ? 0 : '';
   }
 
   // Cámara en órbita
