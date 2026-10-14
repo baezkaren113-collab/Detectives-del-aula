@@ -91,7 +91,7 @@ const scene = new T.Scene();
 scene.background = new T.Color(0xf4a261);
 scene.fog = new T.Fog(0xf4a261, 60, 170);
 const camera = new T.PerspectiveCamera(50, innerWidth/innerHeight, .1, 400);
-let camAngle = .08, camDist = 11;
+let camAngle = 0, camDist = 8;
 
 const hemi = new T.HemisphereLight(0xffffff, 0x3a5a2a, .9);
 scene.add(hemi);
@@ -282,11 +282,11 @@ function setScene(key){
 
 /* ---------- Personajes ---------- */
 const CH = {
-  zamba:{name:"Zamba", shirt:0xc0392b, hair:true, start:[-1.35,18],
+  zamba:{name:"Zamba", shirt:0xc0392b, hair:true, start:[-1.1,6],
     lines:["¡Qué lindo es este puente sobre el Bermejo!","Desde acá se ve todo el río brillando.","Vamos juntos a recorrer la costanera."]},
-  julian:{name:"Don Julián", shirt:0x2e86ab, hat:true, start:[0,18],
+  julian:{name:"Don Julián", shirt:0x2e86ab, hat:true, start:[0,6],
     lines:["En mis tiempos, cruzar el río era toda una aventura.","Cada tabla de este puente tiene su historia.","Disfruten el paseo, muchachos."]},
-  meli:{name:"Meli", animal:true, fur:0xb8733a, start:[1.35,18],
+  meli:{name:"Meli", animal:true, fur:0xb8733a, start:[1.1,6],
     lines:["¡Quiero saber qué hay del otro lado!","Miren cómo se mueve el agua, parece que nos saluda.","¡Vamos, que la aventura no espera!"]}
 };
 
@@ -332,6 +332,11 @@ function makeChar(key, cfg){
   body.position.y = 1.4; body.castShadow = true; g.add(body);
   const head = new T.Mesh(new T.SphereGeometry(.3,16,12), skin);
   head.position.y = 2.15; head.castShadow = true; g.add(head);
+  for(const x of [-.105,.105]){
+    const eye=new T.Mesh(new T.SphereGeometry(.045,12,8),M(0xffffff));eye.position.set(x,2.18,.275);g.add(eye);
+    const pupil=new T.Mesh(new T.SphereGeometry(.023,12,8),M(0x211812));pupil.position.set(x,2.18,.312);g.add(pupil);
+  }
+
   if (cfg.hair) {
     const hair = new T.Mesh(new T.SphereGeometry(.32,16,12,0,Math.PI*2,0,Math.PI*.6), M(0x1b1410));
     hair.position.y = 2.2; g.add(hair);
@@ -540,10 +545,10 @@ function animate(){
   // Cámara en órbita
   camera.position.set(
     Math.sin(camAngle)*camDist,
-    3.3 + camDist*.08,
-    18 + Math.cos(camAngle)*camDist
+    DECK_Y + 2.35,
+    6 + Math.cos(camAngle)*camDist * (innerWidth/innerHeight < .8 ? 1.45 : 1)
   );
-  camera.lookAt(0,1.25,18);
+  camera.lookAt(0,DECK_Y + 1.45,6);
 
   renderer.render(scene, camera);
   requestAnimationFrame(animate);
