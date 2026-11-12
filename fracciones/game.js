@@ -164,3 +164,28 @@ const profFood=setFood;setFood=function(k){profFood(k);profSay(`¡AHORA JUGAMOS 
 renderMap();
 
 const profRenderChallenge=renderChallenge;renderChallenge=function(){profRenderChallenge();profSay(Q[S.st],'guide',false)};
+
+
+/* EL DOCENTE ELIGE Y SEPARA LAS PORCIONES EN UNA DEMOSTRACIÓN */
+let demoRun=0,demoBusy=false,demoFinished=false;
+const demoCss=document.createElement('style');demoCss.textContent=`.demo-panel{background:#221950;border:3px solid #fde047;border-radius:16px;padding:12px;text-align:center;margin:12px 0}.demo-panel p{margin:4px;font-weight:900;color:#fde047}.demo-panel .btn{font-size:.9rem;margin:8px 4px 0}.demo-actor{position:fixed;z-index:120;pointer-events:none;width:72px;transition:left .65s ease,top .65s ease;filter:drop-shadow(0 4px 4px #0008)}.demo-actor img{width:62px;height:100px;object-fit:contain}.demo-actor span{position:absolute;right:-7px;bottom:5px;font-size:34px}.demo-focus{filter:brightness(1.35) drop-shadow(0 0 8px #fde047)!important}.demo-panel button:disabled{opacity:.55}.demo-count{color:#fff;font-size:.9rem;margin:6px}@media(prefers-reduced-motion:reduce){.demo-actor{transition:none}}`;document.head.appendChild(demoCss);
+function demoSupported(){return S.lab||S.st===0}
+function demoControls(){if(!demoSupported()||document.getElementById('demoPanel'))return;const card=document.querySelector('.card');if(!card)return;const panel=document.createElement('div');panel.className='demo-panel';panel.id='demoPanel';panel.innerHTML=`<p>APRENDEMOS MIRANDO AL PROFE</p><button class="btn" onclick="runTeacherDemo()" ${demoBusy?'disabled':''}>🧑‍🏫 ${demoBusy?'EL PROFE ESTÁ SEPARANDO…':'EL PROFE LO HACE'}</button><button class="btn ghost" onclick="studentTurn()">🙋 AHORA ME TOCA A MÍ</button><div class="demo-count" id="demoCount">${demoBusy?'OBSERVÁ CÓMO EL PROFE ELIGE LAS PORCIONES.':'EL PROFE ELIGE Y SEPARA. DESPUÉS PODÉS PROBAR VOS.'}</div>`;card.insertBefore(panel,card.firstChild)}
+function cancelTeacherDemo(){demoRun++;demoBusy=false;document.querySelector('.demo-actor')?.remove();document.querySelectorAll('.demo-focus').forEach(e=>e.classList.remove('demo-focus'))}
+function demoPause(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
+function demoPieces(){return [...document.querySelectorAll('.chocolate-equal g[role="button"],.realpizza g[role="button"],.realpc[aria-pressed]')]}
+function demoRepaint(){S.lab?renderLab():renderChallenge()}
+async function runTeacherDemo(){if(!demoSupported()||demoBusy)return;cancelTeacherDemo();const ticket=demoRun;demoBusy=true;demoFinished=false;const n=S.d.n;const target=S.lab?(profGoal||1+Math.floor(Math.random()*(n-1))):S.d.k;if(S.lab)profGoal=target;S.d.cells=Array(n).fill(false);demoRepaint();profSay(`AHORA LO HAGO YO. ELIJO ${target} DE ${n} PARTES IGUALES. MIRÁ CÓMO LAS SEPARO UNA POR UNA.`);const actor=document.createElement('div');actor.className='demo-actor';const img=document.querySelector('.profe .avatar img');if(img)actor.appendChild(img.cloneNode(true));const hand=document.createElement('span');hand.textContent='👆';actor.appendChild(hand);document.body.appendChild(actor);const source=document.querySelector('.profe .avatar')?.getBoundingClientRect();actor.style.left=(source?.left||20)+'px';actor.style.top=(source?.top||80)+'px';const ids=Array.from({length:n},(_,i)=>i);for(let i=n-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[ids[i],ids[j]]=[ids[j],ids[i]]}await demoPause(1800);if(ticket!==demoRun)return;
+for(let count=0;count<target;count++){if(ticket!==demoRun)return;const index=ids[count];const piece=demoPieces()[index];if(piece){piece.scrollIntoView({behavior:'smooth',block:'center'});await demoPause(450);if(ticket!==demoRun)return;const rect=piece.getBoundingClientRect();actor.style.left=Math.max(0,Math.min(innerWidth-80,rect.left+rect.width/2-25))+'px';actor.style.top=Math.max(0,rect.top+rect.height/2-85)+'px';piece.classList.add('demo-focus')}profSay(`ELIJO ESTA PORCIÓN. ES LA NÚMERO ${count+1} DE LAS ${target} QUE VOY A SEPARAR.`);await demoPause(1500);if(ticket!==demoRun)return;S.d.cells[index]=true;demoRepaint();profSay(`YA SEPARÉ ${count+1} DE ${n} PARTES IGUALES.`);const status=document.getElementById('demoCount');if(status)status.textContent=`EL PROFE SEPARÓ ${count+1} DE ${n}.`;await demoPause(1700)}
+if(ticket!==demoRun)return;actor.remove();demoBusy=false;demoFinished=true;demoRepaint();profSay(`¡LISTO! ELEGÍ Y SEPARÉ ${target} DE ${n} PARTES. LA FRACCIÓN ES ${target} SOBRE ${n}. ARRIBA VA ${target} Y ABAJO VA ${n}. AHORA TOCÁ “AHORA ME TOCA A MÍ” PARA INTENTARLO.`,'happy');}
+function studentTurn(){cancelTeacherDemo();demoFinished=false;if(!demoSupported())return;S.d.cells=Array(S.d.n).fill(false);demoRepaint();profSay(`¡AHORA TE TOCA! SEPARÁ ${S.lab?profGoal||1:S.d.k} DE ${S.d.n} PARTES IGUALES. YO TE ACOMPAÑO.`)}
+const demoRenderChallenge=renderChallenge;renderChallenge=function(){demoRenderChallenge();demoControls()};
+const demoRenderLab=renderLab;renderLab=function(){demoRenderLab();demoControls()};
+const demoTap=tapCell;tapCell=function(i){if(demoBusy)return;demoTap(i)};
+const demoMap=renderMap;renderMap=function(){cancelTeacherDemo();demoMap()};
+const demoStart=startStation;startStation=function(i){cancelTeacherDemo();demoStart(i)};
+const demoNew=newChallenge;newChallenge=function(){cancelTeacherDemo();demoNew()};
+const demoFood=setFood;setFood=function(k){cancelTeacherDemo();demoFood(k)};
+const demoParts=labParts;labParts=function(n){cancelTeacherDemo();demoParts(n)};
+
+const demoCheck=check0;check0=function(){if(demoBusy)return;demoCheck()};
