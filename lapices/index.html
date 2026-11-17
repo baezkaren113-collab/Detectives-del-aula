@@ -1,22 +1,313 @@
-<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lápices en orden</title><style>
-*{box-sizing:border-box}body{margin:0;background:#f3f2ec;color:#193b39;font-family:Arial,sans-serif}main{max-width:820px;margin:auto;padding:20px}header{display:flex;align-items:center;justify-content:space-between;gap:12px}h1{font-size:clamp(26px,6vw,42px);margin:12px 0}p{line-height:1.5}button,select{font:inherit;font-weight:bold;border:2px solid #315b55;border-radius:14px;padding:13px;background:white;color:#193b39;cursor:pointer;min-height:48px}button:focus-visible,select:focus-visible{outline:4px solid #ec9c31;outline-offset:3px}button:disabled{opacity:.45;cursor:default}.primary{background:#235c50;color:white}.toolbar,.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:18px 0}.card{background:white;border-radius:22px;padding:18px;margin:18px 0;box-shadow:0 5px 24px #173d3510;border:1px solid #d5ded8}h2{font-size:19px;margin:0 0 15px}.row{display:flex;justify-content:center;gap:clamp(7px,3vw,25px)}.slot{flex:1;max-width:130px;text-align:center;min-width:0}.pencil{height:145px;width:39px;position:relative;margin:8px auto 12px;filter:drop-shadow(3px 4px 2px #0002);background:linear-gradient(90deg,#0003,transparent 30%,#fff5 45%,transparent 70%,#0002),var(--c);clip-path:polygon(50% 0,100% 24%,100% 100%,0 100%,0 24%);border-radius:0 0 6px 6px}.pencil:before{content:'';position:absolute;inset:0 0 auto;height:36px;background:#e8c69a;clip-path:polygon(50% 0,100% 100%,0 100%)}.pencil:after{content:'';position:absolute;inset:0 0 auto;height:14px;background:#343839;clip-path:polygon(50% 0,100% 100%,0 100%)}.down{transform:rotate(180deg)}.label{font-size:12px;font-weight:bold;display:block;margin-bottom:6px}.controls{display:flex;justify-content:center;gap:3px;flex-wrap:wrap}.controls button{padding:6px;min-width:34px;min-height:40px;border-radius:9px}.controls .flip{width:100%;font-size:13px}.status{font-size:18px;font-weight:bold;min-height:48px;padding:12px;border-radius:12px;background:#eef3ee}.match{background:#e3f4e5;border-radius:14px}.progress{font-size:14px;font-weight:bold}.stars{color:#9a5d00;font-size:23px}small{line-height:1.5}details{margin-top:22px}summary{cursor:pointer;font-weight:bold}@media(max-width:420px){main{padding:12px}.card{padding:13px}.pencil{width:31px;height:128px}.label{font-size:10px}.controls button{min-width:29px;padding:4px}.controls .flip{font-size:11px}header button{font-size:12px;padding:8px}}@media(prefers-reduced-motion:no-preference){.pencil{transition:transform .2s}}
- .side-right{transform:rotate(90deg)}.side-left{transform:rotate(270deg)}.hidden-model{min-height:175px;align-items:center;text-align:center;font-size:22px;font-weight:bold}.slot{padding:5px}.pencil{height:110px;width:29px}.pencil:before{height:27px}.pencil:after{height:11px}@media(max-width:500px){.row{gap:3px}.slot{padding:2px}.pencil{width:22px;height:85px;margin-top:18px;margin-bottom:25px}.pencil:before{height:21px}.label{font-size:9px}.controls button{min-width:25px;min-height:44px}.controls .flip{font-size:10px}} </style><main><header><div><div class="progress">MIRÁ · ORDENÁ · GIRÁ</div><h1>LÁPICES EN ORDEN</h1></div><button id="sound" aria-pressed="false">🔇 VOZ</button></header><p>OBSERVÁ EL MODELO. ORDENÁ TUS LÁPICES Y GIRALOS PARA QUE QUEDEN IGUALES.</p><div class="toolbar"><label for="level"><b>NIVEL</b></label><select id="level"><option value="1">1 · DOS LÁPICES</option><option value="2">2 · TRES LÁPICES</option><option value="3" selected>3 · CUATRO LÁPICES</option><option value="4">4 · CINCO LÁPICES</option><option value="5">5 · TODAS LAS DIRECCIONES</option><option value="6">6 · MEMORIA · 12 SEGUNDOS</option><option value="7">7 · MEMORIA · 8 SEGUNDOS</option><option value="8">8 · EXPERTO · 6 SEGUNDOS</option></select><span class="progress" id="progress"></span></div><section class="card"><h2>1. MIRÁ EL MODELO</h2><p id="challenge" class="progress"></p><div class="row" id="model"></div><button id="review" hidden>VER MODELO OTRA VEZ</button></section><section class="card"><h2>2. ACOMODÁ TUS LÁPICES</h2><p><small>← → CAMBIAN EL LUGAR. ↻ GIRAR CAMBIA LA PUNTA. EN LOS NIVELES AVANZADOS TAMBIÉN PUEDE APUNTAR A LOS COSTADOS.</small></p><div class="row" id="board"></div></section><div class="status" id="status" role="status" aria-live="polite">¡VAMOS A JUGAR! COPIÁ EL MODELO.</div><div class="actions"><button class="primary" id="check">✓ COMPROBAR</button><button id="next">OTRO MODELO</button><button id="hint">💡 PISTA</button></div><div class="stars" id="stars" aria-label="Aciertos">☆ ☆ ☆ ☆ ☆</div><details><summary>CÓMO JUGAR</summary><p>Compará los colores, el lugar y la dirección de las puntas. Usá las flechas para mover un lápiz y GIRAR para darlo vuelta. Después tocá COMPROBAR. Tenés ocho niveles. Los primeros mantienen el modelo visible; los últimos lo ocultan después de unos segundos para trabajar la memoria. Podés volver a verlo cuando lo necesites. No hay límite de tiempo para resolver. La pista te indica qué revisar.</p><p>También podés copiar el modelo con lápices reales sobre una mesa. La voz se activa con el botón superior y depende de las voces disponibles en tu dispositivo.</p></details></main><script>
-const colors=[{name:'ROJO',hex:'#d63842'},{name:'AMARILLO',hex:'#eabf22'},{name:'AZUL',hex:'#2686c3'},{name:'VERDE',hex:'#328450'},{name:'VIOLETA',hex:'#8751b7'},{name:'NARANJA',hex:'#df761e'}];
-const levels=[null,{n:2,dirs:2},{n:3,dirs:2},{n:4,dirs:2},{n:5,dirs:2},{n:4,dirs:4},{n:4,dirs:2,time:12},{n:5,dirs:4,time:8},{n:6,dirs:4,time:6}];
-let target=[],pieces=[],wins=0,solved=false,voice=false,round=0,hinted=-1,timer=null,remaining=0,hidden=false,peeks=0;
-const $=id=>document.getElementById(id),directions=['ARRIBA','DERECHA','ABAJO','IZQUIERDA'];
-function config(){return levels[Number($('level').value)]}
-function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-function same(a,b){return a.every((p,i)=>p.c===b[i].c&&p.d===b[i].d)}
-function say(s){if(voice&&'speechSynthesis'in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(s);u.lang='es-AR';u.rate=.86;const v=speechSynthesis.getVoices().find(v=>v.lang.startsWith('es'));if(v)u.voice=v;speechSynthesis.speak(u)}}
-function message(s){$('status').textContent=s;say(s)}
-function pencil(p){let c=colors[p.c];return '<div class="pencil '+(['','side-right','down','side-left'][p.d])+'" style="--c:'+c.hex+'" role="img" aria-label="'+c.name+', punta hacia '+directions[p.d]+'"></div><span class="label">'+c.name+'</span>'}
-function renderModel(){ $('model').className='row'+(hidden?' hidden-model':'');$('model').innerHTML=hidden?'¿CÓMO ERA EL MODELO?':target.map(p=>'<div class="slot">'+pencil(p)+'</div>').join('');$('challenge').textContent=config().time?(hidden?'MODELO OCULTO · RECONSTRUÍ DE MEMORIA':'OBSERVÁ: '+remaining+' SEGUNDOS'):(config().dirs===4?'PUNTAS ARRIBA, ABAJO, DERECHA O IZQUIERDA':'COMPARÁ LOS COLORES Y LAS PUNTAS');$('review').hidden=!config().time||solved||!hidden;}
-function render(){renderModel();$('board').innerHTML=pieces.map((p,i)=>'<div class="slot '+(hinted===i?'match':'')+'">'+pencil(p)+'<div class="controls"><button data-move="-1" data-i="'+i+'" aria-label="Mover '+colors[p.c].name+' a la izquierda" '+(i===0||solved?'disabled':'')+'>←</button><button data-move="1" data-i="'+i+'" aria-label="Mover '+colors[p.c].name+' a la derecha" '+(i===pieces.length-1||solved?'disabled':'')+'>→</button><button class="flip" data-flip="'+i+'" aria-label="Girar lápiz '+colors[p.c].name+'" '+(solved?'disabled':'')+'>↻ GIRAR</button></div></div>').join('');$('progress').textContent='MODELO '+round+' · ACIERTOS '+wins;$('stars').textContent=Array.from({length:5},(_,i)=>i<Math.min(wins,5)?'★':'☆').join(' ');$('check').disabled=solved;$('hint').disabled=solved;}
-function showTimed(){clearInterval(timer);hidden=false;remaining=config().time||0;renderModel();if(remaining)timer=setInterval(()=>{remaining--;if(remaining<=0){clearInterval(timer);hidden=true;renderModel();message('AHORA ACOMODÁ LOS LÁPICES DE MEMORIA.');}else renderModel()},1000)}
-function newRound(){clearInterval(timer);const cfg=config();const randDir=()=>cfg.dirs===2?(Math.random()<.5?0:2):Math.floor(Math.random()*4);target=shuffle([0,1,2,3,4,5]).slice(0,cfg.n).map(c=>({c,d:randDir()}));pieces=shuffle(target.map(p=>({c:p.c,d:randDir()})));if(same(pieces,target))pieces[0].d=(pieces[0].d+(cfg.dirs===2?2:1))%4;solved=false;hinted=-1;hidden=false;peeks=0;round++;render();showTimed();message(cfg.time?'MIRÁ EL MODELO. DESPUÉS SE VA A OCULTAR.':'OBSERVÁ EL MODELO Y ACOMODÁ TUS LÁPICES.');}
-$('board').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||solved)return;hinted=-1;if(b.hasAttribute('data-flip')){let i=Number(b.dataset.flip);pieces[i].d=(pieces[i].d+(config().dirs===2?2:1))%4}else{let i=Number(b.dataset.i),j=i+Number(b.dataset.move);if(j<0||j>=pieces.length)return;[pieces[i],pieces[j]]=[pieces[j],pieces[i]]}render()});
-$('check').onclick=()=>{if(solved)return;if(same(pieces,target)){solved=true;wins++;clearInterval(timer);hidden=false;render();message('¡EXCELENTE! RESOLVISTE EL NIVEL '+$('level').value+(peeks?' CON APOYO.':' .')+' TOCÁ OTRO MODELO O ELEGÍ UN NIVEL MÁS DIFÍCIL.')}else{let count=pieces.filter((p,i)=>p.c===target[i].c&&p.d===target[i].d).length;message('TENÉS '+count+' DE '+pieces.length+' EN SU LUGAR Y DIRECCIÓN. ¡SEGUÍ INTENTANDO!')}};
-$('hint').onclick=()=>{let i=pieces.findIndex((p,i)=>p.c!==target[i].c||p.d!==target[i].d);if(i<0){message('¡YA ESTÁN IGUALES! TOCÁ COMPROBAR.');return}peeks++;hinted=i;render();message('EN EL LUGAR '+(i+1)+' DESDE LA IZQUIERDA VA EL '+colors[target[i].c].name+' CON LA PUNTA HACIA '+directions[target[i].d]+'.')};
-$('review').onclick=()=>{peeks++;showTimed();message('OBSERVÁ EL MODELO OTRA VEZ. DESPUÉS SE OCULTARÁ.');};$('next').onclick=newRound;$('level').onchange=newRound;$('sound').onclick=()=>{voice=!voice;$('sound').textContent=voice?'🔊 VOZ':'🔇 VOZ';$('sound').setAttribute('aria-pressed',voice);if(voice)say('Observá el modelo. Usá las flechas para mover los lápices y el botón girar para cambiar la dirección.');else if('speechSynthesis'in window)speechSynthesis.cancel()};newRound();
-</script></html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lápices en orden</title>
+<style>
+:root{--bg1:#1b1140;--bg2:#0b3d5c;--card:rgba(255,255,255,.08);--ink:#fff;--mut:#b9c4e0;--ok:#3ddc97;--bad:#ff5d73;--acc:#ffb020}
+*{box-sizing:border-box}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,sans-serif;color:var(--ink);
+  background:linear-gradient(135deg,var(--bg1),var(--bg2),#2a0f4a);background-size:200% 200%;animation:bg 14s ease infinite;
+  display:flex;justify-content:center;padding:0 14px 28px;overflow-x:hidden}
+@keyframes bg{50%{background-position:100% 100%}}
+.app{width:100%;max-width:740px;padding-top:18px}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+h1{font-size:clamp(1.6rem,5vw,2.4rem);margin:0;letter-spacing:.04em}
+.tag{color:var(--mut);font-weight:700;font-size:.8rem;letter-spacing:.22em}
+.btn{background:var(--card);border:1px solid rgba(255,255,255,.22);color:var(--ink);padding:10px 16px;border-radius:999px;
+  font-weight:700;font-size:.95rem;cursor:pointer;transition:transform .15s,background .2s}
+.btn:hover{transform:translateY(-2px);background:rgba(255,255,255,.16)}
+.btn:active{transform:scale(.95)}
+.btn.main{background:linear-gradient(90deg,#ffb020,#ff5d73);border:none;color:#1b1140}
+.panel{background:var(--card);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12);border-radius:22px;
+  padding:18px;margin-top:16px;box-shadow:0 10px 40px rgba(0,0,0,.25)}
+.label{color:var(--mut);font-size:.8rem;letter-spacing:.16em;font-weight:700;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.stage{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;font-size:clamp(8px,2.4vw,11px);transition:filter .5s,opacity .5s}
+.veil{filter:blur(14px);opacity:.15}
+.slot{width:11em;height:10em;display:flex;align-items:center;justify-content:center;border-radius:1.2em;
+  background:rgba(0,0,0,.2);border:2px solid transparent;cursor:pointer;transition:all .2s}
+.slot:hover{background:rgba(255,255,255,.07)}
+.slot.sel{border-color:var(--acc);box-shadow:0 0 0 4px rgba(255,176,32,.2);transform:translateY(-4px)}
+.slot.mini{width:8.5em;height:7em;background:none;border:none;cursor:default;zoom:.8}
+.stage.in .slot{animation:pop .45s both}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+.pencil{position:relative;width:9em;height:2em;transition:transform .5s cubic-bezier(.3,1.4,.5,1)}
+.pencil .body{position:absolute;left:1.6em;right:2em;top:0;bottom:0;background:var(--c);border-radius:.3em;
+  box-shadow:inset 0 -.45em 0 rgba(0,0,0,.18),inset 0 .25em 0 rgba(255,255,255,.25)}
+.pencil .eraser{position:absolute;left:0;top:0;bottom:0;width:1.6em;background:#ff8fa3;border-radius:.5em 0 0 .5em}
+.pencil .tip{position:absolute;right:0;top:0;bottom:0;width:2em;background:#f6d7a7;clip-path:polygon(0 0,100% 50%,0 100%)}
+.pencil.bad{animation:glowR .4s 3}
+.pencil.hint{animation:glowW .7s infinite alternate}
+@keyframes glowR{50%{filter:drop-shadow(0 0 10px var(--bad))}}
+@keyframes glowW{to{filter:drop-shadow(0 0 12px #fff)}}
+.shake{animation:shk .45s}
+@keyframes shk{20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+.timer{height:8px;background:rgba(255,255,255,.12);border-radius:8px;overflow:hidden;margin:14px 0 10px;display:none}
+.timer i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--ok),var(--acc));transition:width .1s linear}
+.dots i{display:inline-block;width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.2);margin-left:5px;transition:all .3s}
+.dots i.on{background:var(--ok)}
+.dots i.now{background:var(--acc);transform:scale(1.5)}
+.controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+#msg{min-height:3em;text-align:center;font-weight:700;font-size:1.05rem;margin:14px 0 0;line-height:1.4}
+.conf{position:fixed;top:-20px;width:9px;height:14px;border-radius:2px;pointer-events:none;animation:fall 1.8s ease-in forwards;z-index:9}
+@keyframes fall{to{transform:translate(var(--dx),110vh) rotate(720deg);opacity:0}}
+@keyframes bob{50%{transform:translateY(-5px)}}
+@keyframes jump{40%{transform:translateY(-22px) rotate(-6deg)}70%{transform:translateY(0) rotate(4deg)}}
+.guide{display:flex;align-items:center;gap:14px;margin-top:12px}
+.guide #msg{margin:0;text-align:left;flex:1}
+#mascot{flex-shrink:0;cursor:pointer;animation:bob 2.6s ease-in-out infinite;transform-origin:50% 100%;filter:drop-shadow(0 8px 10px rgba(0,0,0,.3))}
+#mascot .m{display:none}
+#mascot.idle .m-idle,#mascot.happy .m-happy,#mascot.party .m-happy,#mascot.sad .m-sad,#mascot.think .m-think{display:block}
+#mascot.happy{animation:jump .6s ease 3}
+#mascot.party{animation:jump .5s ease infinite}
+#mascot.sad{animation:shk .45s}
+#mascot.think{animation:bob 1.4s ease-in-out infinite}
+
+.btn{min-height:48px}.btn:focus-visible,.slot:focus-visible{outline:4px solid #ffdf70;outline-offset:4px}.slot{color:white}.guide{background:#221b48;border:2px solid #b983ff;border-radius:20px;padding:14px}.guide #msg{font-size:1.1rem}.guide-name{color:#ffda7c;font-weight:900;letter-spacing:.1em;margin-bottom:7px}.hud{display:flex;gap:10px;flex-wrap:wrap;margin:15px 0}.badge{background:#ffffff15;padding:9px 14px;border-radius:20px;font-weight:800}.speeching svg{animation:talk .3s infinite alternate}@keyframes talk{to{transform:rotate(4deg) translateY(-3px)}}.intro{position:fixed;inset:0;background:#100a29ed;z-index:20;display:flex;align-items:center;justify-content:center;padding:18px}.intro[hidden]{display:none}.intro-box{max-width:500px;background:#292052;border:2px solid #b983ff;padding:26px;border-radius:28px;text-align:center;box-shadow:0 20px 80px #0008}.intro-icon{font-size:70px}.intro-box h2{font-size:30px}.intro-box p{font-size:19px;line-height:1.5}.level-select{background:#211d45;color:white;font:inherit;padding:12px;border-radius:16px;border:1px solid #b983ff;max-width:100%}.slot.correct{border-color:#3ddc97;background:#3ddc9720}.veil{visibility:hidden}.mini{pointer-events:none}.guide-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.guide-actions .btn{font-size:13px}.tip-label{font-size:12px;text-align:center;color:#d8dff5;margin:10px 0 0}@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}} 
+</style>
+</head>
+<body>
+<div id="intro" class="intro"><div class="intro-box"><div class="intro-icon">✏️✨</div><h2 id="intro-title">¡HOLA, SOY LAPI!</h2><p id="intro-text">Soy tu compañero de misiones. Vamos a ordenar lápices, descubrir direcciones y entrenar la memoria. ¡Yo te ayudo!</p><div class="controls"><button class="btn" id="intro-read">🔊 ESCUCHAR</button><button class="btn main" id="intro-next">¡CONOCER EL JUEGO!</button></div></div></div><div class="app">
+  <header>
+    <div>
+      <div class="tag">MIRÁ · ORDENÁ · GIRÁ</div>
+      <h1>LÁPICES EN ORDEN</h1>
+    </div>
+    <button class="btn" id="voice">🔇 VOZ</button>
+  </header>
+
+  <div class="hud"><span class="badge" id="score">⭐ 0 ESTRELLAS</span><span class="badge" id="mission">MISIÓN 1 DE 8</span><button class="btn" id="help">❔ CÓMO JUGAR</button></div><select class="level-select" id="choose" aria-label="Elegir nivel"></select>
+  <div class="panel">
+    <div class="label"><span id="lvl"></span><span class="dots" id="dots"></span></div>
+    <div class="label"><span>1. MIRÁ EL MODELO</span></div>
+    <div id="modelWrap" class="stage"></div>
+    <div class="timer" id="tw"><i id="bar"></i></div>
+    <div class="controls"><button class="btn" id="reveal">👁 VER MODELO</button></div>
+  </div>
+
+  <div class="panel">
+    <div class="label"><span>2. ACOMODÁ TUS LÁPICES</span></div>
+    <div id="board" class="stage"></div>
+    <div class="controls">
+      <button class="btn" id="l" aria-label="Mover lápiz a la izquierda">←</button>
+      <button class="btn" id="g">↻ GIRAR</button>
+      <button class="btn" id="r" aria-label="Mover lápiz a la derecha">→</button>
+    </div>
+    <div class="controls">
+      <button class="btn main" id="ok">✓ COMPROBAR</button>
+      <button class="btn" id="hint">💡 PISTA</button>
+      <button class="btn" id="again">🔄 OTRO MODELO</button>
+    </div>
+    <div class="guide">
+      <button id="mascot" class="idle" aria-label="Lapi: escuchar ayuda" style="border:0;background:transparent;padding:0"><svg viewBox="0 0 80 120" width="70" height="105" aria-hidden="true"><rect x="20" y="4" width="40" height="12" rx="5" fill="#ff8fa3"/><rect x="20" y="16" width="40" height="6" fill="#c9c9d6"/><rect x="20" y="22" width="40" height="70" rx="6" fill="#ffb020"/><polygon points="20,92 60,92 40,116" fill="#f6d7a7"/><polygon points="36,106 44,106 40,116" fill="#333"/><circle cx="32" cy="52" r="4.5" fill="#1b1140"/><circle cx="48" cy="52" r="4.5" fill="#1b1140"/><circle cx="33" cy="51" r="1.4" fill="#fff"/><circle cx="49" cy="51" r="1.4" fill="#fff"/><circle cx="26" cy="64" r="4" fill="#ff5d73" opacity=".6"/><circle cx="54" cy="64" r="4" fill="#ff5d73" opacity=".6"/><path class="m m-idle" d="M32 64 Q40 72 48 64" stroke="#1b1140" stroke-width="3" fill="none" stroke-linecap="round"/><path class="m m-happy" d="M30 62 Q40 82 50 62 Z" fill="#1b1140"/><path class="m m-sad" d="M32 70 Q40 60 48 70" stroke="#1b1140" stroke-width="3" fill="none" stroke-linecap="round"/><path class="m m-think" d="M36 68 H44" stroke="#1b1140" stroke-width="3" stroke-linecap="round"/></svg></button>
+    <div><div class="guide-name">LAPI · TU COMPAÑERO</div><p id="msg" role="status" aria-live="polite"></p><div class="guide-actions"><button class="btn" id="repeat">🔊 REPETIR</button><button class="btn main" id="advance" hidden>SIGUIENTE MISIÓN →</button></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const COLORS=['#ff5d73','#ffb020','#3ddc97','#4cc9f0','#b983ff'];
+const NAMES=['rojo','amarillo','verde','celeste','violeta'];
+const DIRN={0:'hacia la derecha',90:'hacia abajo',180:'hacia la izquierda',270:'hacia arriba'};
+const ALL=[0,90,180,270];
+const LV=[
+  {n:2,dirs:[0,180],t:0},
+  {n:3,dirs:[0,180],t:0},
+  {n:4,dirs:[0,180],t:0},
+  {n:5,dirs:[0,180],t:0},
+  {n:5,dirs:ALL,t:0},
+  {n:5,dirs:ALL,t:12},
+  {n:5,dirs:ALL,t:8},
+  {n:5,dirs:ALL,t:6}
+];
+let L=0,model=[],play=[],sel=0,locked=false,done=false,timerId=null,rvId=null,expired=false,voiceOn=false,stars=0,attempts=0,usedHelp=false,introStep=0;
+
+const $=s=>document.querySelector(s);
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const eq=(a,b)=>a.every((p,i)=>p.c===b[i].c&&p.d===b[i].d);
+const pencil=(p)=>`<div class="pencil" style="--c:${p.c};transform:rotate(${p.d}deg)"><span class="eraser"></span><span class="body"></span><span class="tip"></span></div>`;
+
+function speak(t){if(!('speechSynthesis' in window))return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='es-AR';u.rate=.9;const voices=speechSynthesis.getVoices();u.voice=voices.find(v=>v.lang.startsWith('es')&&/female|mujer|paulina|monica|sabina|helena/i.test(v.name))||voices.find(v=>v.lang.startsWith('es'))||null;u.onstart=()=>$('#mascot').classList.add('speeching');u.onend=u.onerror=()=>$('#mascot').classList.remove('speeching');speechSynthesis.speak(u)}catch(e){}}
+function say(t){
+  $('#msg').textContent=t;
+  if(voiceOn)speak(t);
+}
+function setMood(m){const el=$('#mascot');el.className='';void el.offsetWidth;el.className=m}
+function dots(){
+  $('#dots').innerHTML=LV.map((_,i)=>`<i class="${i<L?'on':i===L?'now':''}"></i>`).join('');
+}
+function renderBoard(){
+  $('#board').innerHTML=play.map((p,i)=>`<button aria-label="Lápiz ${NAMES[COLORS.indexOf(p.c)]}, lugar ${i+1}, punta ${DIRN[p.d]}" class="slot${i===sel?' sel':''}" data-i="${i}">${pencil(p)}</button>`).join('');
+}
+function select(i){
+  sel=i;
+  document.querySelectorAll('#board .slot').forEach((el,k)=>el.classList.toggle('sel',k===sel));
+}
+function startTimer(s){
+  const end=Date.now()+s*1000;
+  timerId=setInterval(()=>{
+    const left=end-Date.now();
+    $('#bar').style.width=Math.max(0,left/(s*1000)*100)+'%';
+    if(left<=0){
+      clearInterval(timerId);expired=true;
+      $('#modelWrap').classList.add('veil');
+      say('Ahora copiá el modelo de memoria.');
+    }
+  },50);
+}
+function newLevel(){
+  const cfg=LV[L];
+  clearInterval(timerId);clearTimeout(rvId);
+  expired=false;locked=false;done=false;sel=0;attempts=0;usedHelp=false;
+  $('#advance').hidden=true;$('#ok').textContent='✓ COMPROBAR';$('#choose').value=String(L);$('#mission').textContent='MISIÓN '+(L+1)+' DE 8';$('#reveal').hidden=!cfg.t;
+  const cols=shuffle(COLORS).slice(0,cfg.n);
+  model=cols.map(c=>({c,d:pick(cfg.dirs)}));
+  do{play=shuffle(model).map(p=>({c:p.c,d:pick(cfg.dirs)}))}while(eq(play,model));
+  $('#lvl').textContent=`NIVEL ${L+1} · ${cfg.n} LÁPICES${cfg.t?' · MEMORIA':''}`;
+  $('#modelWrap').innerHTML=model.map(p=>`<div class="slot mini">${pencil(p)}</div>`).join('');
+  $('#modelWrap').classList.remove('veil');
+  $('#bar').style.width='100%';
+  const board=$('#board');
+  renderBoard();
+  board.classList.remove('in');void board.offsetWidth;board.classList.add('in');
+  dots();
+  if(cfg.t){$('#tw').style.display='block';startTimer(cfg.t)}
+  else $('#tw').style.display='none';
+  setMood(cfg.t?'think':'idle');
+  say(cfg.t?'¡Misión de memoria! Mirá los colores y las puntas. Tenés '+cfg.t+' segundos. Si necesitás, tocá VER MODELO.':L===0?'¡Vamos con dos lápices! Tocá uno para elegirlo. Las flechas lo mueven y GIRAR cambia su punta.':L===4?'¡Nuevo desafío! Ahora los lápices pueden apuntar hacia los cuatro lados. ¡Mirá bien las puntas!':'¡Misión '+(L+1)+'! Copiá los '+cfg.n+' lápices del modelo. Elegí uno y acomodalo.');
+}
+function move(d){
+  const j=sel+d;
+  if(locked||j<0||j>=play.length)return;
+  [play[sel],play[j]]=[play[j],play[sel]];
+  sel=j;renderBoard();
+}
+function rotate(){
+  if(locked)return;
+  const dirs=LV[L].dirs;
+  const k=dirs.indexOf(play[sel].d);
+  play[sel].d=dirs[(k+1)%dirs.length];
+  const el=document.querySelector(`#board .slot[data-i="${sel}"] .pencil`);
+  el.style.transform=`rotate(${play[sel].d}deg)`;
+}
+function reveal(){
+  if(!LV[L].t||done||locked)return;usedHelp=true;
+  const w=$('#modelWrap');
+  w.classList.remove('veil');
+  clearTimeout(rvId);
+  rvId=setTimeout(()=>{if(expired)w.classList.add('veil')},3000);
+}
+function burst(){
+  const colors=COLORS;
+  for(let i=0;i<30;i++){
+    const s=document.createElement('span');
+    s.className='conf';
+    s.style.left=Math.random()*100+'vw';
+    s.style.background=pick(colors);
+    s.style.setProperty('--dx',(Math.random()*200-100)+'px');
+    s.style.animationDelay=(Math.random()*0.3)+'s';
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(),2300);
+  }
+}
+function win(){
+  locked=true;
+  clearInterval(timerId);
+  burst();
+  setMood('happy');
+  say('¡Muy bien! Lo lograste ✨');
+  clearTimeout(rvId);$('#modelWrap').classList.remove('veil');
+  const earned=usedHelp?1:attempts>1?2:3;stars+=earned;$('#score').textContent='⭐ '+stars+' ESTRELLAS';
+  $('#advance').hidden=false;$('#advance').textContent=L<7?'SIGUIENTE MISIÓN →':'VER MI TROFEO 🏆';
+  say(pick(['¡Chocá esos cinco!','¡Sos un gran detective de lápices!','¡Lo lograste, equipo!'])+' Ganaste '+earned+' estrellas. Cuando quieras, seguimos.');
+}
+function finish(){
+  done=true;
+  $('#board').innerHTML='';
+  $('#modelWrap').innerHTML='';
+  $('#tw').style.display='none';
+  $('#lvl').textContent='¡COMPLETADO!';
+  dots();$('#advance').hidden=true;
+  $('#ok').textContent='↺ JUGAR DE NUEVO';
+  setMood('party');
+  say('¡Completaste las ocho misiones! Soy Lapi y estoy feliz de jugar con vos. Ganaste '+stars+' estrellas. ¡Trofeo de explorador visual!');
+}
+function check(){
+  if(done){L=0;newLevel();return}
+  if(locked)return;
+  attempts++;const bad=[];
+  play.forEach((p,i)=>{if(p.c!==model[i].c||p.d!==model[i].d)bad.push(i)});
+  if(bad.length===0){win();return}
+  bad.forEach(i=>{
+    const el=document.querySelector(`#board .slot[data-i="${i}"] .pencil`);
+    el.classList.add('bad');
+    setTimeout(()=>el.classList.remove('bad'),1300);
+  });
+  const b=$('#board');b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');
+  setMood('think');
+  say('¡Seguimos probando! '+(play.length-bad.length)+' de '+play.length+' ya coinciden. Compará primero los colores y después las puntas. Si querés, pedime una pista.');
+}
+function hint(){
+  if(locked||done)return;
+  const i=play.findIndex((p,k)=>p.c!==model[k].c||p.d!==model[k].d);
+  if(i<0)return;
+  usedHelp=true;setMood('think');const want=model[i];
+  const name=NAMES[COLORS.indexOf(want.c)];
+  let target;
+  if(play[i].c!==want.c){
+    target=play.findIndex(p=>p.c===want.c);
+    say(`En el lugar ${i+1} va el lápiz ${name}.`);
+  }else{
+    target=i;
+    say(`El lápiz ${name} tiene que apuntar ${DIRN[want.d]}.`);
+  }
+  const el=document.querySelector(`#board .slot[data-i="${target}"] .pencil`);
+  if(el){el.classList.add('hint');setTimeout(()=>el.classList.remove('hint'),2500)}
+}
+
+$('#board').onclick=e=>{
+  const s=e.target.closest('.slot');
+  if(s&&!locked)select(+s.dataset.i);
+};
+$('#l').onclick=()=>move(-1);
+$('#r').onclick=()=>move(1);
+$('#g').onclick=rotate;
+$('#ok').onclick=check;
+$('#hint').onclick=hint;
+$('#again').onclick=()=>newLevel();
+$('#reveal').onclick=reveal;
+$('#voice').onclick=()=>{
+  voiceOn=!voiceOn;
+  $('#voice').textContent=(voiceOn?'🔊':'🔇')+' VOZ';$('#voice').setAttribute('aria-pressed',voiceOn);if(voiceOn)speak('¡Hola! Soy Lapi. Voy a acompañarte en cada misión.');else if('speechSynthesis'in window)speechSynthesis.cancel();
+};
+document.addEventListener('keydown',e=>{
+  if(!$('#intro').hidden||e.target.tagName==='SELECT'||e.target.tagName==='BUTTON')return;
+  if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Enter','r','R'].includes(e.key))e.preventDefault();
+  if(e.key==='ArrowLeft')move(-1);
+  else if(e.key==='ArrowRight')move(1);
+  else if(e.key==='ArrowUp'&&sel>0)select(sel-1);
+  else if(e.key==='ArrowDown'&&sel<play.length-1)select(sel+1);
+  else if(e.key==='r'||e.key==='R')rotate();
+  else if(e.key==='Enter')check();
+});
+
+const msgs=['¡Vos podés!','Mirá bien las puntas.','Tomate tu tiempo, no hay apuro.','Compará color, lugar y dirección.'];
+$('#mascot').onclick=()=>{if(!locked&&!done)hint();else say(pick(msgs))};
+
+const lessons=[['¡HOLA, SOY LAPI!','Soy tu compañero de misiones. Vamos a ordenar lápices, descubrir direcciones y entrenar la memoria. ¡Yo te ayudo!'],['1. MIRÁ Y ELEGÍ','Arriba está el modelo. Abajo están tus lápices. Tocá el lápiz que querés mover: queda marcado con un borde amarillo.'],['2. MOVÉ Y GIRÁ','Usá las flechas para cambiar su lugar. Tocá GIRAR para cambiar la dirección de la punta. Compará con el modelo.'],['3. ¡A JUGAR!','Tocá COMPROBAR cuando termines. Si necesitás ayuda, pedime una PISTA. Hay ocho misiones y podés elegir el nivel. ¡Sin apuro!']];
+function showLesson(){const s=lessons[introStep];$('#intro-title').textContent=s[0];$('#intro-text').textContent=s[1];$('#intro-next').textContent=introStep===3?'¡EMPEZAR A JUGAR!':'SEGUIR →';if(voiceOn)speak(s[1]);}
+$('#intro-next').onclick=()=>{if(introStep<3){introStep++;showLesson();}else{$('#intro').hidden=true;newLevel();}};
+$('#intro-read').onclick=()=>{voiceOn=true;$('#voice').textContent='🔊 VOZ';speak(lessons[introStep][1]);};
+$('#help').onclick=()=>{clearInterval(timerId);clearTimeout(rvId);introStep=0;$('#intro').hidden=false;showLesson();};
+$('#repeat').onclick=()=>speak($('#msg').textContent);
+$('#advance').onclick=()=>{if(L<7){L++;newLevel();}else finish();};
+$('#choose').innerHTML=LV.map((c,i)=>'<option value="'+i+'">MISIÓN '+(i+1)+' · '+c.n+' LÁPICES'+(c.t?' · MEMORIA '+c.t+' s':i===4?' · CUATRO DIRECCIONES':'')+'</option>').join('');
+$('#choose').onchange=()=>{L=Number($('#choose').value);newLevel();};
+newLevel();clearInterval(timerId);
+
+</script>
+</body>
+</html>
