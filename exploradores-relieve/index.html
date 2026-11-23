@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#122d43">
+<title>Exploradores del relieve argentino · Juego interactivo</title>
+<style>
+:root{--navy:#20344f;--teal:#56705d;--teal-dark:#415747;--cream:#fbfaf6;--white:#ffffff;--soft:#f1f3eb;--orange:#b8862f;--coral:#8f6454;--ink:#263849;--muted:#5d6d79;--line:#d7ddd7;--radius:22px;--shadow:0 12px 34px rgba(28,47,63,.10)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;background:#f5f4ef;font-family:Arial,Helvetica,sans-serif;color:var(--ink);text-transform:uppercase;letter-spacing:.015em}button{font:inherit;cursor:pointer}button:focus-visible,summary:focus-visible{outline:4px solid #f9bb55;outline-offset:4px}button:disabled{cursor:default;opacity:.7}.app{max-width:1120px;margin:0 auto;padding:18px 16px 42px}.app.uppercase{text-transform:uppercase}.app.uppercase button{text-transform:uppercase}.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}.brand{display:flex;align-items:center;gap:12px;color:var(--navy);font-size:14px;font-weight:900;letter-spacing:.05em}.brandmark{display:grid;place-items:center;width:48px;height:48px;border-radius:16px;background:var(--navy);color:#fff;font-size:25px;box-shadow:var(--shadow)}.tools{display:flex;gap:8px;flex-wrap:wrap}.tool{border:1px solid #bdd2d8;background:#fff;color:var(--ink);padding:10px 13px;min-height:44px;border-radius:12px;font-weight:800;font-size:13px}.tool:hover{background:#f3f9f9}.tool[aria-pressed="true"]{background:var(--navy);color:#fff}.progress{margin-bottom:17px;background:#fff9;border:1px solid #fff;border-radius:16px;padding:12px 16px;box-shadow:0 8px 25px #152d4209}.progress-top{display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:13px;font-weight:850;margin-bottom:9px}.track{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.segment{height:8px;background:#e5eae9;border-radius:30px}.segment.done{background:var(--teal)}.segment.current{background:var(--orange)}.hero{display:grid;grid-template-columns:1.2fr .8fr;gap:20px;align-items:center;min-height:500px;background:#fff;border:1px solid #fff;border-radius:30px;overflow:hidden;box-shadow:var(--shadow)}.hero-copy{padding:clamp(24px,5vw,56px)}.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:#e8f5f2;color:#12695f;font-size:12px;font-weight:900;letter-spacing:.08em}.hero h1{font-size:clamp(33px,4.5vw,60px);line-height:1.06;letter-spacing:-.045em;color:var(--navy);margin:18px 0}.hero p{font-size:18px;line-height:1.55;max-width:530px;color:#4b6174}.cta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}.btn{border:none;border-radius:14px;padding:14px 21px;min-height:48px;font-weight:900;transition:transform .13s,background .13s}.btn:hover{transform:translateY(-2px)}.btn-primary{background:var(--teal);color:white;box-shadow:0 8px 0 #0f5f58}.btn-primary:hover{background:#0d766f}.btn-secondary{background:#e9f1f1;color:var(--navy)}.btn-outline{background:#fff;border:2px solid var(--line);color:var(--navy)}.btn:disabled{box-shadow:none;transform:none;filter:grayscale(.15)}.hero-art{height:100%;display:grid;place-items:center;background:linear-gradient(145deg,#e5f2ea,#d5ebe7);position:relative;min-height:430px}.hero-art .ring{position:absolute;width:min(80%,350px);aspect-ratio:1;border:2px dashed #7db0ae;border-radius:50%;transform:rotate(-15deg)}.hero-art .ring.two{width:min(96%,480px);opacity:.4}.hero-map{width:clamp(195px,55%,270px);filter:drop-shadow(0 18px 6px #416e6e2d);transform:rotate(6deg)}.hero-art .bubble{position:absolute;background:white;padding:13px 18px;border-radius:16px;font-weight:900;box-shadow:var(--shadow)}.hero-art .b1{top:17%;left:3%;transform:rotate(-7deg)}.hero-art .b2{right:3%;bottom:16%;transform:rotate(5deg)}.smallnote{font-size:13px;color:var(--muted);line-height:1.45}.how{margin-top:28px;border-top:1px solid var(--line);padding-top:14px;max-width:560px}.how summary{font-weight:900;cursor:pointer;color:var(--teal-dark)}.how ol{line-height:1.8;padding-left:20px}.game-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;margin:15px 0 19px}.game-head h1{font-size:clamp(27px,3.5vw,42px);line-height:1.1;letter-spacing:-.028em;color:var(--navy);margin:8px 0}.game-head p{margin:0;color:var(--muted);font-size:16px}.score{display:flex;align-items:center;gap:9px;padding:10px 16px;border-radius:14px;background:#fff;font-weight:950;box-shadow:0 7px 20px #152d4210;white-space:nowrap}.game-grid{display:grid;grid-template-columns:minmax(300px,.95fr) minmax(320px,1.05fr);gap:18px;align-items:start}.map-card{padding:15px;background:#fff;border:1px solid #e6efef;border-radius:24px;box-shadow:var(--shadow)}.map-header{display:flex;justify-content:space-between;align-items:center;margin:2px 2px 12px;gap:10px;font-size:12px;font-weight:900;color:var(--muted)}.map-header span:first-child{color:var(--teal-dark)}.map-shell{position:relative;width:min(100%,372px);aspect-ratio:360/600;margin:auto;background:linear-gradient(165deg,#e3f2f7,#f0f8fa);border-radius:18px;overflow:hidden;box-shadow:inset 0 0 0 1px #d8e8ec}.map-shell svg{display:block;width:100%;height:100%}.terrain-map{display:block;width:100%;height:100%;object-fit:fill;background:#fff}.map-pin{position:absolute;transform:translate(-50%,-50%);display:grid;place-items:center;min-width:43px;height:43px;padding:2px 7px;border:3px solid #fff;border-radius:50%;background:#16364e;color:white;box-shadow:0 6px 14px #12344c5a;font-size:19px;font-weight:950;z-index:2;transition:transform .12s,background .12s}.map-pin:hover{transform:translate(-50%,-50%) scale(1.12);background:#207f79}.map-pin.active{background:var(--orange);color:#1a3445;transform:translate(-50%,-50%) scale(1.18);box-shadow:0 0 0 7px #f2a64c44,0 7px 16px #2344}.map-pin.placed{background:var(--teal);color:white;box-shadow:0 5px 15px #167a7160}.map-pin:disabled{opacity:1}.map-legend{display:flex;justify-content:center;gap:13px;flex-wrap:wrap;padding-top:9px;font-size:12px;color:var(--muted);font-weight:800}.key{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:5px;vertical-align:middle}.task-card{padding:clamp(19px,3.5vw,31px);background:#fff;border:1px solid #e6efef;border-radius:24px;box-shadow:var(--shadow)}.task-label{font-size:12px;letter-spacing:.1em;color:var(--teal-dark);font-weight:950;text-transform:uppercase}.task-card h2{font-size:clamp(23px,3vw,31px);line-height:1.2;color:var(--navy);margin:12px 0}.task-card p{line-height:1.55;color:var(--muted)}.task-note{padding:13px 15px;background:#eff8f7;border-radius:13px;color:#265b5c;line-height:1.5;font-size:14px;font-weight:650}.counter{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:16px 0}.dot{width:23px;height:8px;background:#d6e1e0;border-radius:99px}.dot.ok{background:var(--teal)}.info-card{margin:18px 0;padding:17px;border-radius:18px;border:1px solid #e5e9e3;background:linear-gradient(130deg,#fbf9f1,#f3faf7)}.relief-head{display:flex;align-items:center;gap:13px}.relief-icon{display:grid;place-items:center;width:65px;height:60px;flex-shrink:0;border-radius:12px;background:white;border:1px solid #d5e3e2}.relief-icon svg{width:59px;height:45px}.relief-head h3{margin:0;color:var(--navy);font-size:19px}.relief-head small{color:var(--teal-dark);font-weight:850}.relief-description{font-size:16px;margin:13px 0 0;color:var(--ink)!important}.options{display:grid;gap:11px;margin-top:20px}.option{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:16px 17px;border:2px solid var(--line);border-radius:15px;background:#fff;color:var(--navy);font-weight:800;min-height:58px;transition:.14s}.option:hover:not(:disabled){border-color:#2d9992;background:#f3faf8}.option .letter{display:grid;place-items:center;flex-shrink:0;width:31px;height:31px;border-radius:10px;background:#eef5f5;color:#2b5d60;font-size:13px}.option.chosen{border-color:#c69b2b;background:#fff7e6}.option.correct{border-color:#2ca58c;background:#edfaf4}.option.incorrect{border-color:#d97467;background:#fff1ee}.option:disabled{opacity:1}.feedback{border-radius:14px;background:#edf8f4;border:1px solid #abded0;padding:14px 17px;margin:16px 0;color:#175e51;font-weight:750;line-height:1.48}.feedback.wrong{background:#fff3e7;border-color:#f0cb94;color:#785021}.feedback strong{display:block;margin-bottom:4px}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px;align-items:center}.chip-group{display:grid;gap:9px;margin:19px 0}.chip{border:2px solid #dbe7e6;padding:14px 15px;text-align:left;border-radius:13px;background:#fff;font-weight:850;color:var(--navy);width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px}.chip.selected{border-color:#f1ae51;background:#fff5e4}.chip.placed{border-color:#bfe3d9;background:#eff9f5;color:#317e6c}.chip:disabled{opacity:1}.chip small{display:grid;place-items:center;border-radius:50%;width:25px;height:25px;background:#f1f5f4}.statline{font-weight:900;font-size:14px;color:var(--navy)}.truefalse{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin:25px 0 4px}.truefalse .option{justify-content:center;text-align:center;font-size:18px}.quote{font-size:clamp(21px,3vw,27px);line-height:1.4;font-weight:850;color:var(--navy);margin:18px 0}.end{background:#fff;border-radius:30px;box-shadow:var(--shadow);padding:clamp(30px,6vw,55px);max-width:780px;text-align:center;margin:30px auto}.medal{display:grid;place-items:center;margin:0 auto 17px;width:110px;height:110px;border-radius:50%;font-size:55px;background:linear-gradient(145deg,#ffebc9,#f6b454);box-shadow:0 12px 0 #d58c35}.end h1{font-size:clamp(31px,5vw,49px);margin:12px 0;color:var(--navy)}.end .bigscore{font-size:46px;font-weight:1000;color:var(--teal-dark);margin:10px}.end p{color:var(--muted);font-size:17px;line-height:1.55}.footer{text-align:center;color:#5b6f7d;font-size:12px;margin-top:20px}.sr-only{position:absolute;width:1px;height:1px;clip:rect(0 0 0 0);overflow:hidden;white-space:nowrap}.trophy-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:20px 0}.tiny-stat{padding:9px 14px;border-radius:12px;background:#edf8f6;font-weight:900;color:#155f59}.sticker{position:absolute;top:10px;right:11px;background:#fff;border:1px solid #cee5e2;border-radius:999px;padding:7px 11px;font-size:11px;font-weight:900;color:#0b665f}.map-mini{font-size:12px;font-weight:800;fill:#7daab4;letter-spacing:.1em}
+@media(max-width:775px){.hero{grid-template-columns:1fr}.hero-art{min-height:230px;max-height:270px;grid-row:1}.hero-map{width:145px}.hero-art .b1{top:23%;left:10%}.hero-art .b2{right:9%;bottom:20%}.hero-copy{padding:28px}.game-grid{grid-template-columns:1fr}.map-card{max-width:520px;width:100%;margin:auto}.task-card{min-height:250px}.game-head{align-items:center}}@media(max-width:430px){.app{padding:10px 10px 26px}.brand{font-size:11px;gap:7px}.brandmark{width:38px;height:38px;font-size:19px;border-radius:12px}.tools{gap:5px}.tool{padding:8px 9px;font-size:12px}.map-shell{width:min(100%,300px)}.map-pin{min-width:37px;height:37px;font-size:16px}.hero-copy{padding:24px}.hero h1{font-size:34px}.hero p{font-size:16px}.hero-art{max-height:220px;min-height:220px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}@media print{body{background:white}.topbar,.progress,.tools,.footer,.end .actions{display:none!important}.app{padding:0}.end{box-shadow:none;border:2px solid #333}.hero{box-shadow:none}}
+
+/* Lámina de estudio de la actividad original */
+.tool-photo{border-color:#d6c19b;background:#fff7e8;color:#714c16}
+.material{margin:19px 0 22px;padding:clamp(16px,3vw,26px);background:#fff;border:1px solid #e5e8e9;border-radius:23px;box-shadow:var(--shadow)}
+.material-title{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:13px}
+.material-title h2{margin:3px 0 0;font-size:clamp(20px,2.7vw,28px);color:var(--navy)}
+.material-title p{margin:6px 0 0;color:var(--muted);line-height:1.5;font-size:14px}
+.material-img{display:block;width:100%;height:auto;max-height:500px;object-fit:contain;object-position:center;background:#f3f2ed;border:1px solid #d6dbdc;border-radius:12px}
+.material-legend{font-weight:850;color:#476071;font-size:13px;padding:12px 0 0;line-height:1.6}
+.reference-thumb{width:min(100%,430px);max-height:190px;object-fit:contain;background:#f5f4ef;border:1px solid #d5dfdf;border-radius:12px;margin:auto;display:block}
+.intro-reference{margin:19px 0 0;padding:18px;border:1px solid #dae5e7;border-radius:20px;background:#fff;display:grid;grid-template-columns:minmax(180px,.7fr) minmax(260px,1.3fr);gap:18px;align-items:center;box-shadow:var(--shadow)}
+.intro-reference h2{margin:6px 0;font-size:20px;color:var(--navy)}.intro-reference p{margin:0 0 13px;color:var(--muted);line-height:1.5}
+.photo-viewer{position:fixed;inset:0;z-index:30;background:rgba(13,27,39,.93);padding:14px;display:flex;flex-direction:column;gap:10px}
+.photo-viewer[hidden]{display:none}
+.viewer-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;color:white;font-weight:900}
+.viewer-controls{display:flex;gap:7px;flex-wrap:wrap}
+.viewer-controls button{background:#fff;color:#18364a;border:0;border-radius:10px;font-size:15px;font-weight:900;min-height:45px;padding:9px 15px}
+.viewer-body{flex:1;min-height:0;overflow:auto;display:flex;align-items:flex-start;justify-content:flex-start;background:#dfded8;border-radius:13px;padding:12px}
+.viewer-body img{display:block;flex-shrink:0;max-width:none;height:auto;margin:auto;width:100%;object-fit:contain}
+.viewer-body.zoomed img{width:1200px;margin:0 auto}
+.viewer-note{margin:0;color:#f1f5f7;font-size:13px;line-height:1.4;text-align:center}
+body.viewer-open{overflow:hidden}
+@media(max-width:775px){.intro-reference{grid-template-columns:1fr}.intro-reference .reference-thumb{max-height:180px}.material-img{max-height:none}.material{margin-bottom:15px}}
+@media(max-width:440px){.tool-photo{padding:8px}.viewer-top{align-items:flex-start}.viewer-top strong{font-size:13px}.viewer-controls button{font-size:13px;padding:9px}}
+@media print{.photo-viewer,.intro-reference,.material .btn{display:none!important}.material{box-shadow:none;page-break-inside:avoid}.material-img{max-height:650px}}
+
+
+/* Portada personalizada con mapa de Argentina y botón JUGAR activo */
+.cover-panel{position:relative;width:100%;border-radius:24px;overflow:hidden;background:#ece9de;border:1px solid #d9d4c7;box-shadow:0 12px 38px rgba(18,45,67,.10);line-height:0;isolation:isolate}
+.cover-artwork{width:100%;height:auto;display:block;aspect-ratio:1672/941;object-fit:contain;user-select:none;-webkit-user-drag:none}
+.cover-play{position:absolute;left:69%;top:79%;width:28%;height:17%;z-index:2;border-radius:999px;border:3px solid transparent;background:transparent;cursor:pointer;transition:background .18s,box-shadow .18s,transform .18s}
+.cover-play:hover{background:rgba(255,255,255,.12);box-shadow:0 0 0 5px rgba(255,242,136,.65);transform:scale(1.02)}
+.cover-play:focus-visible{outline:5px solid #fff36a;outline-offset:1px;box-shadow:0 0 0 10px rgba(13,54,70,.75)}
+.cover-guide{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(230px,.75fr);align-items:start;gap:20px;background:#fffdf8;border-radius:20px;padding:clamp(16px,3vw,26px);margin-top:16px;box-shadow:var(--shadow)}
+.cover-guide h1{font-size:clamp(23px,3vw,32px);color:var(--navy);margin:13px 0 7px;line-height:1.2}
+.cover-guide p{color:#496377;line-height:1.55;margin:7px 0 10px}
+.cover-guide .cta-row{margin-top:16px}
+.cover-steps{align-self:center;background:#f4f3ec;border:1px solid #ddd8ca;border-radius:14px;padding:14px;color:#445556}
+.cover-steps summary{font-weight:900;cursor:pointer}
+.cover-steps ol{line-height:1.65;margin-bottom:0;padding-left:20px}
+@media(max-width:670px){.cover-panel{border-radius:14px}.cover-guide{grid-template-columns:1fr}.cover-play{min-height:30px}.cover-guide .cta-row{margin-top:14px}.cover-guide .btn{flex-grow:1}.cover-steps{width:100%}}
+@media print{.cover-play{display:none}}
+.map-ref-img{max-height:760px;object-fit:contain;background:#fff}.material .btn-outline{margin-top:10px}.intro-reference .btn{margin:3px 4px 3px 0}@media(max-width:700px){.map-ref-img{max-height:700px}}
+
+/* MODO ESCOLAR: IMPRENTA MAYÚSCULA SIEMPRE, CON TAMAÑO DE LETRA OPCIONAL. */
+html,body,.app,.photo-viewer{ text-transform:uppercase; }
+body {font-family:Arial,Helvetica,sans-serif}
+button,summary{ text-transform:uppercase!important; }
+.cover-guide h1,.material-title h2,.task-card h2 {letter-spacing:.015em}
+.intro-reference{grid-template-columns:minmax(200px,1.2fr) minmax(225px,.8fr);align-items:center}
+.reference-thumb{width:100%;max-height:580px;object-fit:contain;cursor:zoom-in;background:#fff}
+.map-ref-img{max-height:990px;object-fit:contain}
+.material-legend{font-size:15px;line-height:1.7}
+.large-text .task-card p,.large-text .task-card .option,.large-text .info-card p,.large-text .material-title p,.large-text .intro-reference p,.large-text .cover-guide p{font-size:20px!important;line-height:1.6}
+.large-text .btn,.large-text .tool,.large-text .chip{font-size:18px!important}
+.large-text .map-legend,.large-text .smallnote{font-size:16px!important}
+.large-text .task-card h2{font-size:34px}
+@media (max-width:775px){.intro-reference{grid-template-columns:1fr}.intro-reference .reference-thumb{max-height:560px}.map-ref-img{max-height:none}}
+
+/* ACTIVIDADES ADICIONALES */
+.menu-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin:18px 0}
+.act-card{text-align:left;min-height:64px;padding:16px;border-radius:15px;font-weight:900;color:var(--navy);background:#fff;border:2px solid var(--line);font-size:15px;cursor:pointer}
+.act-card:hover{border-color:#2d9992;background:#f3faf8}
+.act-item{padding:14px 0;border-bottom:1px solid var(--line)}
+.act-item:last-of-type{border-bottom:0}
+.act-item label{display:block;font-weight:900;color:var(--navy);margin-bottom:7px;line-height:1.4}
+.act-item select{width:100%;min-height:48px;font:inherit;padding:10px;border:2px solid var(--line);border-radius:12px;background:#fff;color:var(--ink)}
+.act-mark{display:block;margin-top:8px;font-weight:850;line-height:1.4}
+.act-mark.ok{color:#17735f}
+.act-mark.no{color:#9a4a3d}
+.act-q{font-weight:850;color:var(--navy);font-size:18px;line-height:1.45;margin:6px 0 10px}
+.act-icon{display:block;width:70px;margin-bottom:6px}.act-icon svg{display:block;width:70px;height:48px}
+/* DINÁMICA: ANIMACIONES Y EFECTOS */
+.progress{position:relative;padding-bottom:30px}
+.segment{transition:background .4s}
+.walker{position:absolute;bottom:2px;left:0;transform:translateX(-50%);transition:left .7s cubic-bezier(.3,1.3,.5,1);z-index:3;line-height:0}
+.walker svg{animation:bob2 1.2s ease-in-out infinite}
+@keyframes bob2{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-5px) rotate(4deg)}}
+@keyframes enter{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.screen-enter>*{animation:enter .45s ease both}
+.screen-enter>*:nth-child(2){animation-delay:.08s}
+.screen-enter>*:nth-child(3){animation-delay:.16s}
+.screen-enter>*:nth-child(4){animation-delay:.24s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(4px)}}
+.shake{animation:shake .45s}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.4)}100%{transform:scale(1)}}
+.pop{display:inline-block;animation:pop .45s ease}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(242,166,76,.85)}100%{box-shadow:0 0 0 24px rgba(242,166,76,0)}}
+.map-pin.ping{animation:ping .9s ease-out 2}
+.confetti{position:fixed;top:-20px;width:10px;height:14px;z-index:70;pointer-events:none;border-radius:2px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
+.option,.act-card,.btn{transition:transform .15s,background .15s,box-shadow .15s}
+.option:active:not(:disabled),.btn:active{transform:scale(.97)}
+.option.correct{animation:pop .45s ease}
+
+/* ILUSTRACIONES */
+.scene{margin:0 0 14px;border-radius:16px;overflow:hidden;background:#fff;border:1px solid var(--line)}
+.scene svg{display:block;width:100%;height:auto;max-height:260px}
+.scene figcaption{padding:9px 12px;font-size:13px;font-weight:850;color:var(--navy);line-height:1.4}
+.scene-mini{display:inline-block;flex-shrink:0;width:64px;height:40px;border-radius:8px;overflow:hidden;border:1px solid var(--line);background:#fff;vertical-align:middle}
+.scene-mini svg{width:100%;height:100%;display:block}
+.scene-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:14px 0}
+.scene-row .scene-mini{width:96px;height:60px}
+.chip{gap:10px}
+.chip .scene-mini{width:56px;height:36px}
+.option .scene-mini{width:56px;height:36px}
+.act-card .scene-mini{width:60px;height:38px;margin-right:10px}
+.act-card{display:flex;align-items:center}
+/* ACCESIBILIDAD Y RETOQUES VISUALES */
+.skip-link{position:absolute;left:12px;top:-80px;z-index:60;background:#fff;color:var(--navy);padding:11px 16px;border-radius:12px;font-weight:900;box-shadow:var(--shadow);text-decoration:none}
+.skip-link:focus{top:12px}
+main:focus,h1[tabindex="-1"]:focus{outline:none}
+.dots{display:inline-flex;gap:6px;align-items:center;margin-right:2px}
+.task-card{border-top:6px solid var(--teal)}
+.medal{background:none;box-shadow:none;width:auto;height:auto;margin:0 auto 14px}
+.medal svg{display:block;margin:0 auto;filter:drop-shadow(0 6px 0 rgba(213,140,53,.35))}
+.viewer-body:focus-visible{outline:4px solid #f9bb55;outline-offset:-4px}
+.map-pin:focus-visible{outline:4px solid #f9bb55;outline-offset:4px}
+@media (prefers-contrast:more){:root{--line:#6d8190;--muted:#334657;--teal:#0d6d66;--teal-dark:#084f49}.option,.chip,.tool,.btn-outline{border-width:3px}.task-card,.map-card,.material,.info-card{border:2px solid #7b8f9b}}
+
+/* TARJETAS PARA ARRASTRAR */
+.board{display:grid;gap:14px}
+.bank{display:flex;flex-wrap:wrap;gap:10px;padding:12px;border:2px dashed #7a9bbf;border-radius:14px;background:#f7fbff;min-height:96px;align-content:flex-start}
+.drag-item{display:flex;flex-direction:column;align-items:center;gap:4px;width:124px;padding:8px;border:2px solid var(--line);border-radius:12px;background:#fff;font-weight:900;color:var(--navy);cursor:grab;touch-action:none;font-size:14px;text-align:center;user-select:none}
+.drag-item:active{cursor:grabbing}
+.drag-item .act-icon{width:64px;margin:0}
+.drag-item.picked{border:3px solid #f2b233;background:#fff6dc;transform:translateY(-2px);box-shadow:0 6px 0 #e6c46a}
+.zones{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.drop-zone{min-height:150px;border:2px dashed #7a9bbf;border-radius:14px;padding:10px;background:#fff;transition:background .15s,border-color .15s,transform .15s}
+.drop-zone.over{background:#fff6dc;border-color:#f2b233;transform:scale(1.02)}
+.zone-title{margin:0 0 8px;color:var(--navy);font-size:17px}
+.zone-items{display:flex;flex-direction:column;gap:6px}
+.placed-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border:2px solid var(--line);border-radius:10px;background:#fff;font-weight:850;text-align:left;cursor:pointer;color:var(--navy);font-size:14px}
+.placed-item svg{width:44px;height:30px;flex-shrink:0}
+.placed-item small{display:block;font-weight:700;color:#9a4a3d}
+.placed-item.good{border-color:#2ca58c;background:#edfaf4}
+.placed-item.bad{border-color:#d97467;background:#fff1ee}
+.zone-btn{margin-top:10px;width:100%}
+
+/* MAPA DE CLIMAS */
+.clima-box{display:grid;gap:12px;margin-bottom:18px}
+.clima-map svg{width:100%;max-width:300px;height:auto;display:block;margin:0 auto;border:1px solid var(--line);border-radius:14px;background:#eaf6fb}
+.clima-map rect{cursor:pointer;transition:opacity .15s}
+.clima-map rect:hover{opacity:.85}
+.clima-map text{pointer-events:none}
+.clima-btns{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+/* MAPA DE CLIMAS CON REFERENCIAS */
+.clima-ref{display:grid;grid-template-columns:minmax(180px,.8fr) minmax(200px,1fr);gap:16px;align-items:center}
+.clima-ref .clima-map svg{max-width:260px}
+.clima-legend div{margin:8px 0;font-weight:800;color:#2f4a60;line-height:1.5;font-size:14px}
+.clima-legend .key{display:inline-block;width:14px;height:14px;border-radius:4px;margin-right:8px;vertical-align:middle}
+@media(max-width:700px){.clima-ref{grid-template-columns:1fr}}
+/* VISTA RELIEVE / CLIMA */
+.map-view{display:flex;gap:8px;justify-content:center;margin:0 0 10px}
+.map-legend[hidden]{display:none}
+.clima-leg{margin-top:6px}
+/* MAPA DE CLIMAS EN LETRA DE IMPRENTA */
+.clima-info{display:grid;grid-template-columns:1fr minmax(210px,.9fr) 1fr;gap:14px;align-items:start;margin-top:14px}
+.clima-col{display:grid;gap:12px}
+.clima-mapa{margin:0;text-align:center}
+.clima-mapa img{width:100%;max-width:330px;height:auto;display:block;margin:0 auto;border-radius:12px;border:1px solid var(--line)}
+.clima-mapa figcaption{margin-top:8px;font-weight:900;color:var(--navy);font-size:14px;line-height:1.4}
+.clima-card{border:3px solid;border-radius:16px;padding:12px 14px;background:#fff;text-transform:uppercase}
+.clima-card h3{margin:0 0 8px;font-size:19px;letter-spacing:.02em}
+.clima-card.cal{border-color:#e4707a}.clima-card.cal h3{color:#b83a48}
+.clima-card.tem{border-color:#7cc04a}.clima-card.tem h3{color:#3f8a22}
+.clima-card.ari{border-color:#f0a040}.clima-card.ari h3{color:#a85a10}
+.clima-card.fri{border-color:#3d7fd6}.clima-card.fri h3{color:#2f6bb8}
+.clima-card.nota{border-color:#9b6bb8}.clima-card.nota p{margin:0;font-weight:800;font-size:14px;line-height:1.5;color:#3d2a52}
+.clima-body{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center}
+.clima-icons{display:flex;flex-direction:column;gap:6px;align-items:center}
+.clima-icons img{width:64px;height:auto;max-height:64px;object-fit:contain}
+.clima-card ul{margin:0;padding-left:18px;font-weight:800;font-size:14px;line-height:1.45;color:#2f4a60}
+.clima-card ul li{margin-bottom:6px}
+.clima-card.nota .clima-body{grid-template-columns:auto 1fr}
+@media(max-width:760px){.clima-info{grid-template-columns:1fr}.clima-mapa{order:-1}}
+/* PANTALLA ÚNICA DE JUEGOS */
+.menu-h{margin:18px 0 4px;color:var(--navy);font-size:18px;letter-spacing:.03em}
+.act-card.main{background:var(--teal);color:#fff;border-color:var(--teal);font-size:17px;min-height:70px;grid-column:1/-1}
+.act-card.main:hover{background:var(--teal-dark);border-color:var(--teal-dark)}
+
+/* REDISEÑO ACCESIBLE DE LA LÁMINA DE CLIMAS: ALTO CONTRASTE, TIPOS Y SÍMBOLOS */
+.climate-unit{background:#fff;border:2px solid #c5d3de;box-shadow:0 12px 30px rgba(15,37,57,.09);padding:clamp(16px,3vw,30px);overflow:hidden}
+.climate-titlebar{background:#4e5f74;color:#fff;border-radius:17px;padding:20px clamp(16px,3vw,28px);text-align:center}
+.climate-titlebar .climate-subhead{display:block;color:#eef2f5;font-size:14px;font-weight:850;letter-spacing:.09em;margin-bottom:8px}
+.climate-titlebar h2{color:#fff!important;font-size:clamp(25px,3.7vw,41px);letter-spacing:.02em;margin:0 0 9px;line-height:1.13}
+.climate-titlebar p{color:#f8fafb!important;margin:0;font-size:clamp(15px,1.6vw,18px);font-weight:750;line-height:1.45}
+.climate-simple-wrap{display:grid;gap:16px;margin-top:14px}
+.climate-simple-card{background:#fffdf9;border:1px solid #ddd8cb;border-radius:18px;padding:16px}
+.climate-simple-card p{margin:0;color:var(--muted);line-height:1.6}
+.climate-original-img{background:#fff;border:1px solid #d6dbdc;border-radius:16px;padding:10px}
+.climate-poster-details{margin-top:14px;background:#f7f5ee;border:1px solid #ddd8cb;border-radius:14px;padding:10px 14px}
+.climate-poster-details summary{font-weight:900;cursor:pointer;color:var(--navy)}
+.climate-poster-details img{display:block;width:100%;height:auto;max-height:900px;object-fit:contain;margin-top:12px;background:#fff;border-radius:12px;border:1px solid #d6dbdc}
+.climate-layout{display:grid;grid-template-columns:minmax(290px,.92fr) minmax(0,1.45fr);gap:22px;align-items:start;margin-top:22px}
+.climate-map-panel{margin:0;border:2px solid #B6C8D6;border-radius:20px;background:#F7FAFC;padding:16px;min-width:0}
+.climate-panel-heading{color:#16314D;font-size:17px;line-height:1.35;text-align:center;font-weight:950;margin:0 0 8px}
+.climate-map-art{width:min(100%,335px);margin:auto;display:block;height:auto;max-height:560px}
+.climate-map-caption{text-align:center;font-size:12px;line-height:1.5;color:#3B5166;margin:6px auto 14px;font-weight:750}
+.climate-key-title{font-weight:950;color:#16314D;font-size:14px;margin-bottom:9px}
+.climate-key{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.climate-key-item{display:flex;align-items:center;gap:8px;border:1.5px solid #ADBECB;border-radius:10px;background:#fff;padding:9px 7px;font-size:13px;font-weight:900;color:#132D45;line-height:1.15}
+.climate-key-index{flex:0 0 25px;display:grid;place-items:center;width:25px;height:25px;border-radius:6px;font-size:14px;font-weight:950;color:#fff;background:var(--accent)}
+.climate-explain{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch}
+.climate-topic{border:2px solid #BCCBD5;border-radius:16px;overflow:hidden;background:white;min-width:0;display:flex;flex-direction:column}
+.climate-topic.cal{--accent:#9F2937;--pale:#FFF3F3}
+.climate-topic.tem{--accent:#006861;--pale:#EEF8F4}
+.climate-topic.ari{--accent:#875100;--pale:#FFF8E9}
+.climate-topic.fri{--accent:#214D99;--pale:#F2F6FF}
+.climate-topic-title{display:flex;gap:9px;align-items:center;background:var(--accent);color:white;padding:12px 14px;min-height:65px}
+.climate-topic-number{display:grid;place-items:center;flex:0 0 32px;height:32px;border-radius:8px;background:white;color:var(--accent);font-size:16px;font-weight:950}
+.climate-topic-title h3{font-size:clamp(15px,1.65vw,19px);line-height:1.22;letter-spacing:0;margin:0;color:#fff}
+.climate-topic-content{background:var(--pale);flex:1;padding:15px 15px 16px}
+.climate-topic-symbol{display:flex;align-items:center;gap:9px;color:#20394E;margin-bottom:9px;font-weight:850;font-size:13px}
+.climate-topic-symbol .climate-icon{font-size:34px;line-height:1.1}
+.climate-topic ul{margin:0;padding-left:21px;color:#172E42;font-size:clamp(14px,1.4vw,16px);line-height:1.48;font-weight:750}
+.climate-topic li{margin:0 0 10px;padding-left:0}
+.climate-topic li:last-child{margin-bottom:0}
+.climate-conclusion{display:flex;align-items:center;gap:14px;margin-top:20px;background:#EAF2F8;color:#14324C;border:2px solid #A5C1D5;border-left:8px solid #245B80;padding:15px 17px;border-radius:14px;font-size:clamp(15px,1.6vw,18px);font-weight:900;line-height:1.45}
+.climate-conclusion-icon{font-size:31px;flex:0 0 auto}
+.climate-poster-details{margin-top:14px;background:#fff;border:1.5px solid #AFBECC;border-radius:12px;padding:11px 14px}
+.climate-poster-details summary{color:#143650;font-weight:900;cursor:pointer;font-size:15px}
+.climate-poster-details img{display:block;width:100%;height:auto;border-radius:10px;margin-top:14px;border:1px solid #9FB5C7}
+.large-text .climate-topic ul{font-size:20px!important}
+.large-text .climate-key-item,.large-text .climate-map-caption{font-size:17px!important}
+@media(max-width:940px){.climate-layout{grid-template-columns:minmax(0,1fr);gap:16px}.climate-map-panel{width:100%}.climate-explain{grid-template-columns:repeat(2,minmax(0,1fr))}.climate-map-art{width:min(90%,330px)}}
+@media(max-width:600px){.climate-unit{padding:12px}.climate-layout{margin-top:14px}.climate-explain{grid-template-columns:1fr;gap:12px}.climate-topic-title{min-height:55px}.climate-topic ul{font-size:16px}.climate-key-item{font-size:12px}.climate-conclusion{align-items:flex-start}.climate-titlebar h2{font-size:26px}.climate-titlebar{padding:18px 11px}}
+@media print{.climate-poster-details{display:none}.climate-layout{grid-template-columns:1fr 1.4fr}.climate-explain{grid-template-columns:1fr 1fr}.climate-unit{break-inside:avoid}}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#screen">Saltar al juego</a>
+<div class="app" id="app">
+  <header class="topbar"><div class="brand"><span class="brandmark" aria-hidden="true">◈</span><span>GEOGRAFÍA · ARGENTINA</span></div><div class="tools"><button class="tool" id="audioBtn" type="button" aria-pressed="false" title="Activar la lectura en voz alta">🔈 AUDIO</button><button class="tool" id="fontBtn" type="button" aria-pressed="false" title="Aumentar o reducir el tamaño de letra">A+ LETRA GRANDE</button><button class="tool" id="sfxBtn" type="button" aria-pressed="true" title="Activar o desactivar los efectos de sonido">🔔 SONIDOS</button><button class="tool" id="homeBtn" type="button" title="Volver al inicio">⌂ INICIO</button></div></header>
+  <section class="progress" id="progress" hidden><div class="progress-top"><span id="progressLabel">MISIÓN 1 DE 4</span><span id="progressPct">0 %</span></div><div class="track" id="track"></div><span class="walker" id="walker" aria-hidden="true"><svg viewBox="0 0 30 34" width="30" height="34" focusable="false"><circle cx="15" cy="10" r="7" fill="#f2c28b" stroke="#3b3a5c" stroke-width="1.5"/><path d="M6 8Q15-2 24 8z" fill="#0b665f"/><path d="M11 9h.01M19 9h.01" stroke="#3b3a5c" stroke-width="2.4" stroke-linecap="round"/><path d="M11 13q4 3 8 0" fill="none" stroke="#3b3a5c" stroke-width="1.5" stroke-linecap="round"/><rect x="9" y="19" width="12" height="11" rx="4" fill="#f2a64c" stroke="#3b3a5c" stroke-width="1.5"/></svg></span></section>
+  <main id="screen" aria-label="Juego de geografía" tabindex="-1"></main>
+  <footer class="footer">Juego educativo basado en la ficha «Mapa de relieves de Argentina · Colorea y aprende». Se puede jugar sin conexión a internet.<br><span>Mapa ilustrativo: las ubicaciones de las marcas son aproximadas.</span></footer>
+  <div id="live" class="sr-only" role="status" aria-live="polite"></div>
+  <div class="photo-viewer" id="photoViewer" hidden role="dialog" aria-modal="true" aria-labelledby="photoTitle">
+    <div class="viewer-top"><strong id="photoTitle">MAPA DE RELIEVES DE ARGENTINA · FICHA ORIGINAL</strong>
+      <div class="viewer-controls"><button type="button" id="zoomPhotoBtn">🔎 Ampliar</button><button type="button" id="closePhotoBtn">✕ Cerrar</button></div>
+    </div><div class="viewer-body" id="viewerBody" tabindex="0" role="region" aria-label="Imagen ampliable del mapa"><img id="sourceViewerImage" alt="Mapa de relieves de Argentina de la ficha escolar: cordillera de los Andes, mesetas patagónicas, llanuras pampeana y chaqueña, sierras pampeanas; con explicaciones."></div>
+    <p class="viewer-note">Podés ampliar el mapa y desplazarte para leer los nombres y las características.</p>
+  </div>
+</div>
+<script src="assets/p01.js"></script>
+<script src="assets/p02.js"></script>
+<script src="assets/p03.js"></script>
+<script src="assets/p04.js"></script>
+<script src="assets/p05.js"></script>
+<script src="assets/p06.js"></script>
+<script src="assets/p07.js"></script>
+<script src="assets/p08.js"></script>
+<script src="assets/p09.js"></script>
+<script src="assets/p10.js"></script>
+<script src="assets/p11.js"></script>
+<script src="assets/p12.js"></script>
+<script src="assets/p13.js"></script>
+<script src="assets/p14.js"></script>
+<script src="assets/p15.js"></script>
+<script>
+'use strict';
+const coverImage=window.__IMAGES.coverImage;
+const originalMapImage=window.__IMAGES.originalMapImage;
+const studyMapImage=window.__IMAGES.studyMapImage;
+const terrainMapImage=window.__IMAGES.terrainMapImage;
+const reliefs = [
+ {id:'andes',name:'Cordillera de los Andes',short:'MONTAÑAS',kind:'Montañas',desc:'Grandes montañas y glaciares.',place:'Al oeste del país.',x:21,y:47,icon:'mountain',color:'#c6b5e5'},
+ {id:'mesetas',name:'Mesetas patagónicas',short:'MESETAS',kind:'Mesetas',desc:'Altiplanicies escalonadas en el sur.',place:'En la Patagonia, al sur del país.',x:38,y:78,icon:'plateau',color:'#f0c5a5'},
+ {id:'pampeana',name:'Llanura pampeana',short:'LLANURAS',kind:'Llanura',desc:'Llanura fértil, donde se practica la agricultura.',place:'En el centro-este del país.',x:67,y:47,icon:'plain',color:'#b5dfaa'},
+ {id:'chaquena',name:'Llanura chaqueña',short:'LLANURAS',kind:'Llanura',desc:'Llanura con bosques y ríos en el norte.',place:'En el norte del país.',x:61,y:23,icon:'chaco',color:'#c7e8af'},
+ {id:'sierras',name:'Sierras pampeanas',short:'SIERRAS',kind:'Sierras',desc:'Sierras bajas en el centro del país.',place:'En el centro del país.',x:38,y:36,icon:'hills',color:'#f3d58c'}
+];
+const byId = id=>reliefs.find(r=>r.id===id);
+const questions=[
+ {q:'Soy un conjunto de grandes montañas y glaciares. ¿Quién soy?',a:'andes',choices:['andes','mesetas','sierras'],hint:'Pensá en el relieve del oeste del país.'},
+ {q:'Soy una llanura fértil donde se practica la agricultura. ¿Quién soy?',a:'pampeana',choices:['pampeana','chaquena','mesetas'],hint:'Estoy en el centro-este de Argentina.'},
+ {q:'Soy una llanura con bosques y ríos, en el norte. ¿Quién soy?',a:'chaquena',choices:['chaquena','pampeana','sierras'],hint:'Mi nombre se relaciona con la región chaqueña.'},
+ {q:'Soy una altiplanicie escalonada del sur. ¿Quién soy?',a:'mesetas',choices:['andes','mesetas','pampeana'],hint:'Me encuentro en la Patagonia.'},
+ {q:'Soy un conjunto de sierras bajas en el centro del país. ¿Quién soy?',a:'sierras',choices:['sierras','andes','chaquena'],hint:'No soy la gran cordillera del oeste.'}
+];
+const statements=[
+ {q:'La cordillera de los Andes tiene grandes montañas y glaciares.',a:true,ex:'La cordillera de los Andes se caracteriza por sus grandes montañas y glaciares.'},
+ {q:'Las mesetas patagónicas están en el norte del país.',a:false,ex:'Las mesetas patagónicas se encuentran en el sur, en la Patagonia.'},
+ {q:'La llanura pampeana es fértil y se utiliza para la agricultura.',a:true,ex:'La fertilidad de la llanura pampeana favorece la agricultura.'},
+ {q:'La llanura chaqueña está en el sur y tiene glaciares.',a:false,ex:'La llanura chaqueña está en el norte y tiene bosques y ríos.'},
+ {q:'Las Sierras Pampeanas son sierras bajas del centro del país.',a:true,ex:'Las Sierras Pampeanas están ubicadas en el centro del país.'}
+];
+let s={stage:0,seen:new Set(),active:null,score:0,qa:0,qAnswer:null,qHint:false,selected:null,placed:new Set(),mapMsg:null,st:0,stAnswer:null,voice:false,largeText:false,act:null,answers:{},checked:false,picked:null};
+const $=id=>document.getElementById(id);
+function escapeHTML(text){return String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function name(id){return byId(id).name}
+function say(text,force=false){if(!s.voice&&!force)return;if(!('speechSynthesis' in window))return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='es-AR';u.rate=.91;u.pitch=1;const voices=speechSynthesis.getVoices();u.voice=voices.find(v=>v.lang==='es-AR')||voices.find(v=>v.lang.startsWith('es'))||null;speechSynthesis.speak(u)}catch(e){}}
+function alertLive(t){$('live').textContent=t}
+function iconSVG(type){
+const ink='#3b3a5c';
+const sw=`stroke="${ink}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"`;
+const ground=`<path d="M2 44.5h66" fill="none" stroke="${ink}" stroke-width="2.2" stroke-linecap="round"/>`;
+const svg=c=>`<svg viewBox="0 0 70 48" aria-hidden="true" focusable="false">${c}</svg>`;
+if(type==='mountain')return svg(`<path d="M30 44 47 14l19 30z" fill="#b9a6dd" ${sw}/><path d="M3 44 22 9l20 35z" fill="#8a72c4" ${sw}/><path d="M22 9l-7 12 4-2 3 4 3-5 3 2z" fill="#fff" ${sw}/><path d="M47 14l-4 7 3-1 2 3 2-3 2 1z" fill="#fff" ${sw}/>${ground}`);
+if(type==='plateau')return svg(`<path d="M3 44V31h18V20h16V9h30v35z" fill="#eba77c" ${sw}/><path d="M3 37h18M21 27h16M37 16h30" fill="none" stroke="#b1663c" stroke-width="1.4"/><path d="M8 25h7M42 13h8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".7"/>${ground}`);
+if(type==='plain')return svg(`<rect x="2" y="25" width="66" height="19" rx="4" fill="#c4e6a6" ${sw}/><path d="M9 32h54M9 38h54" fill="none" stroke="#84b86a" stroke-width="1.6"/><circle cx="55" cy="11" r="6" fill="#f6c453" ${sw}/><path d="M14 25v-11M30 25v-9M46 25v-11" fill="none" stroke="${ink}" stroke-width="1.6"/><ellipse cx="14" cy="11" rx="2.2" ry="3.4" fill="#f2b84b" ${sw}/><ellipse cx="30" cy="13" rx="2.2" ry="3.4" fill="#f2b84b" ${sw}/><ellipse cx="46" cy="11" rx="2.2" ry="3.4" fill="#f2b84b" ${sw}/>${ground}`);
+if(type==='chaco')return svg(`<rect x="2" y="30" width="66" height="14" rx="4" fill="#b5e0a0" ${sw}/><path d="M12 28v10M26 26v12M52 28v9" fill="none" stroke="#7a5a33" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="20" r="7.5" fill="#3f9a57" ${sw}/><circle cx="26" cy="17" r="8.5" fill="#2f8a4d" ${sw}/><circle cx="52" cy="21" r="7" fill="#3f9a57" ${sw}/><path d="M37 47c-3-5 5-8 3-13s-5-7 1-12 6-6 3-10" fill="none" stroke="#5aa9d6" stroke-width="3.2" stroke-linecap="round"/>${ground}`);
+return svg(`<path d="M16 44c2-14 9-21 19-21s16 7 18 21z" fill="#e7b24c" ${sw}/><path d="M2 44c3-9 11-13 19-11 7 2 10 8 11 11z" fill="#f6d68a" ${sw}/><path d="M46 44c3-7 9-10 16-9 4 1 6 4 6 9z" fill="#dda23c" ${sw}/><circle cx="31" cy="30" r="2.4" fill="#3f9a57"/><circle cx="12" cy="37" r="2" fill="#3f9a57"/>${ground}`);
+}
+const mapShape='M133 28 L142 37 L147 52 L159 60 L160 76 L177 80 L191 98 L205 99 L217 85 L230 96 L247 93 L258 108 L273 108 L280 123 L292 120 L302 139 L297 158 L284 165 L283 179 L293 188 L287 201 L299 216 L295 237 L279 245 L286 268 L272 279 L266 300 L277 324 L265 343 L276 360 L273 379 L264 398 L274 416 L265 431 L260 455 L250 468 L239 491 L228 502 L221 520 L207 531 L198 547 L181 562 L174 552 L168 537 L154 527 L145 513 L136 503 L131 485 L115 465 L110 442 L112 423 L107 402 L113 377 L112 357 L119 336 L112 316 L119 297 L114 274 L120 253 L114 229 L120 211 L114 190 L120 172 L113 152 L118 127 L114 110 L120 91 L116 78 L126 62 L125 47 Z';
+function mapSVG(){return `<img class="terrain-map" src="${terrainMapImage}" alt="Mapa ilustrado del relieve argentino con cordillera de los Andes al oeste, llanura chaqueña al norte, llanura pampeana al centro-este, sierras pampeanas en el centro y mesetas patagónicas al sur.">`}
+function mapMarkup(mode){let markers=reliefs.map((r,i)=>{const active=(s.active===r.id&&mode==='learn')||(s.selected===r.id&&mode==='place');const placed=s.placed.has(r.id)&&mode==='place';const symbol=placed?'✓':mode==='learn'?'✦':'?';const label=mode==='learn'?`Conocer ${r.name}`:`Zona ${i+1} del mapa`;
+return `<button type="button" class="map-pin ${active?'active':''} ${placed?'placed':''}" style="left:${r.x}%;top:${r.y}%" aria-label="${escapeHTML(label)}" data-action="pin" data-id="${r.id}" ${mode==='learn'&&active?'aria-current="true"':''} ${placed||mode==='quiz'?'disabled':''}><span aria-hidden="true">${symbol}</span></button>`}).join('');return `<div class="map-card"><div class="map-header"><span>MAPA INTERACTIVO</span><span>ARGENTINA</span></div><div class="map-shell">${mapSVG()}${markers}</div><div class="map-legend"><span><i class="key" style="background:#c6b5e5"></i>Montañas</span><span><i class="key" style="background:#f0c5a5"></i>Mesetas</span><span><i class="key" style="background:#b5dfaa"></i>Llanuras</span><span><i class="key" style="background:#f3d58c"></i>Sierras</span></div><p class="smallnote" style="margin:10px 5px 0">Las marcas señalan lugares aproximados, no límites exactos.</p></div>`}
+function referenceCard(){return `<section class="material" aria-labelledby="material-title"><div class="material-title"><div><span class="task-label">MAPA CON REFERENCIAS</span><h2 id="material-title">Reconocé los cinco relieves de Argentina</h2><p>Mirá los números, seguí las flechas y leé las características de cada relieve antes de jugar.</p></div><button class="btn btn-primary" type="button" data-action="study">🔎 Ampliar el nuevo mapa</button></div><img class="material-img map-ref-img" alt="Nuevo mapa de relieves de Argentina con referencias numeradas de cordillera de los Andes, mesetas patagónicas, llanura pampeana, llanura chaqueña y sierras pampeanas, y sus características." src="${studyMapImage}"><div class="material-legend">1. ANDES · 2. MESETAS PATAGÓNICAS · 3. LLANURA PAMPEANA · 4. LLANURA CHAQUEÑA · 5. SIERRAS PAMPEANAS</div></section>`}
+function coverGames(){return ``}
+function intro(){return `<section class="cover-panel" aria-label="Portada: Exploradores del relieve argentino">
+  <img class="cover-artwork" src="${coverImage}" alt="Portada ilustrada de Exploradores del Relieve Argentino: mapa de Argentina con la cordillera de los Andes, sierras pampeanas, llanuras chaqueña y pampeana y mesetas patagónicas; dos exploradores y un gran botón verde JUGAR.">
+  <button class="cover-play" type="button" data-action="start" aria-label="JUGAR. Comenzar la primera misión"><span class="sr-only">JUGAR. Comenzar el juego</span></button>
+  </section>
+  <section class="cover-guide"><div><span class="eyebrow">🌎 ¡BIENVENIDOS, EXPLORADORES!</span><h1>¡COMIENZA LA AVENTURA POR ARGENTINA!</h1><p>VIAJÁ POR EL MAPA PARA CONOCER LAS MONTAÑAS, LAS LLANURAS, LAS SIERRAS Y LAS MESETAS. SUPERÁ CUATRO MISIONES Y SUMÁ PUNTOS.</p><div class="cta-row"><button class="btn btn-primary" data-action="start">▶ JUGAR AHORA</button><button class="btn btn-secondary" data-action="hearintro">🔊 ESCUCHAR INTRODUCCIÓN</button><button class="btn btn-outline" data-action="menu">🧩 ACTIVIDADES EXTRA</button></div></div><details class="cover-steps"><summary>¿CÓMO SE JUEGA?</summary><ol><li>EXPLORÁ LOS CINCO RELIEVES TOCANDO EL MAPA.</li><li>DESCUBRÍ A QUÉ RELIEVE CORRESPONDE CADA PISTA.</li><li>UBICÁ LOS NOMBRES DE LOS RELIEVES EN EL MAPA.</li><li>RESPONDÉ VERDADERO O FALSO Y CONOCÉ TU PUNTAJE.</li></ol></details></section>
+  <div class="intro-reference"><img class="reference-thumb" src="${studyMapImage}" data-action="study" role="button" tabindex="0" title="AMPLIAR MAPA CON REFERENCIAS" alt="MAPA DE ARGENTINA CON CINCO RELIEVES, FLECHAS Y DESCRIPCIONES EN IMPRENTA MAYÚSCULA"><div><span class="task-label">TU MAPA DE ESTUDIO</span><h2>MAPA CON REFERENCIAS</h2><p>OBSERVÁ LOS CINCO RELIEVES, SUS NÚMEROS, SUS COLORES Y SUS CARACTERÍSTICAS. TODO EN LETRA IMPRENTA MAYÚSCULA.</p><button class="btn btn-primary" data-action="study">🗺️ VER MAPA CON REFERENCIAS</button> </div></div>`}
+function gameHeader(n,title,subtitle){return `<div class="game-head"><div><span class="eyebrow">MISIÓN ${n} DE 4</span><h1>${title}</h1><p>${subtitle}</p></div><div class="score">★ <span>${s.score}</span> PUNTOS</div></div>`}
+function counter(n,total){return `<div class="counter"><span class="dots" aria-hidden="true">${Array.from({length:total},(_,i)=>`<span class="dot ${i<n?'ok':''}"></span>`).join('')}</span> <span class="statline">${n} / ${total}<span class="sr-only"> completados</span></span></div>`}
+function infoRelief(r){return `<div class="info-card">${sceneFig(r.id)}<div class="relief-head"><div class="relief-icon">${iconSVG(r.icon)}</div><div><small>${escapeHTML(r.short)} · ${escapeHTML(r.kind)}</small><h3>${escapeHTML(r.name)}</h3></div></div><p class="relief-description">${escapeHTML(r.desc)}</p><p class="smallnote">📍 ${escapeHTML(r.place)}</p></div>`}
+function learn(){let r=s.active?byId(s.active):null;return gameHeader(1,'Explorá el mapa','Primero observá el mapa con referencias y después tocá cada estrella.')+referenceCard()+climaReferenceCard()+`<div class="game-grid">${mapMarkup('learn')}<div class="task-card"><span class="task-label">OBSERVÁ Y APRENDÉ</span><h2>Conocé los 5 relieves</h2><p>Las zonas del mapa están señaladas. Elegí una y leé su descripción.</p>${counter(s.seen.size,5)}${r?infoRelief(r):`<div class="task-note">👆 Tocá una estrella del mapa. Acá aparecerá el nombre, el tipo de relieve y una explicación sencilla.</div>`}<div class="actions">${r?`<button class="btn btn-secondary" data-action="readrelief">🔊 Escuchar este relieve</button>`:''}<button class="btn btn-primary" data-action="goquiz">Continuar a las pistas →</button></div></div></div>`}
+function quiz(){const q=questions[s.qa];return gameHeader(2,'¿De qué relieve se trata?','Leé la pista y elegí la respuesta correcta.')+`<div class="game-grid">${mapMarkup('quiz')}<div class="task-card"><span class="task-label">ADIVINÁ EL RELIEVE</span>${counter(s.qa+1,questions.length)}<h2>Pista ${s.qa+1}</h2><div class="quote">“${escapeHTML(q.q)}”</div><div class="options">${q.choices.map((id,i)=>{let c=s.qAnswer!==null;let cls=c?(id===q.a?'correct':id===s.qAnswer?'incorrect':''):'';return `<button class="option ${cls}" data-action="answer" data-id="${id}" ${c?'disabled':''}><span class="letter" aria-hidden="true">${'ABC'[i]}</span>${sceneMini(id)}${escapeHTML(name(id))}${c&&id===q.a?'<span aria-hidden="true"> ✓</span><span class="sr-only"> (respuesta correcta)</span>':''}${c&&id===s.qAnswer&&id!==q.a?'<span class="sr-only"> (tu respuesta, incorrecta)</span>':''}</button>`}).join('')}</div>${s.qAnswer!==null?`<div class="feedback ${s.qAnswer!==q.a?'wrong':''}" role="status"><strong>${s.qAnswer===q.a?'¡Muy bien! +10 puntos':'Buen intento, ahora ya lo sabés.'}</strong>La respuesta es <b>${escapeHTML(name(q.a))}</b>. ${escapeHTML(byId(q.a).desc)}</div>`:(s.qHint?`<div class="task-note">💡 ${escapeHTML(q.hint)}</div>`:'')}<div class="actions">${s.qAnswer===null?`<button class="btn btn-secondary" data-action="hint">💡 Necesito una pista</button><button class="btn btn-outline" data-action="readquestion">🔊 Escuchar</button>`:`<button class="btn btn-primary" data-action="nextquiz">${s.qa===questions.length-1?'Ir al mapa →':'Siguiente pregunta →'}</button>`}</div></div></div>`}
+function placing(){let all=s.placed.size===5;return gameHeader(3,'¡Armá el mapa!','Elegí una tarjeta con el nombre y tocá el punto donde se ubica.')+`<div class="game-grid">${mapMarkup('place')}<div class="task-card"><span class="task-label">UBICÁ CADA RELIEVE</span><h2>¿Dónde va cada uno?</h2>${counter(s.placed.size,5)}<p>1. Tocá un nombre. 2. Tocá el signo <b>?</b> del mapa en la zona correcta.</p><div class="chip-group">${reliefs.map(r=>`<button class="chip ${s.selected===r.id?'selected':''} ${s.placed.has(r.id)?'placed':''}" data-action="select" data-id="${r.id}" aria-pressed="${s.selected===r.id}" ${s.placed.has(r.id)?'disabled':''}>${sceneMini(r.id)}<span>${escapeHTML(r.name)}${s.placed.has(r.id)?'<span class="sr-only"> (ya ubicado)</span>':''}</span><small aria-hidden="true">${s.placed.has(r.id)?'✓':s.selected===r.id?'●':'+'}</small></button>`).join('')}</div>${s.mapMsg?`<div class="feedback ${s.mapMsg.ok?'':'wrong'}" role="status">${escapeHTML(s.mapMsg.text)}</div>`:`<div class="task-note">💡 Primero seleccioná uno de los nombres.</div>`}<div class="actions"><button class="btn btn-secondary" data-action="placehint" ${s.selected?'':'disabled'}>💡 Pista de ubicación</button>${all?`<button class="btn btn-primary" data-action="gotruefalse">Continuar al desafío final →</button>`:''}</div></div></div>`}
+function truefalse(){let q=statements[s.st];return gameHeader(4,'Verdadero o falso','Leé cada afirmación y decidí si es correcta.')+`<div class="game-grid">${mapMarkup('quiz')}<div class="task-card"><span class="task-label">DESAFÍO FINAL</span>${counter(s.st+1,statements.length)}<h2>Afirmación ${s.st+1}</h2>${sceneFig(stScenes[s.st])}<div class="quote">“${escapeHTML(q.q)}”</div><div class="truefalse">${[true,false].map(v=>`<button class="option ${s.stAnswer!==null?(q.a===v?'correct':s.stAnswer===v?'incorrect':''):''}" data-action="tf" data-value="${v}" ${s.stAnswer!==null?'disabled':''}>${v?'✓ Verdadero':'✕ Falso'}</button>`).join('')}</div>${s.stAnswer!==null?`<div class="feedback ${s.stAnswer!==q.a?'wrong':''}"><strong>${s.stAnswer===q.a?'¡Correcto! +5 puntos':'Aprendemos de cada intento.'}</strong>${escapeHTML(q.ex)}</div>`:''}<div class="actions">${s.stAnswer===null?`<button class="btn btn-outline" data-action="readstatement">🔊 Escuchar la afirmación</button>`:`<button class="btn btn-primary" data-action="nexttf">${s.st===statements.length-1?'Ver mi resultado 🏅':'Siguiente afirmación →'}</button>`}</div></div></div>`}
+function finish(){let msg=s.score>=125?'¡Excelente trabajo! Reconocés muy bien los relieves argentinos.':s.score>=80?'¡Muy buen trabajo! Ya conocés los principales relieves.':'¡Buen recorrido! Volvé a jugar para seguir aprendiendo.';return `<section class="end"><div class="medal" aria-hidden="true"><svg viewBox="0 0 64 64" width="92" height="92" focusable="false"><polygon points="19,3 29,3 27,26 22,22" fill="#168981"/><polygon points="35,3 45,3 42,22 37,26" fill="#dc7163"/><circle cx="32" cy="40" r="20" fill="#f2a64c" stroke="#b86f1f" stroke-width="3"/><circle cx="32" cy="40" r="13" fill="#ffd98a" stroke="#d58c35" stroke-width="2"/><path d="M32 31L34.35 36.76L40.56 37.22L35.8 41.24L37.29 47.28L32 44L26.71 47.28L28.2 41.24L23.44 37.22L29.65 36.76Z" fill="#b86f1f"/></svg></div><span class="eyebrow">MISIÓN COMPLETADA</span><h1>¡Sos explorador/a del relieve!</h1><p>${msg}</p><div class="scene-row">${reliefs.map(r=>sceneMini(r.id)).join('')}</div><div class="bigscore">${s.score} / 150</div><p>puntos obtenidos</p><div class="trophy-row"><span class="tiny-stat">✓ 5 relieves explorados</span><span class="tiny-stat">✓ 4 misiones</span><span class="tiny-stat">✓ Argentina</span></div><div class="actions" style="justify-content:center"><button class="btn btn-primary" data-action="restart">↺ Jugar de nuevo</button><button class="btn btn-outline" data-action="menu">🎮 Todos los juegos</button><button class="btn btn-secondary" data-action="print">▤ Imprimir resultado</button></div><p class="smallnote">Los puntos ayudan a seguir el progreso. Podés intentarlo todas las veces que quieras.</p></section>`}
+function updateProgress(){let prog=$('progress');prog.hidden=s.stage===0||s.stage>=5;if(s.stage>0&&s.stage<5){$('progressLabel').textContent=`MISIÓN ${s.stage} DE 4`;$('progressPct').textContent=`${s.stage*25}%`;$('walker').style.left=`${Math.min(s.stage*25,94)}%`;$('track').innerHTML=[1,2,3,4].map(n=>`<div class="segment ${n<s.stage?'done':n===s.stage?'current':''}"></div>`).join('')}}
+
+const acts=[
+ {id:'mapa-clima',title:'Mapa de los climas',intro:'Tocá cada zona del mapa para conocer su clima y después respondé las preguntas.',kind:'choose',map:true,ex:'El norte es cálido; el centro, templado; y el sur y las cumbres, frío.',items:[{q:'¿Dónde hace más calor?',opts:[['norte','Norte'],['centro','Centro'],['sur','Sur y Cumbres']],a:'norte'},{q:'¿Dónde hace más frío?',opts:[['norte','Norte'],['centro','Centro'],['sur','Sur y Cumbres']],a:'sur'},{q:'¿Dónde se marcan más las estaciones del año?',opts:[['norte','Norte'],['centro','Centro'],['sur','Sur y Cumbres']],a:'centro'}]},
+ {id:'escena',title:'Mirar la escena: lugar y personas',intro:'Mirá el dibujo de la escena de la ciudad y respondé cada pregunta.',kind:'choose',ex:'La escena muestra una ciudad, con edificios, un hospital, una farmacia y muchas personas.',items:[{icon:'city',q:'¿Qué lugar ves?',opts:[['ciudad','Una ciudad'],['selva','Una selva']],a:'ciudad'},{q:'¿Hay personas?',opts:[['si','Sí'],['no','No']],a:'si'}]},
+ {id:'paisajes',title:'Montañas o llanuras',intro:'Mirá cada dibujo y decidí qué paisaje muestra.',kind:'classify',cats:[['mont','Montañas'],['llan','Llanuras']],ex:'Las montañas tienen picos altos; las llanuras son terrenos planos.',items:[{t:'Paisaje con picos altos',icon:'mountain',a:'mont'},{t:'Paisaje plano y fértil',icon:'plain',a:'llan'}]},
+ {id:'dibujos-fh',title:'Geografía física o humana con dibujos',intro:'Decidí qué geografía estudia cada dibujo.',kind:'classify',cats:[['fisica','Geografía física'],['humana','Geografía humana']],ex:'La naturaleza (montañas, ríos) es de la geografía física; las casas y las actividades de las personas son de la humana.',items:[{t:'Montañas',icon:'mountain',a:'fisica'},{t:'Río con árboles',icon:'chaco',a:'fisica'},{t:'Casas',icon:'house',a:'humana'},{t:'Campo con personas trabajando',icon:'plain',a:'humana'}]},
+ {id:'dibujos-hg',title:'Historia o geografía con dibujos',intro:'Decidí qué estudia cada dibujo.',kind:'classify',cats:[['geo','Geografía'],['hist','Historia']],ex:'La historia muestra cómo vivían las personas antes; la geografía muestra cómo son los lugares.',items:[{t:'Calle antigua con carruajes',icon:'oldstreet',a:'hist'},{t:'Paisaje con río y árboles',icon:'chaco',a:'geo'}]},
+ {id:'marcar',title:'Marcar la respuesta',intro:'Elegí la opción correcta en cada frase.',kind:'choose',ex:'La geografía física estudia la naturaleza; la geografía humana estudia a las personas.',items:[{q:'La geografía física estudia…',opts:[['nat','La naturaleza'],['per','Las personas']],a:'nat'},{q:'La geografía humana estudia…',opts:[['mont','Las montañas'],['per','Las personas']],a:'per'}]},
+ {id:'clima-zona',title:'Clima según la zona',intro:'Uní cada zona del país con su clima.',kind:'match',ex:'El norte es cálido; el centro, templado; y el sur y las cumbres, frío.',items:[{c:'Norte',a:'Clima cálido: temperaturas altas y lluvias'},{c:'Centro',a:'Clima templado: estaciones marcadas y lluvias regulares'},{c:'Sur y Cumbres',a:'Clima frío: temperaturas bajas, nieve y veranos breves'}]},
+ {id:'relieve-zona',title:'Formas del relieve por zona',intro:'Uní cada forma del relieve con la zona donde se encuentra.',kind:'match',ex:'La cordillera está al oeste; las llanuras, en el centro y el este; las mesetas, en el sur y noreste; y las sierras, en el interior.',items:[{c:'Cordillera de los Andes',a:'Oeste'},{c:'Llanuras',a:'Centro y este'},{c:'Mesetas',a:'Sur y noreste'},{c:'Sierras',a:'Interior'}]},
+
+ {id:'fisica',title:'Física o humana',intro:'Decidí si cada palabra corresponde a la naturaleza (geografía física) o a las personas y sus actividades (geografía humana).',kind:'classify',cats:[['fisica','Geografía física'],['humana','Geografía humana']],ex:'La geografía física estudia la naturaleza; la geografía humana estudia a las personas y lo que hacen.',items:[{t:'Ríos',a:'fisica'},{t:'Montañas',a:'fisica'},{t:'Clima',a:'fisica'},{t:'Casas',a:'humana'},{t:'Ciudades',a:'humana'},{t:'Trabajo',a:'humana'}]},
+ {id:'geohist',title:'Geografía o historia',intro:'La geografía estudia los lugares donde vivimos. La historia estudia lo que pasó antes.',kind:'classify',cats:[['geo','Geografía'],['hist','Historia']],ex:'La geografía ubica y describe lugares; la historia cuenta cómo vivían las personas en otros tiempos.',items:[{t:'Estudiar un mapa',a:'geo'},{t:'Estudiar los ríos',a:'geo'},{t:'Nos dicen dónde quedan los lugares',a:'geo'},{t:'Conocer cómo era la escuela antes',a:'hist'},{t:'Estudiar lo que pasó antes',a:'hist'}]},
+ {id:'construido',title:'¿Lo construyeron las personas?',intro:'Respondé sí o no para cada elemento de la escena.',kind:'yesno',ex:'Las casas, los negocios, las plazas y los autos los construyen las personas. Las montañas y los árboles existen sin que nadie los haga.',items:[{t:'Casas',a:true},{t:'Montañas',a:false},{t:'Negocios',a:true},{t:'Plazas',a:true},{t:'Autos',a:true},{t:'Árboles',a:false}]},
+ {id:'vf',title:'Verdadero o falso: relieve y clima',intro:'Leé cada afirmación y marcá si es verdadera o falsa.',kind:'vf',items:[{q:'Según la introducción, el relieve nos muestra cómo varía la altura del terreno del país.',a:true,ex:'El relieve muestra cómo cambia la altura del terreno de un extremo a otro del país.'},{q:'La Cordillera de los Andes se ubica en la zona este del territorio argentino.',a:false,ex:'La cordillera de los Andes está en el oeste del país.'},{q:'Las llanuras del centro y este son terrenos planos y fértiles.',a:true,ex:'Las llanuras pampeana y chaqueña son planas y fértiles.'},{q:'El clima del norte argentino se caracteriza por ser frío y con presencia de nieve.',a:false,ex:'El norte tiene clima cálido, con temperaturas altas y lluvias.'}]},
+ {id:'unir',title:'Unir cada concepto con su característica',intro:'Para cada concepto, elegí en la lista la característica que le corresponde.',kind:'match',ex:'Cada concepto tiene una característica que lo describe.',items:[{c:'Cordillera de los Andes',a:'Montañas muy altas ubicadas en el oeste'},{c:'Llanura pampeana',a:'Terreno plano y fértil, ideal para el campo'},{c:'Clima templado',a:'Clima con temperaturas moderadas y estaciones marcadas'}]},
+ {id:'diferencia',title:'Relieve y clima: ¿qué nos enseña cada uno?',intro:'Respondé por escrito en tu carpeta y después compará con la respuesta modelo.',kind:'reflect',question:'¿Qué diferencia principal señala el texto entre lo que nos enseña el relieve y lo que nos enseña el clima de nuestro país?',model:'El relieve nos muestra la forma y la altura del terreno: montañas, llanuras, mesetas y sierras. El clima nos enseña las temperaturas, las lluvias y cómo cambian las estaciones de norte a sur.'}
+];
+function hub(){return s.act?actScreen(acts.find(a=>a.id===s.act)):actMenu()}
+function actMenu(){return `<div class="game-head"><div><span class="eyebrow">ACTIVIDADES EXTRA</span><h1>PRACTICÁ CON OTRAS ACTIVIDADES</h1><p>ACÁ VAS A ENCONTRAR ACTIVIDADES PARA SEGUIR PRACTICANDO. EL JUEGO PRINCIPAL SE INICIA SOLO DESDE LA PORTADA.</p></div></div><div class="menu-grid">${acts.map(a=>`<button class="act-card" type="button" data-action="openact" data-id="${a.id}">${actMini(a.id)}${escapeHTML(a.title)}</button>`).join('')}</div><div class="actions"><button class="btn btn-outline" data-action="backintro">↩ VOLVER AL INICIO</button></div>`}
+
+function actGood(a,it,i){const v=s.answers[`${a.id}-${i}`];return a.kind==='yesno'?v===(it.a?'si':'no'):v===it.a}
+function actScore(a){let ok=0,total=0;(a.items||[]).forEach((it,i)=>{total++;if(actGood(a,it,i))ok++});return{ok,total}}
+function actLabel(a,it){if(it.opts)return it.opts.find(o=>o[0]===it.a)[1];if(a.kind==='classify')return a.cats.find(c=>c[0]===it.a)[1];if(a.kind==='yesno')return it.a?'Sí':'No';if(a.kind==='vf')return it.a?'Verdadero':'Falso';return it.a}
+function actIconOld(t){
+  const ink='#3b3a5c';const sw=`stroke="${ink}" stroke-width="1.6" stroke-linejoin="round"`;
+  const g=`<path d="M2 44.5h66" stroke="${ink}" stroke-width="2.2" stroke-linecap="round"/>`;
+  const map={
+    city:`<rect x="6" y="14" width="16" height="30" fill="#8fb3c9" ${sw}/><rect x="24" y="6" width="18" height="38" fill="#c6dbe6" ${sw}/><rect x="44" y="18" width="20" height="26" fill="#8fb3c9" ${sw}/><path d="M28 14h4M28 22h4M28 30h4M48 26h4M48 34h4" stroke="${ink}" stroke-width="2" stroke-linecap="round"/>${g}`,
+    jungle:`<path d="M6 44 14 22l8 22z" fill="#2f8a4d" ${sw}/><circle cx="30" cy="20" r="11" fill="#3f9a57" ${sw}/><circle cx="50" cy="24" r="9" fill="#2f8a4d" ${sw}/><path d="M30 31v13M50 33v11" stroke="#7a5a33" stroke-width="2.4"/>${g}`,
+    house:`<path d="M12 26 34 8l22 18v18H12z" fill="#e26d5c" ${sw}/><rect x="28" y="30" width="12" height="14" fill="#f6e3b0" ${sw}/>${g}`,
+    oldstreet:`<rect x="3" y="12" width="22" height="32" fill="#c9a074" ${sw}/><rect x="25" y="20" width="16" height="24" fill="#e8d6b5" ${sw}/><rect x="43" y="10" width="24" height="34" fill="#b8c9d9" ${sw}/><rect x="24" y="34" width="16" height="6" fill="#6b4a2b"/><circle cx="27" cy="42" r="3" fill="${ink}"/><circle cx="37" cy="42" r="3" fill="${ink}"/>${g}`
+  };
+  return `<svg viewBox="0 0 70 48" width="70" height="48" aria-hidden="true" focusable="false">${map[t]||iconSVG(t)}</svg>`;
+}
+function actBoard(a){
+  const k=i=>`${a.id}-${i}`;
+  const free=a.items.map((it,i)=>[it,i]).filter(([,i])=>!s.answers[k(i)]);
+  const bank=free.length?free.map(([it,i])=>`<button type="button" class="drag-item ${s.picked===k(i)?'picked':''}" data-action="pickitem" data-id="${k(i)}" aria-pressed="${s.picked===k(i)}">${it.icon?actIcon(it.icon):''}<span>${escapeHTML(it.t)}</span></button>`).join(''):'<p class="smallnote">¡Todas las tarjetas están ubicadas!</p>';
+  const zones=a.cats.map(([val,lab])=>{
+    const placed=a.items.map((it,i)=>[it,i]).filter(([,i])=>s.answers[k(i)]===val);
+    const list=placed.map(([it,i])=>{const cls=s.checked?(actGood(a,it,i)?'good':'bad'):'';const hint=s.checked&&!actGood(a,it,i)?`<small>Va en: ${escapeHTML(actLabel(a,it))}</small>`:'';return `<button type="button" class="placed-item ${cls}" data-action="unplace" data-id="${k(i)}" aria-label="${escapeHTML(it.t)}, quitar de ${escapeHTML(lab)}">${it.icon?actIcon(it.icon):''}<span>${escapeHTML(it.t)}${hint}</span></button>`}).join('');
+    return `<section class="drop-zone" data-zone="${a.id}|${val}" aria-labelledby="z-${a.id}-${val}"><h3 class="zone-title" id="z-${a.id}-${val}">${escapeHTML(lab)}</h3><div class="zone-items">${list||'<p class="smallnote">Ninguna todavía</p>'}</div>${s.picked?`<button type="button" class="btn btn-secondary zone-btn" data-action="dropzone" data-id="${a.id}|${val}">Colocar aquí</button>`:''}</section>`;
+  }).join('');
+  return `<p class="smallnote">Tocá una tarjeta y después tocá el lugar donde va, o arrastrala hasta allí.</p><div class="board"><div class="bank" aria-label="Tarjetas para ubicar">${bank}</div><div class="zones">${zones}</div></div>`;
+}
+function actMark(a,it,i){
+  if(!s.checked)return '';
+  const v=s.answers[`${a.id}-${i}`];
+  if(v===undefined||v==='')return `<span class="act-mark no">✕ Sin responder. La respuesta es: ${escapeHTML(actLabel(a,it))}</span>`;
+  return actGood(a,it,i)?'<span class="act-mark ok">✓ Correcto</span>':`<span class="act-mark no">✕ No es correcto. La respuesta es: ${escapeHTML(actLabel(a,it))}</span>`;
+}
+function actItem(a,i){
+  const it=a.items[i];const k=`${a.id}-${i}`;const v=s.answers[k];
+  const ex=s.checked?`<p class="smallnote">${escapeHTML(it.ex||a.ex||'')}</p>`:'';
+  if(a.kind==='vf'){
+    return `<div class="act-item"><p class="act-q">${i+1}. ${escapeHTML(it.q)}</p><div class="truefalse">${[true,false].map(b=>{
+      const cls=!s.checked?'':(b===it.a?'correct':(v===b?'incorrect':''));
+      return `<button type="button" class="option ${v===b?'chosen':''} ${cls}" data-action="actanswer" data-id="${k}" data-value="${b}" aria-pressed="${v===b}">${b?'✓ Verdadero':'✕ Falso'}</button>`;
+    }).join('')}</div>${actMark(a,it,i)}${ex}</div>`;
+  }
+  let opts;
+  if(it.opts)opts=it.opts;
+  else if(a.kind==='classify')opts=a.cats;
+  else if(a.kind==='yesno')opts=[['si','Sí'],['no','No']];
+  else opts=a.items.map((_,j)=>a.items[(j+1)%a.items.length].a).map(x=>[x,x]);
+  const label=it.t||it.c||it.q;const ic=it.icon?`<span class="act-icon">${actIcon(it.icon)}</span>`:'';
+  return `<div class="act-item">${ic}<label for="${k}">${escapeHTML(label)}</label><select id="${k}" data-field="${k}"><option value="">Elegí una opción</option>${opts.map(([val,lab])=>`<option value="${escapeHTML(val)}" ${v===val?'selected':''}>${escapeHTML(lab)}</option>`).join('')}</select>${actMark(a,it,i)}${ex}</div>`;
+}
+function actScreen(a){
+  const head=`${actFig(a.id)}<div class="game-head"><div><span class="eyebrow">ACTIVIDAD</span><h1>${escapeHTML(a.title)}</h1><p>${escapeHTML(a.intro)}</p></div></div>`;
+  if(a.kind==='reflect')return head+`<div class="task-card"><p class="act-q">${escapeHTML(a.question)}</p><p class="smallnote">Escribí tu respuesta en la carpeta antes de ver el modelo.</p><div class="actions"><button class="btn btn-secondary" data-action="actreveal">Ver respuesta modelo</button><button class="btn btn-outline" data-action="backhub">← Otras actividades</button></div>${s.checked?`<div class="feedback"><strong>Respuesta modelo</strong>${escapeHTML(a.model)}</div>`:''}</div>`;
+  const r=actScore(a);
+  return head+`<div class="task-card">${a.map?climaSection():''}${a.kind==='classify'?actBoard(a):a.items.map((_,i)=>actItem(a,i)).join('')}${s.checked?`<div class="feedback" role="status"><strong>Resultado: ${r.ok} de ${r.total} correctas</strong>${r.ok===r.total?'¡Muy bien, todas correctas!':'Revisá las marcas y probá otra vez.'}</div>`:''}<div class="actions"><button class="btn btn-primary" data-action="actcheck">✔ Comprobar respuestas</button><button class="btn btn-outline" data-action="actreset">↺ Empezar de nuevo</button><button class="btn btn-secondary" data-action="backhub">← Otras actividades</button></div></div>`;
+}
+let sfxOn=true,animateNext=false,afterRender=null,lastScore=0;
+let audioCtx=null;
+function beep(kind){
+  if(!sfxOn)return;
+  try{
+    audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+    const seq={ok:[660,880],bad:[220,180],win:[523,659,784,1046]}[kind]||[660];
+    const now=audioCtx.currentTime,dur=.12*seq.length+.1;
+    const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+    o.type=kind==='bad'?'sawtooth':'triangle';
+    o.connect(g);g.connect(audioCtx.destination);
+    seq.forEach((f,i)=>o.frequency.setValueAtTime(f,now+i*.12));
+    g.gain.setValueAtTime(.12,now);g.gain.exponentialRampToValueAtTime(.001,now+dur);
+    o.start(now);o.stop(now+dur);
+  }catch(e){}
+}
+function celebrate(n=40){
+  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const cols=['#168981','#f2a64c','#dc7163','#f9bb55','#2d9992','#ffffff'];
+  for(let i=0;i<n;i++){
+    const c=document.createElement('span');
+    c.className='confetti';c.setAttribute('aria-hidden','true');
+    c.style.left=(Math.random()*100)+'vw';
+    c.style.background=cols[i%cols.length];
+    c.style.animationDuration=(1.8+Math.random()*1.6)+'s';
+    c.style.animationDelay=(Math.random()*.4)+'s';
+    c.style.transform=`rotate(${Math.random()*360}deg)`;
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),3800);
+  }
+}
+$('sfxBtn').addEventListener('click',()=>{
+  sfxOn=!sfxOn;$('sfxBtn').setAttribute('aria-pressed',String(sfxOn));
+  alertLive(sfxOn?'Efectos de sonido activados':'Efectos de sonido desactivados');
+  if(sfxOn)beep('ok');
+});
+
+const SC_B=c=>`<rect width="240" height="150" fill="${c}"/>`;
+const SCENES={
+ andes:{label:'Cordillera de los Andes: montañas altas con nieve y glaciares',d:SC_B('#cfe8f5')+'<circle cx="200" cy="28" r="14" fill="#ffd166"/><path d="M0 120L50 40l35 65 35-75 45 85 35-60 40 65v35H0z" fill="#8e8fb8"/><path d="M120 30l-12 22 10-4 6 8 7-10zM50 40l-10 20 10-4 8 6 6-8z" fill="#fff"/><path d="M0 118Q120 108 240 120V150H0z" fill="#7fb77e"/><path d="M0 138Q60 126 120 138T240 136" fill="none" stroke="#5aa9d6" stroke-width="6"/>'},
+ mesetas:{label:'Mesetas patagónicas: terrenos altos, planos y escalonados',d:SC_B('#fbe3c6')+'<circle cx="190" cy="30" r="14" fill="#ffd166"/><path d="M0 150V84H70V62H150V46H240V150z" fill="#e7a06e"/><path d="M0 104H70M70 80H150M150 60H240" stroke="#b8643a" stroke-width="2"/><path d="M20 146l3-6 3 6M120 146l3-6 3 6M200 146l3-6 3 6" stroke="#6b8f47" stroke-width="2" fill="none"/>'},
+ pampeana:{label:'Llanura pampeana: terreno plano y fértil para el campo',d:SC_B('#d7eefa')+'<circle cx="40" cy="30" r="13" fill="#ffd166"/><path d="M0 90Q120 80 240 92V150H0z" fill="#a8d88a"/><path d="M0 116L240 110V150H0z" fill="#8cc56c"/><path d="M0 128h240M0 140h240" stroke="#6fa856" stroke-width="2"/><circle cx="190" cy="78" r="11" fill="#4f9a57"/><path d="M190 88v10M120 104v-12M130 104v-12" stroke="#6b4a2b" stroke-width="3"/>'},
+ chaquena:{label:'Llanura chaqueña: bosques, palmeras y ríos en el norte',d:SC_B('#cdeccf')+'<circle cx="206" cy="26" r="12" fill="#ffd166"/><rect y="100" width="240" height="50" fill="#7cb86a"/><path d="M120 150C150 120 90 110 120 80S170 40 150 20" fill="none" stroke="#5aa9d6" stroke-width="9" stroke-linecap="round"/><path d="M20 98v26M55 104v22M195 96v30M225 104v24" stroke="#7a5a33" stroke-width="3"/><circle cx="20" cy="80" r="20" fill="#2f8a4d"/><circle cx="55" cy="92" r="16" fill="#3f9a57"/><circle cx="195" cy="80" r="22" fill="#2f8a4d"/><circle cx="225" cy="96" r="15" fill="#3f9a57"/>'},
+ sierras:{label:'Sierras pampeanas: sierras bajas y redondeadas por la erosión',d:SC_B('#fff1d6')+'<circle cx="40" cy="28" r="13" fill="#ffd166"/><path d="M0 110Q40 60 90 100Q130 56 180 96Q210 80 240 104V150H0z" fill="#e7b24c"/><path d="M0 124Q60 100 120 122Q180 100 240 124V150H0z" fill="#8cbf6b"/><circle cx="60" cy="118" r="4" fill="#3f9a57"/><circle cx="180" cy="118" r="4" fill="#3f9a57"/>'},
+ ciudad:{label:'Ciudad: edificios, calles, autos y personas',d:SC_B('#dbeef5')+'<rect x="10" y="50" width="40" height="90" fill="#8fb3c9"/><rect x="58" y="30" width="46" height="110" fill="#c6dbe6"/><rect x="112" y="60" width="38" height="80" fill="#8fb3c9"/><rect x="158" y="40" width="34" height="100" fill="#c6dbe6"/><rect x="200" y="66" width="34" height="74" fill="#8fb3c9"/><path d="M18 62h6M18 76h6M18 90h6M66 42h6M66 58h6M66 74h6M66 90h6M120 72h6M120 88h6M166 52h6M166 68h6M166 84h6M208 80h6M208 96h6" stroke="#3b3a5c" stroke-width="4" stroke-linecap="round"/><rect y="130" width="240" height="20" fill="#9aa6ad"/><path d="M0 140h240" stroke="#fff" stroke-width="2" stroke-dasharray="10 8"/><rect x="150" y="118" width="34" height="12" rx="4" fill="#dc7163"/><circle cx="159" cy="131" r="3" fill="#3b3a5c"/><circle cx="177" cy="131" r="3" fill="#3b3a5c"/>'},
+ selva:{label:'Selva: árboles muy altos, plantas y mucha humedad',d:SC_B('#cfeedd')+'<path d="M0 150V110H240V150z" fill="#4f9a57"/><path d="M30 150V60M120 150V50M200 150V64" stroke="#6b4a2b" stroke-width="6"/><circle cx="30" cy="48" r="30" fill="#2f8a4d"/><circle cx="120" cy="36" r="34" fill="#245f3c"/><circle cx="200" cy="52" r="28" fill="#2f8a4d"/>'},
+ casas:{label:'Casas: lugares donde viven las personas',d:SC_B('#d9f0ff')+'<circle cx="200" cy="28" r="12" fill="#ffd166"/><rect y="110" width="240" height="40" fill="#9ccf8a"/><rect x="20" y="80" width="50" height="30" fill="#f6e3b0"/><path d="M14 82L45 56L76 82z" fill="#e26d5c"/><rect x="38" y="92" width="14" height="18" fill="#8a5a33"/><rect x="120" y="70" width="56" height="40" fill="#f6e3b0"/><path d="M114 72L148 44L182 72z" fill="#6aa3d8"/><rect x="132" y="82" width="10" height="10" fill="#8fd0f0"/><rect x="156" y="82" width="10" height="10" fill="#8fd0f0"/>'},
+ rio:{label:'Río: agua que corre por la llanura y forma curvas',d:SC_B('#d7eefa')+'<rect y="96" width="240" height="54" fill="#a8d88a"/><path d="M0 150C40 120 80 130 110 110S170 80 240 90" fill="none" stroke="#5aa9d6" stroke-width="14" stroke-linecap="round"/><circle cx="50" cy="84" r="14" fill="#4f9a57"/><circle cx="185" cy="72" r="16" fill="#4f9a57"/><path d="M50 98v10M185 88v10" stroke="#6b4a2b" stroke-width="3"/>'},
+ calle_antigua:{label:'Calle antigua: casas de otra época y carruajes tirados por caballos',d:SC_B('#f3e6cf')+'<rect y="120" width="240" height="30" fill="#c9b08a"/><rect x="8" y="46" width="62" height="74" fill="#b07d54"/><path d="M4 48L39 22L74 48z" fill="#7a4e2d"/><rect x="88" y="60" width="54" height="60" fill="#d9b48a"/><rect x="152" y="40" width="80" height="80" fill="#c9a074"/><rect x="20" y="64" width="12" height="12" fill="#f6e3b0"/><rect x="50" y="64" width="12" height="12" fill="#f6e3b0"/><rect x="100" y="74" width="12" height="12" fill="#f6e3b0"/><rect x="170" y="56" width="12" height="12" fill="#f6e3b0"/><rect x="200" y="56" width="12" height="12" fill="#f6e3b0"/><rect x="96" y="120" width="40" height="14" rx="3" fill="#6b4a2b"/><circle cx="104" cy="138" r="6" fill="none" stroke="#3b3a5c" stroke-width="2"/><circle cx="128" cy="138" r="6" fill="none" stroke="#3b3a5c" stroke-width="2"/>'},
+ escuela_antigua:{label:'Escuela de antes: pizarrón de tiza, bancos de madera y maestro',d:SC_B('#f7eedb')+'<rect x="20" y="20" width="200" height="70" rx="6" fill="#3d4a3f" stroke="#8a6a3a" stroke-width="6"/><path d="M50 50h120M50 66h80" stroke="#f3f3f3" stroke-width="3" stroke-linecap="round"/><rect x="30" y="112" width="60" height="8" fill="#9a6b3d"/><rect x="150" y="112" width="60" height="8" fill="#9a6b3d"/><path d="M36 120v20M84 120v20M156 120v20M204 120v20" stroke="#6b4a2b" stroke-width="4"/><circle cx="120" cy="108" r="8" fill="#f2c28b"/><rect x="112" y="116" width="16" height="22" rx="4" fill="#4a6fa5"/>'},
+ clima_calido:{label:'Clima cálido del norte: temperaturas altas y lluvias',d:SC_B('#ffe9c2')+'<circle cx="190" cy="40" r="26" fill="#ffb703"/><rect y="130" width="240" height="20" fill="#e9c46a"/><path d="M50 150Q56 90 70 60" fill="none" stroke="#7a5a33" stroke-width="5"/><path d="M70 60c-20-16-40-6-46 6M70 60c10-22 30-24 40-14M70 60c-6-22 4-40 14-42M70 60c-18 2-28 14-28 20" fill="none" stroke="#2f8a4d" stroke-width="7" stroke-linecap="round"/><path d="M130 70l-3 8M150 60l-3 8M170 74l-3 8" stroke="#5aa9d6" stroke-width="3" stroke-linecap="round"/>'},
+ clima_templado:{label:'Clima templado del centro: estaciones marcadas y lluvias regulares',d:SC_B('#e3f4ea')+'<circle cx="50" cy="36" r="18" fill="#ffd166"/><ellipse cx="160" cy="46" rx="34" ry="14" fill="#fff"/><ellipse cx="180" cy="40" rx="24" ry="14" fill="#fff"/><path d="M150 66l-3 8M170 68l-3 8M190 66l-3 8" stroke="#5aa9d6" stroke-width="3" stroke-linecap="round"/><rect y="110" width="240" height="40" fill="#8cc56c"/><path d="M60 110v-14M180 110v-14" stroke="#6b4a2b" stroke-width="4"/><circle cx="60" cy="92" r="18" fill="#4f9a57"/><circle cx="180" cy="92" r="16" fill="#3f9a57"/>'},
+ clima_frio:{label:'Clima frío del sur: temperaturas bajas, nieve y veranos breves',d:SC_B('#e6f2fb')+'<path d="M0 120L70 40l60 80z" fill="#8e8fb8"/><path d="M120 120L180 56l60 64z" fill="#7d7fae"/><path d="M70 40l-14 22 8-2 6 6 6-8zM180 56l-10 16 6-2 4 4 4-6z" fill="#fff"/><rect y="118" width="240" height="32" fill="#fff"/><g fill="#9fb9d1"><circle cx="30" cy="24" r="3"/><circle cx="90" cy="20" r="2.5"/><circle cx="150" cy="30" r="3"/><circle cx="215" cy="18" r="2.5"/><circle cx="210" cy="60" r="3"/></g>'},
+ personas:{label:'Personas: familias, trabajadores y vecinos',d:SC_B('#fdf3e1')+'<rect y="112" width="240" height="38" fill="#c8e6b4"/><circle cx="30" cy="58" r="9" fill="#f2c28b"/><rect x="20" y="69" width="20" height="42" rx="8" fill="#4a6fa5"/><circle cx="72" cy="52" r="10" fill="#c98f5e"/><rect x="61" y="64" width="22" height="48" rx="9" fill="#dc7163"/><circle cx="114" cy="60" r="9" fill="#f2c28b"/><rect x="104" y="71" width="20" height="40" rx="8" fill="#168981"/><circle cx="156" cy="54" r="10" fill="#c98f5e"/><rect x="145" y="66" width="22" height="46" rx="9" fill="#f2a64c"/><circle cx="200" cy="60" r="9" fill="#f2c28b"/><rect x="190" y="71" width="20" height="40" rx="8" fill="#7a5a9a"/>'},
+ mapa:{label:'Mapa de Argentina con sus relieves',d:SC_B('#e3f2f7')+`<g transform="translate(66,-2) scale(.26)"><path d="${mapShape}" fill="#c8e0b4" stroke="#2d5a3d" stroke-width="6"/></g>`}
+};
+const stScenes=['andes','mesetas','pampeana','chaquena','sierras'];
+const actScene={fisica:'rio',geohist:'escuela_antigua',construido:'casas',vf:'mapa',unir:'andes',diferencia:'clima_templado',escena:'ciudad',paisajes:'pampeana','dibujos-fh':'personas','dibujos-hg':'calle_antigua',marcar:'personas','clima-zona':'clima_calido','relieve-zona':'mapa'};
+function sceneSVG(k,role){const sc=SCENES[k];return `<svg viewBox="0 0 240 150" ${role?`role="img" aria-label="${escapeHTML(sc.label)}"`:'aria-hidden="true"'} focusable="false">${sc.d}</svg>`}
+function sceneFig(k){if(!k||!SCENES[k])return '';return `<figure class="scene">${sceneSVG(k,true)}<figcaption>${escapeHTML(SCENES[k].label)}</figcaption></figure>`}
+function sceneMini(k){return(k&&SCENES[k])?`<span class="scene-mini">${sceneSVG(k,false)}</span>`:''}
+
+const aLG=(id,c1,c2)=>`<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient>`;
+const aRG=(id,c1,c2)=>`<radialGradient id="${id}" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></radialGradient>`;
+const AGDEFS=`<defs>${aLG('axSky','#8fd0f2','#eaf8ff')}${aLG('axSkyW','#ffd7a0','#fff4e0')}${aLG('axMtn','#9aa3c8','#4b4f7e')}${aLG('axSnow','#ffffff','#c9d8e8')}${aLG('axGrass','#9ad37c','#4f8f45')}${aLG('axWater','#7fd0f2','#2a86c0')}${aLG('axWall','#fff6e6','#ead3a6')}${aLG('axRoof','#d8634e','#9e3f30')}${aLG('axCity','#d5dfe8','#8ea3b5')}${aLG('axRoad','#8c969e','#5b656d')}${aLG('axField','#c6e38a','#7fb557')}${aLG('axSand','#f7dc96','#dcab52')}${aLG('axMap','#d9efbf','#86bf6c')}${aRG('axTree','#6cc07a','#1f5a36')}${aRG('axSun','#fff7b0','#ffb703')}</defs>`;
+const aSky=(g='axSky')=>`<rect width="240" height="150" fill="url(#${g})"/>`;
+const aSun=(x,y,r)=>`<circle cx="${x}" cy="${y}" r="${r*1.9}" fill="#fff6c8" opacity=".35"/><circle cx="${x}" cy="${y}" r="${r}" fill="url(#axSun)"/>`;
+const aMtn=(d,f='url(#axMtn)')=>`<path d="${d}" fill="${f}"/>`;
+const aSnow=d=>`<path d="${d}" fill="url(#axSnow)"/>`;
+const aGround=(y,f='url(#axGrass)')=>`<rect y="${y}" width="240" height="${150-y}" fill="${f}"/>`;
+const aRiver=(d,w=8)=>`<path d="${d}" fill="none" stroke="url(#axWater)" stroke-width="${w}" stroke-linecap="round"/>`;
+const aShadow=(x,y,rx,ry=3)=>`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="#1d2b1d" opacity=".22"/>`;
+const aTree=(x,b,r)=>`${aShadow(x,b,r*0.9,3)}<rect x="${x-1.5}" y="${b-r*0.5}" width="3" height="${r*0.5}" fill="#6b4a2b"/><circle cx="${x}" cy="${b-r*1.1}" r="${r}" fill="url(#axTree)"/>`;
+const aHouse=(x,b,w,h)=>`${aShadow(x+w/2,b,w*0.6,3)}<rect x="${x}" y="${b-h}" width="${w}" height="${h}" fill="url(#axWall)"/><path d="M${x-5} ${b-h}L${x+w/2} ${b-h-h*0.55}L${x+w+5} ${b-h}z" fill="url(#axRoof)"/><rect x="${x+w*0.42}" y="${b-h*0.45}" width="${w*0.16}" height="${h*0.45}" fill="#7a4a2a"/><rect x="${x+w*0.12}" y="${b-h*0.75}" width="${w*0.18}" height="${h*0.22}" fill="#9fd9f5" stroke="#fff"/><rect x="${x+w*0.66}" y="${b-h*0.75}" width="${w*0.18}" height="${h*0.22}" fill="#9fd9f5" stroke="#fff"/>`;
+const aCity=(x,b,w,h)=>{let win='';for(let yy=b-h+6;yy<b-6;yy+=10)for(let xx=x+5;xx<x+w-7;xx+=9)win+=`<rect x="${xx}" y="${yy}" width="5" height="6" fill="#fff6c9" opacity=".92"/>`;return `<rect x="${x}" y="${b-h}" width="${w}" height="${h}" fill="url(#axCity)"/>${win}`};
+const aCar=(x,b)=>`${aShadow(x+18,b,20,2)}<rect x="${x}" y="${b-14}" width="36" height="10" rx="4" fill="#d9614f"/><path d="M${x+8} ${b-14}L${x+13} ${b-21}L${x+26} ${b-21}L${x+30} ${b-14}z" fill="#e9796a"/><rect x="${x+12}" y="${b-19}" width="6" height="4" fill="#cfe9f7"/><rect x="${x+20}" y="${b-19}" width="7" height="4" fill="#cfe9f7"/><circle cx="${x+8}" cy="${b-3}" r="3.5" fill="#2b2f33"/><circle cx="${x+28}" cy="${b-3}" r="3.5" fill="#2b2f33"/>`;
+const aPerson=(x,b,sc,shirt,skin='#e6b894')=>`${aShadow(x,b,sc*6,2)}<rect x="${x-sc*5}" y="${b-sc*9}" width="${sc*4}" height="${sc*9}" fill="#3b4a66"/><rect x="${x+sc*1}" y="${b-sc*9}" width="${sc*4}" height="${sc*9}" fill="#3b4a66"/><rect x="${x-sc*6}" y="${b-sc*27}" width="${sc*12}" height="${sc*19}" rx="${sc*4}" fill="${shirt}"/><circle cx="${x}" cy="${b-sc*32}" r="${sc*5}" fill="${skin}"/>`;
+const aPalm=(x,b,h)=>`${aShadow(x+4,b,14,3)}<path d="M${x} ${b}Q${x+6} ${b-h/2} ${x+10} ${b-h}" fill="none" stroke="#7a5a33" stroke-width="4"/><path d="M${x+10} ${b-h}q-14-6-22 4M${x+10} ${b-h}q14-8 24 2M${x+10} ${b-h}q-8-14-6-20M${x+10} ${b-h}q8-10 14-18" fill="none" stroke="#2f8a4d" stroke-width="4" stroke-linecap="round"/>`;
+const aMap=(x,y,s)=>`<g transform="translate(${x},${y}) scale(${s})"><path d="${mapShape}" fill="#2d5a3d" opacity=".25" transform="translate(10,12)"/><path d="${mapShape}" fill="url(#axMap)" stroke="#2d5a3d" stroke-width="6"/></g>`;
+const aBench=(x,b)=>`<rect x="${x}" y="${b-10}" width="44" height="5" rx="2" fill="#8a5a33"/><rect x="${x+4}" y="${b-5}" width="3" height="5" fill="#5a3a20"/><rect x="${x+37}" y="${b-5}" width="3" height="5" fill="#5a3a20"/>`;
+const aWrap=(inner,vb='0 0 240 150')=>`<svg viewBox="${vb}" focusable="false">${AGDEFS}${inner}</svg>`;
+
+const ACT_ART={
+ fisica:()=>aWrap(aSky()+aSun(200,30,13)+aMtn('M0 120L50 40l35 65 35-75 45 85 35-60 40 65v35H0z')+aSnow('M120 30l-12 22 10-4 6 8 7-10zM50 40l-10 20 10-4 8 6 6-8z')+aGround(118)+aRiver('M0 140Q60 126 120 138T240 134',7)+aTree(26,126,9)),
+ geohist:()=>aWrap(aSky('axSkyW')+aSun(44,34,12)+aHouse(8,118,60,70)+aHouse(92,118,54,56)+aHouse(152,118,78,80)+aGround(118,'url(#axRoad)')+'<rect x="96" y="112" width="42" height="13" rx="3" fill="#7d5536"/><circle cx="104" cy="128" r="7" fill="none" stroke="#2e1d12" stroke-width="3"/><circle cx="130" cy="128" r="7" fill="none" stroke="#2e1d12" stroke-width="3"/>'),
+ construido:()=>aWrap(aSky()+aSun(200,28,12)+aGround(112)+aHouse(14,110,50,34)+aHouse(118,106,58,42)+aTree(206,110,16)+aCar(60,140)),
+ vf:()=>aWrap(aSky()+aMtn('M0 96L60 40l50 52 40-62 90 70V150H0z','#c5cbe3')+aMtn('M0 110L70 56l60 54 40-44 70 44V150H0z')+aSnow('M70 56l-10 14 6-2 4 4 5-6z')+aGround(108,'url(#axField)')+aTree(190,122,11)),
+ unir:()=>aWrap(aSky()+aMtn('M0 100L80 40l60 60 40-30 60 40V150H0z','#c5cbe3')+aMtn('M0 150V92H130V70H200V150z','url(#axSand)')+'<path d="M0 150V92H130V70H200V150z" fill="none" stroke="#9a5b34" stroke-width="1.5" opacity=".5"/><path d="M0 124H130M130 84H200" stroke="#9a5b34" stroke-width="1.2" opacity=".4"/>'+aGround(140)),
+ diferencia:()=>aWrap(aSky()+aSun(40,34,12)+'<g fill="#fff" opacity=".95"><ellipse cx="120" cy="40" rx="30" ry="11"/><ellipse cx="150" cy="34" rx="20" ry="10"/></g>'+aMtn('M80 150L150 70L200 118L240 86V150z')+aSnow('M150 70l-8 12 5-1 4 4 4-5z')+aGround(128)+'<path d="M40 60l-3 8M60 66l-3 8M80 62l-3 8" stroke="#5aa9d6" stroke-width="3" stroke-linecap="round"/>'),
+ escena:()=>aWrap(aSky()+aCity(6,120,40,96)+aCity(52,124,44,70)+aCity(102,118,40,100)+aCity(150,122,38,74)+aCity(194,120,44,92)+aGround(124,'url(#axRoad)')+'<rect y="122" width="240" height="6" fill="#d9dee3"/>'+aCar(150,142)+aPerson(104,140,0.9,'#dc7163')+aPerson(120,140,0.85,'#168981')+aPerson(214,140,0.9,'#f2a64c')),
+ paisajes:()=>aWrap('<clipPath id="axCL"><rect width="120" height="150"/></clipPath><clipPath id="axCR"><rect x="120" width="120" height="150"/></clipPath><g clip-path="url(#axCL)">'+aSky()+aMtn('M0 110L50 40l35 65 35-75 45 85 35-60 40 65v35H0z')+aSnow('M120 30l-12 22 10-4 6 8 7-10zM50 40l-10 20 10-4 8 6 6-8z')+aGround(122)+'</g><g clip-path="url(#axCR)">'+aSky()+aSun(200,30,12)+aGround(96,'url(#axField)')+aGround(122)+'<path d="M120 112h120M120 130h120" stroke="#6b9f47" stroke-width="2" opacity=".5"/>'+aTree(190,112,13)+'</g><path d="M120 0V150" stroke="#fff" stroke-width="3"/>'),
+ dibujos_fh:null,
+ 'dibujos-fh':()=>aWrap(aSky()+aMtn('M0 96L60 50l50 46 40-40 90 52V150H0z','#c5cbe3')+aGround(104)+aRiver('M0 140Q80 118 130 132T240 126',8)+aHouse(150,112,50,32)+aTree(40,116,14)+aTree(200,118,12)),
+ 'dibujos-hg':()=>aWrap(aSky('axSkyW')+aSun(200,30,12)+aGround(118)+aRiver('M0 150C60 126 110 140 150 120S210 100 240 110',10)+aHouse(26,110,50,36)+aTree(190,114,15)),
+ marcar:()=>aWrap(aSky()+aSun(200,28,12)+aGround(118)+aTree(30,116,16)+aTree(214,112,18)+aBench(108,130)+aPerson(84,130,1,'#dc7163')+aPerson(150,130,1,'#f2a64c')+aPerson(180,132,0.9,'#7a5a9a')),
+ 'clima-zona':()=>aWrap('<rect width="80" height="150" fill="url(#axSkyW)"/><rect x="80" width="80" height="150" fill="url(#axSky)"/><rect x="160" width="80" height="150" fill="#e6f2fb"/>'+aGround(128,'url(#axSand)')+aPalm(30,128,60)+aSun(120,40,14)+aTree(120,116,15)+aGround(116)+aMtn('M160 150L200 60l40 90z','#8e8fb8')+aSnow('M200 60l-8 14 4-1 4 4 4-6z')+'<rect x="160" y="124" width="80" height="26" fill="#fff"/>'),
+ 'relieve-zona':()=>aWrap(aSky()+aMap(71,1,0.24)),
+ 'mapa-clima':()=>aWrap(aSky()+'<defs><clipPath id="axCM2"><path d="'+mapShape+'"/></clipPath></defs><g transform="translate(71,1) scale(.24)"><g clip-path="url(#axCM2)">'+climaRects(false,null)+'</g></g>')
+};
+const ACT_ART_FIX={...ACT_ART};
+ACT_ART_FIX['dibujos-fh']=ACT_ART['dibujos-fh'];
+function actFig(id){const a=acts.find(x=>x.id===id);if(!a||!ACT_ART[id])return '';return `<figure class="scene"><div role="img" aria-label="${escapeHTML(a.title)}">${ACT_ART[id]()}</div><figcaption>${escapeHTML(a.title)}</figcaption></figure>`}
+function actMini(id){if(!ACT_ART[id])return '';return `<span class="scene-mini" aria-hidden="true">${ACT_ART[id]()}</span>`}
+function actIcon(t){
+  const wrap=inner=>`<svg viewBox="0 0 70 48" width="70" height="48" aria-hidden="true" focusable="false">${AGDEFS}${inner}</svg>`;
+  const I={
+    city:()=>aCity(3,46,20,44)+aCity(25,46,20,32)+aCity(47,46,20,40),
+    jungle:()=>aGround(36)+aTree(16,38,11)+aTree(40,36,13)+aTree(60,40,9),
+    house:()=>aHouse(14,44,40,26)+aGround(46,'url(#axGrass)'),
+    oldstreet:()=>aHouse(2,44,20,30)+aHouse(26,44,18,22)+aHouse(48,44,20,34)+'<rect x="26" y="41" width="18" height="4" rx="1" fill="#7d5536"/>',
+    mountain:()=>aMtn('M2 46L26 8l22 38z')+aMtn('M24 46L46 16l22 30z','#8e8fb8')+aSnow('M26 8l-6 9 4-1 3 3 3-4 3 2z'),
+    plain:()=>aSun(56,10,5)+aGround(28,'url(#axField)')+'<path d="M4 36h62M4 42h62" stroke="#6b9f47" stroke-width="1.5" opacity=".6"/><path d="M14 28v-9M28 28v-7M42 28v-9" stroke="#6b4a2b" stroke-width="1.4"/><ellipse cx="14" cy="17" rx="2" ry="3" fill="#f2b84b"/><ellipse cx="28" cy="19" rx="2" ry="3" fill="#f2b84b"/><ellipse cx="42" cy="17" rx="2" ry="3" fill="#f2b84b"/>',
+    chaco:()=>aGround(32)+aRiver('M30 48C36 40 26 36 34 30S44 18 40 10',4)+aTree(12,30,9)+aTree(58,28,10),
+    hills:()=>'<path d="M2 46C10 30 26 24 36 30C44 22 58 28 68 46z" fill="url(#axGrass)"/>',
+    plateau:()=>'<path d="M6 46V30H26V20H46V12H64V46z" fill="url(#axSand)"/><path d="M6 36H26M26 26H46" stroke="#9a5b34" stroke-width="1" opacity=".5"/>'
+  };
+  return wrap((I[t]||I.hills)());
+}
+
+const CLIMA_FILL={norte:'#D8585D',centro:'#54AFA4',arido:'#EAB74E',sur:'#5281D5'};
+const CLIMA_NAME={norte:'1 CÁLIDO',centro:'2 TEMPLADO',arido:'3 ÁRIDO',sur:'4 FRÍO'};
+const CLIMA_INFO={
+ norte:'CLIMA CÁLIDO: SE PRESENTA EN EL NORTE DEL PAÍS. LAS TEMPERATURAS SON ALTAS Y LLUEVE MUCHO EN VERANO.',
+ centro:'CLIMA TEMPLADO: SE PRESENTA EN LA REGIÓN PAMPEANA, EN EL CENTRO Y ESTE DEL PAÍS. TIENE ESTACIONES MARCADAS.',
+ arido:'CLIMA ÁRIDO: APARECE EN LA REGIÓN DE CUYO Y EL NORTE DE LA PATAGONIA. LLUEVE MUY POCO.',
+ sur:'CLIMA FRÍO: SE PRESENTA EN LA CORDILLERA DE LOS ANDES Y LA PATAGONIA. LAS TEMPERATURAS SON BAJAS.'
+};
+function climaRects(interactive,sel){
+  const act=(id)=>interactive?` data-action="climazone" data-id="${id}" role="button" tabindex="0" aria-label="${CLIMA_NAME[id]}"`:'';
+  const mark=(id)=>sel===id?' stroke="#132D45" stroke-width="5"':'';
+  return `<rect x="90" y="20" width="250" height="575" fill="${CLIMA_FILL.centro}"${act('centro')}${mark('centro')}/>`+
+    `<rect x="90" y="20" width="250" height="160" fill="${CLIMA_FILL.norte}"${act('norte')}${mark('norte')}/>`+
+    `<rect x="90" y="415" width="250" height="180" fill="${CLIMA_FILL.sur}"${act('sur')}${mark('sur')}/>`+
+    `<path d="M92 130L145 130L164 172L159 213L175 257L170 315L157 360L170 391L138 460L92 460Z" fill="${CLIMA_FILL.arido}" stroke="#fff" stroke-width="2"${act('arido')}${mark('arido')}/>`;
+}
+function climaMapSVG(interactive,sel){
+  return `<svg viewBox="90 10 230 570" role="img" aria-label="MAPA ESQUEMÁTICO DE LOS CUATRO CLIMAS DE ARGENTINA"><defs><clipPath id="axCM"><path d="${mapShape}"/></clipPath></defs><g clip-path="url(#axCM)">${climaRects(interactive,sel)}</g><path d="${mapShape}" fill="none" stroke="#132D45" stroke-width="3"/>
+  <g font-family="Arial,Helvetica,sans-serif" font-weight="900" text-anchor="middle" font-size="14" fill="#112B42"><text x="217" y="105">1 CÁLIDO</text><text x="220" y="330">2 TEMPLADO</text><text x="147" y="273" font-size="12">3 ÁRIDO</text><text x="200" y="492">4 FRÍO</text></g></svg>`;
+}
+function climaSection(){
+ const sel=s.climaZone||null;
+ const info=sel?CLIMA_INFO[sel]:'TOCÁ UNA ZONA DEL MAPA O UNO DE LOS BOTONES PARA CONOCER SU CLIMA.';
+ return `<div class="clima-box"><div class="clima-map">${climaMapSVG(true,sel)}</div><div class="clima-btns">${['norte','centro','arido','sur'].map(id=>`<button type="button" class="btn ${sel===id?'btn-primary':'btn-secondary'}" data-action="climazone" data-id="${id}" aria-pressed="${sel===id}">${CLIMA_NAME[id]}</button>`).join('')}</div><div class="feedback" role="status">${escapeHTML(info)}</div></div>`;
+}
+
+const MAPA=window.__IMAGES.MAPA;
+const SOL=window.__IMAGES.SOL;
+const ARBOL_CALIDO=window.__IMAGES.ARBOL_CALIDO;
+const ARBOL_TEMPLADO=window.__IMAGES.ARBOL_TEMPLADO;
+const NUBE=window.__IMAGES.NUBE;
+const CACTUS=window.__IMAGES.CACTUS;
+const MONTANAS=window.__IMAGES.MONTANAS;
+const PINGUINO=window.__IMAGES.PINGUINO;
+const ESTRELLA=window.__IMAGES.ESTRELLA;
+const CLIMATE_ORIGINAL=window.__IMAGES.CLIMATE_ORIGINAL;
+const CLIMATE_POSTER='';
+function climaReferenceCard(){return `<section class="material climate-unit" aria-labelledby="clima-ref-title">
+<header class="climate-titlebar"><span class="climate-subhead">GEOGRAFÍA · OBSERVAMOS Y APRENDEMOS</span><h2 id="clima-ref-title">LOS CLIMAS DE ARGENTINA</h2><p>ARGENTINA TIENE DIFERENTES CLIMAS SEGÚN LA REGIÓN.</p></header>
+<div class="climate-simple-wrap">
+  <div class="climate-simple-card"><p>ACÁ VAS A VER UNA SOLA LÁMINA, MÁS ORDENADA Y SIMPLE, PARA OBSERVAR LOS CUATRO CLIMAS DE ARGENTINA. ESTA SECCIÓN YA NO USA EL MAPA ANTERIOR.</p></div>
+  <img class="material-img climate-original-img" src="${CLIMATE_ORIGINAL}" alt="LÁMINA DE LOS CLIMAS DE ARGENTINA CON CUATRO CUADROS EXPLICATIVOS Y MAPA CENTRAL" loading="lazy">
+</div>
+<details class="climate-poster-details"><summary>🖼️ AMPLIAR LÁMINA DE CLIMAS</summary><img src="${CLIMATE_ORIGINAL}" alt="LÁMINA COMPLETA DE LOS CLIMAS DE ARGENTINA" loading="lazy"></details>
+</section>`}
+function decorate(root){
+  const re=/\p{Extended_Pictographic}\uFE0F?/gu;
+  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+  const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
+  nodes.forEach(n=>{
+    const t=n.nodeValue;re.lastIndex=0;
+    if(!re.test(t))return;re.lastIndex=0;
+    if(n.parentElement&&n.parentElement.closest('[aria-hidden="true"]'))return;
+    const frag=document.createDocumentFragment();let last=0,m;
+    while((m=re.exec(t))){
+      if(m.index>last)frag.append(t.slice(last,m.index));
+      const sp=document.createElement('span');sp.setAttribute('aria-hidden','true');sp.textContent=m[0];frag.append(sp);
+      last=m.index+m[0].length;
+    }
+    if(last<t.length)frag.append(t.slice(last));
+    n.parentNode.replaceChild(frag,n);
+  });
+}
+function focusHeading(){const h=$('screen').querySelector('h1');if(h){h.setAttribute('tabindex','-1');h.focus()}}
+function restoreFocus(key){
+  const screen=$('screen');const [act,val='']=key.split('|');
+  const el=[...screen.querySelectorAll('[data-action]')].find(b=>b.dataset.action===act&&(b.dataset.id||b.dataset.value||'')===val&&!b.disabled);
+  if(el){el.focus();return}
+  const primary=screen.querySelector('.btn-primary:not(:disabled)');
+  if(primary){primary.focus();return}
+  focusHeading();
+}
+function render(){
+  const screen=$('screen');const prev=document.activeElement;
+  const key=prev&&screen.contains(prev)?(prev.dataset.action||'')+'|'+(prev.dataset.id||prev.dataset.value||''):null;
+  const content=[intro,learn,quiz,placing,truefalse,finish,hub][s.stage]();
+  screen.classList.remove('screen-enter');
+  screen.innerHTML=content;decorate(screen);
+  if(animateNext)screen.classList.add('screen-enter');
+  animateNext=false;
+  const sc=screen.querySelector('.score span');if(sc&&s.score>lastScore)sc.classList.add('pop');lastScore=s.score;updateProgress();
+  $('audioBtn').setAttribute('aria-pressed',String(s.voice));
+  $('fontBtn').setAttribute('aria-pressed',String(s.largeText));
+  $('app').classList.toggle('large-text',s.largeText);
+  $('homeBtn').style.visibility=s.stage===0?'hidden':'visible';
+  if(key!==null)restoreFocus(key);
+  if(afterRender){const f=afterRender;afterRender=null;f(screen)}
+}
+function reset(){try{speechSynthesis.cancel()}catch(e){}let voice=s.voice,large=s.largeText;s={stage:0,seen:new Set(),active:null,score:0,qa:0,qAnswer:null,qHint:false,selected:null,placed:new Set(),mapMsg:null,st:0,stAnswer:null,voice,largeText:large,act:null,answers:{},checked:false,picked:null};render();focusHeading()}
+function changeStage(n){animateNext=true;s.stage=n;s.mapMsg=null;try{speechSynthesis.cancel()}catch(e){}render();focusHeading();window.scrollTo({top:0,behavior:'smooth'})}
+
+function onAction(e){const btn=e.target.closest('[data-action]');if(!btn||btn.disabled)return;const act=btn.dataset.action,id=btn.dataset.id;switch(act){
+case'photo':openPhotoViewer();break;
+case'study':openPhotoViewer(studyMapImage,'MAPA NUEVO CON REFERENCIAS');break;
+case'start':changeStage(1);say('Bienvenidos a exploradores del relieve argentino. Tocá las estrellas del mapa para descubrir los cinco relieves.');break;
+case'hearintro':say('Bienvenidos a exploradores del relieve argentino. Descubrí montañas, mesetas, llanuras y sierras. Visitá el mapa, resolvé pistas, ubicá cada relieve y respondé verdadero o falso.',true);break;
+case'pin':{
+  if(s.stage===1){
+    const r=byId(id);s.active=id;s.seen.add(id);render();
+    const t=`${r.name}. ${r.desc} ${r.place}`;say(t);alertLive(t);
+  }else if(s.stage===3){
+    if(s.placed.has(id))break;
+    if(!s.selected){
+      s.mapMsg={ok:false,text:'Primero elegí una tarjeta con un nombre y después tocá un punto del mapa.'};
+      render();alertLive(s.mapMsg.text);break;
+    }
+    if(s.selected===id){
+      s.placed.add(id);s.score+=15;
+      s.mapMsg={ok:true,text:`¡Ubicaste correctamente ${name(id)}! +15 puntos.`};
+      say(`¡Muy bien! ${name(id)} está bien ubicado.`);s.selected=null;
+    }else{
+      s.mapMsg={ok:false,text:'Ese punto corresponde a otro relieve. Probá con otra zona del mapa. ¡Vos podés!'};
+      say('Probá con otra zona.');
+    }
+    if(s.mapMsg.ok){afterRender=scr=>{celebrate(20);beep('ok');const b=scr.querySelector(`[data-id="${id}"]`);if(b)b.classList.add('ping')}}else{afterRender=scr=>{beep('bad');const el=scr.querySelector('.feedback');if(el)el.classList.add('shake')}}
+    render();alertLive(s.mapMsg.text);
+  }
+  break;}
+case'readrelief':{if(s.active){const r=byId(s.active);say(`${r.name}. ${r.desc} ${r.place}`,true)}break;}
+case'goquiz':changeStage(2);say(questions[0].q);break;
+case'answer':{
+  if(s.qAnswer!==null)break;
+  const q=questions[s.qa];s.qAnswer=id;const ok=id===q.a;
+  if(ok)s.score+=10;
+  const t=ok?'¡Muy bien! Respuesta correcta. +10 puntos.':`Respuesta incorrecta. La respuesta correcta es ${name(q.a)}.`;
+  say(ok?'¡Muy bien! Respuesta correcta.':`La respuesta correcta es ${name(q.a)}.`);
+  afterRender=scr=>{if(ok){celebrate(30);beep('ok')}else{beep('bad');const el=scr.querySelector('.feedback');if(el)el.classList.add('shake')}};
+  render();alertLive(t);break;}
+case'hint':s.qHint=true;render();say(questions[s.qa].hint);alertLive(questions[s.qa].hint);break;
+case'readquestion':say(questions[s.qa].q,true);break;
+case'nextquiz':if(s.qa<questions.length-1){s.qa++;s.qAnswer=null;s.qHint=false;animateNext=true;render();say(questions[s.qa].q)}else{changeStage(3);say('Seleccioná una tarjeta y después tocá la zona correcta en el mapa.')}break;
+case'select':s.selected=id;s.mapMsg={ok:true,text:`Seleccionaste ${name(id)}. Ahora tocá su ubicación en el mapa.`};render();alertLive(s.mapMsg.text);break;
+case'placehint':if(s.selected){s.mapMsg={ok:true,text:`Pista: ${byId(s.selected).place}`};render();say(s.mapMsg.text);alertLive(s.mapMsg.text)}break;
+case'gotruefalse':if(s.placed.size===5){changeStage(4);say(statements[0].q)}break;
+case'tf':{
+  if(s.stAnswer!==null)break;
+  const q=statements[s.st];s.stAnswer=btn.dataset.value==='true';
+  const ok=s.stAnswer===q.a;
+  if(ok){s.score+=5;say('¡Correcto!')}else{say('Veamos la explicación.')}
+  afterRender=scr=>{if(ok){celebrate(30);beep('ok')}else{beep('bad');const el=scr.querySelector('.feedback');if(el)el.classList.add('shake')}};
+  render();alertLive((ok?'¡Correcto! +5 puntos. ':'Incorrecto. ')+q.ex);break;}
+case'readstatement':say(statements[s.st].q,true);break;
+case'nexttf':if(s.st<statements.length-1){s.st++;s.stAnswer=null;animateNext=true;render();say(statements[s.st].q)}else{changeStage(5);celebrate(90);beep('win');say(`¡Felicitaciones! Terminaste el juego con ${s.score} de 150 puntos.`)}break;
+case'menu':s.act=null;s.answers={};s.checked=false;changeStage(6);break;
+case'openact':animateNext=true;s.act=id;s.answers={};s.checked=false;changeStage(6);break;
+case'backhub':s.act=null;s.answers={};s.checked=false;render();focusHeading();break;
+case'backintro':changeStage(0);break;
+case'climazone':{s.climaZone=id;render();alertLive(CLIMA_INFO[id]);break;}
+case'pickitem':{if(justDragged){justDragged=false;break}s.picked=s.picked===id?null:id;render();alertLive(s.picked?'Tarjeta elegida. Ahora tocá el lugar donde va.':'Tarjeta deseleccionada.');break;}
+case'dropzone':{
+  const val=id.split('|')[1];
+  if(!s.picked){alertLive('Primero elegí una tarjeta del banco.');break}
+  s.answers[s.picked]=val;s.picked=null;s.checked=false;render();alertLive('Tarjeta ubicada.');break;}
+case'unplace':{delete s.answers[id];s.checked=false;render();alertLive('Tarjeta devuelta al banco.');break;}
+case'actcheck':{s.checked=true;const a=acts.find(x=>x.id===s.act);const r=actScore(a);afterRender=scr=>{if(r.total&&r.ok===r.total){celebrate(60);beep('win')}else beep('ok')};render();alertLive(`Resultado: ${r.ok} de ${r.total} correctas.`);break;}
+case'actreset':s.answers={};s.checked=false;render();break;
+case'actreveal':s.checked=true;render();break;
+case'actanswer':s.answers[id]=btn.dataset.value==='true';s.checked=false;render();break;
+case'restart':reset();break;
+case'print':window.print();break;
+}}
+$('screen').addEventListener('click',onAction);
+let dragKey=null,dragMoved=false,justDragged=false,dsx=0,dsy=0;
+function markOver(x,y){
+  document.querySelectorAll('.drop-zone.over').forEach(z=>z.classList.remove('over'));
+  const z=document.elementFromPoint(x,y);const zone=z&&z.closest('[data-zone]');
+  if(zone&&zone.classList)zone.classList.add('over');
+  return zone;
+}
+$('screen').addEventListener('pointerdown',e=>{
+  const el=e.target.closest('[data-action="pickitem"]');
+  justDragged=false;
+  if(!el)return;
+  dragKey=el.dataset.id;dragMoved=false;dsx=e.clientX;dsy=e.clientY;
+});
+$('screen').addEventListener('pointermove',e=>{
+  if(!dragKey)return;
+  if(Math.hypot(e.clientX-dsx,e.clientY-dsy)>10){dragMoved=true;markOver(e.clientX,e.clientY)}
+});
+$('screen').addEventListener('pointerup',e=>{
+  if(!dragKey)return;
+  const key=dragKey;dragKey=null;
+  document.querySelectorAll('.drop-zone.over').forEach(z=>z.classList.remove('over'));
+  if(!dragMoved)return;
+  justDragged=true;
+  const zone=markOver(e.clientX,e.clientY);
+  document.querySelectorAll('.drop-zone.over').forEach(z=>z.classList.remove('over'));
+  if(zone){
+    const val=zone.dataset.zone.split('|')[1];
+    s.answers[key]=val;s.picked=null;s.checked=false;
+    render();alertLive('Tarjeta ubicada.');
+  }
+});
+$('screen').addEventListener('change',e=>{if(e.target.matches('select[data-field]'))s.answers[e.target.dataset.field]=e.target.value});
+$('screen').addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('img[data-action]')){e.preventDefault();onAction({target:e.target})}});
+$('audioBtn').addEventListener('click',()=>{if(!('speechSynthesis' in window)){alertLive('La lectura en voz alta no está disponible en este navegador.');return}s.voice=!s.voice;try{speechSynthesis.cancel()}catch(e){}render();alertLive(s.voice?'Lectura en voz alta activada':'Lectura en voz alta desactivada');if(s.voice)say('Audio activado. ¡Vamos a aprender!')});
+$('fontBtn').addEventListener('click',()=>{s.largeText=!s.largeText;render();alertLive(s.largeText?'LETRA GRANDE ACTIVADA':'TAMAÑO DE LETRA NORMAL')});
+$('homeBtn').addEventListener('click',()=>{if(s.stage===0)return;if(window.confirm('¿Querés volver al inicio? Se reiniciará tu partida.'))reset()});
+
+let lastFocus=null;
+function openPhotoViewer(img=originalMapImage,title='MAPA DE RELIEVES · FICHA ORIGINAL'){
+  lastFocus=document.activeElement;
+  const viewer=$('photoViewer');$('sourceViewerImage').src=img;$('photoTitle').textContent=title;
+  viewer.hidden=false;document.body.classList.add('viewer-open');
+  $('viewerBody').classList.remove('zoomed');$('zoomPhotoBtn').textContent='🔎 Ampliar';
+  $('closePhotoBtn').focus();
+}
+function closePhotoViewer(){
+  $('photoViewer').hidden=true;document.body.classList.remove('viewer-open');
+  const back=lastFocus&&document.contains(lastFocus)?lastFocus:$('homeBtn');
+  back.focus();
+}
+$('closePhotoBtn').addEventListener('click',closePhotoViewer);
+$('zoomPhotoBtn').addEventListener('click',()=>{let v=$('viewerBody');v.classList.toggle('zoomed');$('zoomPhotoBtn').textContent=v.classList.contains('zoomed')?'➖ Reducir':'🔎 Ampliar';});
+$('photoViewer').addEventListener('click',e=>{if(e.target===$('photoViewer'))closePhotoViewer()});
+document.addEventListener('keydown',e=>{
+  const v=$('photoViewer');if(v.hidden)return;
+  if(e.key==='Escape'){closePhotoViewer();return}
+  if(e.key==='Tab'){
+    const f=[...v.querySelectorAll('button,[tabindex="0"]')].filter(el=>!el.disabled);
+    if(!f.length)return;
+    const first=f[0],last=f[f.length-1];
+    if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}
+    else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}
+  }
+});
+decorate(document.querySelector('.topbar'));
+render();
+</script>
+</body>
+</html>
